@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="my_router"
+	Name="My_router"
 	ProjectGUID="{C0273CA8-1EB3-47AE-B573-2D14D743526A}"
 	RootNamespace="My_router"
 	SccProjectName="Svn"
