@@ -87,21 +87,14 @@ void InputHandler::HandleIpLine( string line )
 	line = line.substr(pos+1);
 	pos = line.find_first_not_of(" ");
 	line = line.substr(pos);
-	
-	while (pos != string::npos)
-	{
-		cout << "AAAAAAAAAAA " << line << endl; //Do something with information
-		pos = line.find(" ");
-		line = line.substr(pos+1);
-		pos = line.find_first_not_of(" ");
-		line = line.substr(pos+1);
-	}
+
+	cout << "MyIP label: " << line << endl; //Do something with information
 }
 
 
 void InputHandler::HandleRipLine( string line )
 {
-	string router_name;
+	string router_name, current_ip;
 	int pos;
 
 	pos = line.find(" "); //Space
@@ -110,13 +103,25 @@ void InputHandler::HandleRipLine( string line )
 	router_name = line.substr(0, pos);
 	line = line.substr(pos+1);
 	pos = line.find_first_not_of(" ");
-	line = line.substr(pos);
 
 	while (pos != string::npos)
 	{
-		cout << "AAAAAAAAAAA " << line << endl; //Do something with information
+		line = line.substr(pos);
 		pos = line.find(" ");
-		line = line.substr(pos+1);
-		pos = line.find_first_not_of(" ");
+		
+		//More spaces, continue parsing
+		if (pos != string::npos)
+		{
+			current_ip = line.substr(0, pos);
+			line = line.substr(pos+1, line.length());
+			pos = line.find_first_not_of(" ");
+		}
+		else
+		{
+			current_ip = line;
+			pos = string::npos;
+		}
+		
+		cout << "MyRIP label: " << current_ip << endl; //Do something with information		
 	}
 }
