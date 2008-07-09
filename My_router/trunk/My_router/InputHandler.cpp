@@ -110,7 +110,7 @@ void InputHandler::HandleRipLine( string line )
 		pos = line.find(" ");
 		
 		//More spaces, continue parsing
-		if (pos != string::npos)
+		if (pos != string::npos) 
 		{
 			current_ip = line.substr(0, pos);
 			line = line.substr(pos+1, line.length());
