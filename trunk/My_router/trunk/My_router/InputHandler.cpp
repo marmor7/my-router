@@ -91,6 +91,7 @@ void InputHandler::HandleIpLine( string line )
 	pos = line.find_first_not_of(" ");
 	last_pos = line.find_first_of(" ", pos);
 	ip_address_and_port = line.substr(pos, last_pos - pos);
+
 	cout << "MyIP router name: " << router_name << " "; //Do something with information
 	cout << "IP & Port: " << ip_address_and_port << endl;
 }
