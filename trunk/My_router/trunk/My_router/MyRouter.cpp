@@ -3,20 +3,20 @@
 
 MyRouter::MyRouter()
 {
-	this->my_name = "";
+	this->m_name = "";
 }
 
 MyRouter::MyRouter( string name )
 {
-	this->my_name = name;
+	this->m_name = name;
 }
 
 std::string MyRouter::GetName()
 {
-	return this->my_name;
+	return this->m_name;
 }
 
 void MyRouter::SetName( string name )
 {
-	this->my_name = name;
+	this->m_name = name;
 }
