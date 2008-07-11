@@ -44,9 +44,15 @@ InputHandler::InputHandlerReturnStatus InputHandler::init( int argc, char** argv
 		{
 			start_char = line.at(0);
 			//Line is not a comment or empty line or begin with space
-			if (!(start_char == "#") && !(start_char == " ") && !(start_char == ""))
+			if (!(start_char == "#") && !(start_char == ""))
 			{
-				//cout << line << endl;
+				//Handle case of empty line
+				if (line.find_first_not_of(" ") == string::npos)
+				{
+					continue;
+				}
+				
+				//Check for any attributes
 				if ((line.compare(0, my_ip_str.length(), my_ip_str)) == 0)
 				{
 					my_ip_attribute = true; 
