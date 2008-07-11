@@ -77,31 +77,36 @@ InputHandler::InputHandlerReturnStatus InputHandler::init( int argc, char** argv
 
 void InputHandler::HandleIpLine( string line )
 {
-	string router_name;
-	int pos;
+	string router_name, ip_address_and_port;
+	int pos, last_pos;
 
-	pos = line.find(" "); //Space
+	pos = line.find_first_not_of(" "); //Space if any at beginning
+	last_pos = line.find_first_of(" ", pos);
 
 	//Extract router's name and continue parsing other data
-	router_name = line.substr(0, pos);
-	line = line.substr(pos+1);
+	router_name = line.substr(pos, last_pos - pos);
+
+	//Find IP address and port
+	line = line.substr(last_pos+1);
 	pos = line.find_first_not_of(" ");
-	line = line.substr(pos);
-
-	cout << "MyIP label: " << line << endl; //Do something with information
+	last_pos = line.find_first_of(" ", pos);
+	ip_address_and_port = line.substr(pos, last_pos - pos);
+	cout << "MyIP router name: " << router_name << " "; //Do something with information
+	cout << "IP & Port: " << ip_address_and_port << endl;
 }
-
 
 void InputHandler::HandleRipLine( string line )
 {
 	string router_name, current_ip;
-	int pos;
+	int pos ,last_pos;
 
-	pos = line.find(" "); //Space
+	pos = line.find_first_not_of(" "); //Space if any at beginning
+	last_pos = line.find_first_of(" ", pos);
 
 	//Extract router's name and continue parsing other data
-	router_name = line.substr(0, pos);
-	line = line.substr(pos+1);
+	router_name = line.substr(pos, last_pos - pos);
+
+	line = line.substr(last_pos+1);
 	pos = line.find_first_not_of(" ");
 
 	while (pos != string::npos)
@@ -119,7 +124,6 @@ void InputHandler::HandleRipLine( string line )
 		else
 		{
 			current_ip = line;
-			pos = string::npos;
 		}
 		
 		cout << "MyRIP label: " << current_ip << endl; //Do something with information		
