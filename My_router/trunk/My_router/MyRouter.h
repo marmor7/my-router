@@ -54,7 +54,8 @@ public:
 	void SetName(string name);
 
 protected:
-	string my_name;
+	//Router's name
+	string m_name;
 
 private:
 };
