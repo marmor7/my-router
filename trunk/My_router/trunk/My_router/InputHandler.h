@@ -32,7 +32,7 @@ public:
 	//************************************
 	~InputHandler();
 
-	//Enumerator of the possible return statuses by init.
+	//Enumerator of the possible return statuses by InitRouter.
 	enum InputHandlerReturnStatus
 	{
 		INIT_STATUS_OK,
@@ -41,15 +41,15 @@ public:
 	};
 	
 	//************************************
-	// Method:    init
-	// FullName:  InputHandler::init
+	// Method:    InitRouter
+	// FullName:  InputHandler::InitRouter
 	// Access:    public 
 	// Returns:   init_status - Status of initiation
 	// Qualifier:
 	// Parameter: int argc - Number of arguments from user
 	// Parameter: char** argv - Argument count
 	//************************************
-	InputHandlerReturnStatus init(int argc, char** argv, MyRouter* router);
+	InputHandlerReturnStatus InitRouter(int argc, char** argv, MyRouter* router);
 
 protected:
 	//Filename of input file

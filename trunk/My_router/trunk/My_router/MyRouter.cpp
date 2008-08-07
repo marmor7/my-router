@@ -1,9 +1,14 @@
 #include "stdafx.h"
 #include "MyRouter.h"
 
-MyRouter::MyRouter()
+MyRouter::MyRouter() : m_name("")
 {
-	this->m_name = "";
+
+}
+
+MyRouter::~MyRouter()
+{
+
 }
 
 MyRouter::MyRouter( string name )

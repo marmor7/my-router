@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 	my_router = NULL;
 
 	ih = new InputHandler();
-	ihrs = ih->init(argc, argv, my_router);
+	ihrs = ih->InitRouter(argc, argv, my_router);
 
 	switch (ihrs)
 	{
@@ -26,6 +26,9 @@ int main(int argc, char* argv[])
 	}
 
 	system("pause");
+
+	delete (my_router);
+	delete (ih);
 
 	return 0;
 } 
