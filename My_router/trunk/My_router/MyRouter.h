@@ -16,6 +16,15 @@ public:
 	MyRouter();
 
 	//************************************
+	// Method:    ~MyRouter
+	// FullName:  MyRouter::~MyRouter
+	// Access:    public 
+	// Returns:   
+	// Qualifier: Destructor
+	//************************************
+	~MyRouter();
+
+	//************************************
 	// Method:    MyRouter
 	// FullName:  MyRouter::MyRouter
 	// Access:    public 
@@ -24,15 +33,6 @@ public:
 	// Parameter: string name - Router's name
 	//************************************
 	MyRouter(string name);
-
-	//************************************
-	// Method:    ~MyRouter
-	// FullName:  MyRouter::~MyRouter
-	// Access:    public 
-	// Returns:   
-	// Qualifier: Destructor
-	//************************************
-	~MyRouter();
 
 	//************************************
 	// Method:    GetName

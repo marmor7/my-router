@@ -14,7 +14,7 @@ InputHandler::~InputHandler()
 
 }
 
-InputHandler::InputHandlerReturnStatus InputHandler::init( int argc, char** argv, MyRouter* router )
+InputHandler::InputHandlerReturnStatus InputHandler::InitRouter( int argc, char** argv, MyRouter* router )
 {
 	string line, my_ip_str, my_rip_str, start_char;
 	bool my_ip_attribute, my_rip_attribute;
