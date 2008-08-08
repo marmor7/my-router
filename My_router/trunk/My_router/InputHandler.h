@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include "Utils.h"
 
 //Fwd deceleration
 class MyRouter;
@@ -31,14 +32,6 @@ public:
 	// Qualifier: Destructor
 	//************************************
 	~InputHandler();
-
-	//Enumerator of the possible return statuses by InitRouter.
-	enum InputHandlerReturnStatus
-	{
-		INIT_STATUS_OK,
-		INIT_STATUS_BAD_NUM_OF_ARGUMENTS,
-		INIT_BAD_FILENAME_OR_FILE_DONT_EXISTS
-	};
 	
 	//************************************
 	// Method:    InitRouter
@@ -49,7 +42,7 @@ public:
 	// Parameter: int argc - Number of arguments from user
 	// Parameter: char** argv - Argument count
 	//************************************
-	InputHandlerReturnStatus InitRouter(int argc, char** argv, MyRouter* router);
+	Utils::ReturnStatus InitRouter(int argc, char** argv, MyRouter* router);
 
 protected:
 	//Filename of input file

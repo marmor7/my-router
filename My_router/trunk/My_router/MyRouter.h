@@ -1,5 +1,6 @@
 #pragma once;
 #include "stdafx.h"
+#include "EventHandler.h"
 
 using namespace std;
 
@@ -52,6 +53,9 @@ public:
 	// Parameter: string name
 	//************************************
 	void SetName(string name);
+
+	//Main loop of the router
+	void MyRouter::run();
 
 protected:
 	//Router's name

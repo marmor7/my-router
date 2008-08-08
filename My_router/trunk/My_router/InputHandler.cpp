@@ -14,7 +14,7 @@ InputHandler::~InputHandler()
 
 }
 
-InputHandler::InputHandlerReturnStatus InputHandler::InitRouter( int argc, char** argv, MyRouter* router )
+Utils::ReturnStatus InputHandler::InitRouter( int argc, char** argv, MyRouter* router )
 {
 	string line, my_ip_str, my_rip_str, start_char;
 	bool my_ip_attribute, my_rip_attribute;
@@ -29,16 +29,17 @@ InputHandler::InputHandlerReturnStatus InputHandler::InitRouter( int argc, char*
 
 	if (argc != 2)
 	{
-		return INIT_STATUS_BAD_NUM_OF_ARGUMENTS;
+		return Utils::STATUS_BAD_NUM_OF_ARGUMENTS;
 	}
 	else
 	{
 		if (in_file == NULL)
 		{
-			return INIT_BAD_FILENAME_OR_FILE_DONT_EXISTS;
+			return Utils::STATUS_BAD_FILENAME_OR_FILE_DONT_EXISTS;
 		}
 
 		this->m_my_router = new MyRouter(argv[1]);
+		cout << "My name is " << this->m_my_router->GetName() << endl;
 
 		while (getline(in_file, line))
 		{
@@ -77,7 +78,7 @@ InputHandler::InputHandlerReturnStatus InputHandler::InitRouter( int argc, char*
 			}
 		}
 
-		return INIT_STATUS_OK;
+		return Utils::STATUS_OK;
 	}
 }
 

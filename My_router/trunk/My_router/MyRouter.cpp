@@ -25,3 +25,17 @@ void MyRouter::SetName( string name )
 {
 	this->m_name = name;
 }
+
+void MyRouter::run()
+{
+	EventHandler* handler = new EventHandler();
+
+	handler->handle(EventHandler::RT_EVENT_READ_CONFIG);
+
+	while (true)
+	{
+		break;
+	}
+
+	delete(handler);
+}
