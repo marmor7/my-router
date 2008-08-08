@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
 {
 	MyRouter* my_router;
 	InputHandler* ih;
-	InputHandler::InputHandlerReturnStatus ihrs;
+	Utils::ReturnStatus ihrs;
 
 	my_router = NULL;
 
@@ -18,14 +18,20 @@ int main(int argc, char* argv[])
 
 	switch (ihrs)
 	{
-	case(InputHandler::INIT_STATUS_OK):
+	case(Utils::STATUS_OK):
 		cout << "Init OK\n";
+		break;
+	case(Utils::STATUS_BAD_NUM_OF_ARGUMENTS):
+		cout << "Init bad - wrong num of arguments\n";
+		break;
+	case(Utils::STATUS_BAD_FILENAME_OR_FILE_DONT_EXISTS):
+		cout << "Init bad - filename or file dont exists\n";
 		break;
 	default:
 		break;
 	}
 
-	system("pause");
+	my_router->run();
 
 	delete (my_router);
 	delete (ih);

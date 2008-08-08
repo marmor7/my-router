@@ -175,6 +175,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\EventHandler.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\InputHandler.cpp"
 				>
 			</File>
@@ -184,6 +188,14 @@
 			</File>
 			<File
 				RelativePath=".\MyRouter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RouterSocket.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RoutingTable.cpp"
 				>
 			</File>
 			<File
@@ -206,12 +218,20 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\Utils.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\EventHandler.h"
+				>
+			</File>
 			<File
 				RelativePath=".\InputHandler.h"
 				>
@@ -225,11 +245,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RouterSocket.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RoutingTable.h"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.h"
 				>
 			</File>
 			<File
-				RelativePath=".\targetver.h"
+				RelativePath=".\Utils.h"
 				>
 			</File>
 		</Filter>
