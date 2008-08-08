@@ -1,6 +1,7 @@
 #pragma once;
 #include "stdafx.h"
 #include "EventHandler.h"
+#include "RoutingTable.h"
 
 using namespace std;
 
@@ -54,12 +55,20 @@ public:
 	//************************************
 	void SetName(string name);
 
+	//Add a router (name, ip, port)
+	Utils::ReturnStatus addRouter(char name[8], in_addr* address, short port);
+
 	//Main loop of the router
 	void MyRouter::run();
 
 protected:
 	//Router's name
 	string m_name;
+
+	EventHandler* handler;
+	RoutingTable* table;
+	RouterEntry* routers;
+	int numOfRouters;
 
 private:
 };

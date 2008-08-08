@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 	InputHandler* ih;
 	Utils::ReturnStatus ihrs;
 
-	my_router = NULL;
+	my_router = new MyRouter("");
 
 	ih = new InputHandler();
 	ihrs = ih->InitRouter(argc, argv, my_router);
