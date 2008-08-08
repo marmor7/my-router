@@ -12,6 +12,15 @@ using namespace std;
 
 #define IF_DEBUG(level) if (DEBUG_##level <= DEBUG_LEVEL)
 
+#define NUM_OF_ROUTERS 32
+#define MAX_ROUTER_NAME 8
+
+struct RouterEntry{
+	char name[MAX_ROUTER_NAME];
+	in_addr* address;
+	short port;
+};
+
 class Utils
 {
 public:

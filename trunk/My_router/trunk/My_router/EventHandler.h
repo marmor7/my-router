@@ -1,11 +1,13 @@
 #pragma once
 #include "Utils.h"
 #include "string.h"
+#include "RoutingTable.h"
+#include "RouterSocket.h"
 
 class EventHandler
 {
 public:
-	EventHandler(void);
+	EventHandler(RoutingTable* router_table);
 	~EventHandler(void);
 
 	//Enumerator of the possible events.
@@ -19,5 +21,12 @@ public:
 
 	string EventHandler::printEvent(RouterEvents event);
 
-	Utils::ReturnStatus EventHandler::handle(RouterEvents event);
+	Utils::ReturnStatus EventHandler::handle(RouterEvents event, void* data);
+	
+
+private:
+	RoutingTable* table;
+
+	RouterEntry routers[NUM_OF_ROUTERS];
+	int numOfRouters;
 };

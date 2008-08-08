@@ -38,8 +38,10 @@ Utils::ReturnStatus InputHandler::InitRouter( int argc, char** argv, MyRouter* r
 			return Utils::STATUS_BAD_FILENAME_OR_FILE_DONT_EXISTS;
 		}
 
-		this->m_my_router = new MyRouter(argv[1]);
-		cout << "My name is " << this->m_my_router->GetName() << endl;
+		this->m_my_router->SetName(argv[1]);
+		IF_DEBUG(TRACE){
+			cout << "My name is " << this->m_my_router->GetName() << endl;
+		}
 
 		while (getline(in_file, line))
 		{
