@@ -1,7 +1,10 @@
 #pragma once;
 #include "stdafx.h"
-#include "EventHandler.h"
-#include "RoutingTable.h"
+#include "Utils.h"
+
+//Fwd declarations
+class EventHandler;
+class RoutingTable;
 
 using namespace std;
 
@@ -55,20 +58,42 @@ public:
 	//************************************
 	void SetName(string name);
 
-	//Add a router (name, ip, port)
-	Utils::ReturnStatus addRouter(char name[8], in_addr* address, short port);
+	//************************************
+	// Method:    AddRouter
+	// FullName:  MyRouter::AddRouter
+	// Access:    public 
+	// Returns:   Utils::ReturnStatus
+	// Qualifier: Add a router (name, ip, port)
+	// Parameter: char name[8]
+	// Parameter: in_addr * address
+	// Parameter: short port
+	//************************************
+	Utils::ReturnStatus AddRouter(char name[8], in_addr* address, short port);
 
-	//Main loop of the router
-	void MyRouter::run();
+	//************************************
+	// Method:    Run
+	// FullName:  MyRouter::Run
+	// Access:    public 
+	// Returns:   void
+	// Qualifier: Main loop of the router
+	//************************************
+	void Run();
 
 protected:
 	//Router's name
 	string m_name;
 
-	EventHandler* handler;
-	RoutingTable* table;
-	RouterEntry* routers;
-	int numOfRouters;
+	//Incoming event handler
+	EventHandler* m_handler;
+
+	//Router's routing table
+	RoutingTable* m_table;
+
+	//???
+	RouterEntry* m_routers;
+
+	//Number of neighboring routers
+	int m_num_of_routers;
 
 private:
 };

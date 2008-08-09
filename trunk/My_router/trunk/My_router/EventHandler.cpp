@@ -3,15 +3,15 @@
 
 EventHandler::EventHandler(RoutingTable* router_table)
 {
-	this->table = router_table;
-	this->numOfRouters = 0;
+	this->m_table = router_table;
+	this->m_num_of_routers = 0;
 }
 
 EventHandler::~EventHandler(void)
 {
 }
 
-string EventHandler::printEvent(RouterEvents event)
+string EventHandler::PrintEvent(RouterEvents event)
 {
 	switch (event)
 	{
@@ -24,18 +24,18 @@ string EventHandler::printEvent(RouterEvents event)
 	return "";
 }
 
-Utils::ReturnStatus EventHandler::handle(RouterEvents event, void* data)
+Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 {
 	IF_DEBUG(IMPORTANT){
-		cout << "handling event: " << printEvent(event) << endl;
+		cout << "handling event: " << PrintEvent(event) << endl;
 	}
 
 	switch (event)
 	{
 	case RT_EVENT_READ_CONFIG:
-		this->numOfRouters = 0;
-		memcpy(this->routers, data, NUM_OF_ROUTERS*sizeof(RouterEntry));
-		RouterSocket::socketEstablish();
+		this->m_num_of_routers = 0;
+		memcpy(this->m_routers, data, NUM_OF_ROUTERS*sizeof(RouterEntry));
+		RouterSocket::SocketEstablish();
 
 		/* NO BREAK NEEDED */
 	case RT_EVENT_SENDING_DV:

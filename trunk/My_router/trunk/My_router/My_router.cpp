@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 		break;
 	}
 
-	my_router->run();
+	my_router->Run();
 
 	delete (my_router);
 	delete (ih);

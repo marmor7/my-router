@@ -1,5 +1,5 @@
 #pragma once
-#include <iostream>
+#include "stdafx.h"
 
 using namespace std;
 
@@ -24,8 +24,8 @@ struct RouterEntry{
 class Utils
 {
 public:
-	Utils(void);
-	~Utils(void);
+	Utils();
+	~Utils();
 
 	//Enumerator of the possible return statuses by InitRouter.
 	enum ReturnStatus
