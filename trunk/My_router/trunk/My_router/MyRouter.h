@@ -68,7 +68,9 @@ public:
 	// Parameter: in_addr * address
 	// Parameter: short port
 	//************************************
-	Utils::ReturnStatus AddRouter(char name[8], in_addr* address, short port);
+	Utils::ReturnStatus AddRouter(char name[MAX_ROUTER_NAME], in_addr* address, short port);
+
+	Utils::ReturnStatus AddRoute(char name[MAX_ROUTER_NAME], in_addr* ip_array, int num);
 
 	//************************************
 	// Method:    Run
@@ -89,7 +91,7 @@ protected:
 	//Router's routing table
 	RoutingTable* m_table;
 
-	//???
+	//Router database (name, ip, port)
 	RouterEntry* m_routers;
 
 	//Number of neighboring routers
