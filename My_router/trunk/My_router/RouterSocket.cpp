@@ -10,7 +10,7 @@ RouterSocket::~RouterSocket(void)
 }
 
 //Establish a connection to a neighbour router
-Utils::ReturnStatus RouterSocket::SocketEstablish(){
+Utils::ReturnStatus RouterSocket::SocketEstablish(RouterEntry* entry){
 	return Utils::STATUS_OK;
 }
 

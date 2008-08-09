@@ -57,14 +57,25 @@ public:
 	// Parameter: void * data
 	//************************************
 	Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data);
+
+	string getName() { return m_name; };
+
+	void setName(string name) { m_name = name; };
+
+	void setNumOfRouters(int num) { m_num_of_routers = num; };
+
+	Utils::ReturnStatus addRoutes(char name[MAX_ROUTER_NAME], in_addr* ip_array, int num);
 	
 private:
 	//Routing table
 	RoutingTable* m_table;
 
 	//Router entries for routers
-	RouterEntry m_routers[NUM_OF_ROUTERS];
+	RouterEntry* m_routers;
 
 	//Num of registered routers
 	int m_num_of_routers;
+
+	//Name of router
+	string m_name;
 };

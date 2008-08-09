@@ -8,7 +8,7 @@ public:
 	~RouterSocket();
 
 	//Establish a connection to a neighbor router
-	static Utils::ReturnStatus SocketEstablish();
+	static Utils::ReturnStatus RouterSocket::SocketEstablish(RouterEntry* entry);
 
 	//Accpt a connection from a neighbor router
 	static Utils::ReturnStatus SocketAccept();
