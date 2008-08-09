@@ -4,6 +4,6 @@
 class RoutingTable
 {
 public:
-	RoutingTable(void);
-	~RoutingTable(void);
+	RoutingTable();
+	~RoutingTable();
 };

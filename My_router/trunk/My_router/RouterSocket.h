@@ -4,19 +4,19 @@
 class RouterSocket
 {
 public:
-	RouterSocket(void);
-	~RouterSocket(void);
+	RouterSocket();
+	~RouterSocket();
 
-	//Establish a connection to a neighbour router
-	static Utils::ReturnStatus socketEstablish();
+	//Establish a connection to a neighbor router
+	static Utils::ReturnStatus SocketEstablish();
 
-	//Accpt a connection from a neighbour router
-	static Utils::ReturnStatus socketAccept();
+	//Accpt a connection from a neighbor router
+	static Utils::ReturnStatus SocketAccept();
 
-	//Receive a massage from a neighbour router
-	static Utils::ReturnStatus socketReceive();
+	//Receive a massage from a neighbor router
+	static Utils::ReturnStatus SocketReceive();
 
-	//Send a massage to a neighbour router
-	static Utils::ReturnStatus socketSend();
+	//Send a massage to a neighbor router
+	static Utils::ReturnStatus SocketSend();
 
 };

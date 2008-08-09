@@ -10,21 +10,21 @@ RouterSocket::~RouterSocket(void)
 }
 
 //Establish a connection to a neighbour router
-Utils::ReturnStatus RouterSocket::socketEstablish(){
+Utils::ReturnStatus RouterSocket::SocketEstablish(){
 	return Utils::STATUS_OK;
 }
 
 //Accpt a connection from a neighbour router
-Utils::ReturnStatus RouterSocket::socketAccept(){
+Utils::ReturnStatus RouterSocket::SocketAccept(){
 	return Utils::STATUS_OK;
 }
 
 //Receive a massage from a neighbour router
-Utils::ReturnStatus RouterSocket::socketReceive(){
+Utils::ReturnStatus RouterSocket::SocketReceive(){
 	return Utils::STATUS_OK;
 }
 
 //Send a massage to a neighbour router
-Utils::ReturnStatus RouterSocket::socketSend(){
+Utils::ReturnStatus RouterSocket::SocketSend(){
 	return Utils::STATUS_OK;
 }
