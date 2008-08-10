@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "EventHandler.h"
 
 EventHandler::EventHandler(RoutingTable* router_table)
@@ -39,18 +40,18 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 		/* NO BREAK NEEDED */
 	case RT_EVENT_SENDING_DV:
 		IF_DEBUG(TRACE){
-			cout << "Sending my DV to neighbours" << endl;
+			cout << "Sending my DV to neighbors" << endl;
 		}
 		break;
 	case RT_EVENT_TIMEOUT:
 	case RT_EVENT_DV_RECEIVED:
 		IF_DEBUG(TRACE){
-			cout << "got an event!!! not doing enything yet..." << endl;
+			cout << "got an event!!! not doing anything yet..." << endl;
 		}
 		break;
 	default:
 		IF_DEBUG(IMPORTANT){
-			cout << "got a wierd event!!! don't know what to do" << endl;
+			cout << "got a weird event!!! Don't know what to do" << endl;
 		}
 	}
 

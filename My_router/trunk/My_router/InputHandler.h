@@ -23,7 +23,6 @@ public:
 	//************************************
 	InputHandler();
 
-	
 	//************************************
 	// Method:    ~InputHandler
 	// FullName:  InputHandler::~InputHandler
@@ -42,7 +41,7 @@ public:
 	// Parameter: int argc - Number of arguments from user
 	// Parameter: char** argv - Argument count
 	//************************************
-	Utils::ReturnStatus InitRouter(int argc, char** argv, MyRouter* router);
+	Utils::ReturnStatus InitRouter(int argc, char** argv, MyRouter** router_ptr_ptr);
 
 protected:
 	//Filename of input file

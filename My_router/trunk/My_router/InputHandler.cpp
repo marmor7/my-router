@@ -1,5 +1,5 @@
 //TMP?
-#define _CRT_SECURE_NO_WARNINGS
+//#define _CRT_SECURE_NO_WARNINGS
 
 #include "stdafx.h"
 #include "InputHandler.h"
@@ -17,13 +17,13 @@ InputHandler::~InputHandler()
 
 }
 
-Utils::ReturnStatus InputHandler::InitRouter( int argc, char** argv, MyRouter* router )
+Utils::ReturnStatus InputHandler::InitRouter( int argc, char** argv, MyRouter** router_ptr_ptr )
 {
 	string line, my_ip_str, my_rip_str, start_char;
 	bool my_ip_attribute, my_rip_attribute;
 	ifstream in_file(FILENAME, ifstream::in);
 
-	this->m_my_router = router;
+	this->m_my_router = *router_ptr_ptr;
 
 	my_ip_str = "[MYIP]";
 	my_rip_str = "[MYRIP]";
@@ -82,14 +82,13 @@ Utils::ReturnStatus InputHandler::InitRouter( int argc, char** argv, MyRouter* r
 				}
 			}
 		}
-
 		return Utils::STATUS_OK;
 	}
 }
 
 Utils::ReturnStatus textToIpPort(const string t, in_addr* ip, short* port) {
 	int sum, ad1, ad2, ad3, ad4, ad5;
-	sum = sscanf(t.c_str(), "%lu.%lu.%lu.%lu:%lu", &ad1, &ad2, &ad3, &ad4, &ad5); // Code %lu for long unsigned decimal integer
+	sum = sscanf_s(t.c_str(), "%lu.%lu.%lu.%lu:%lu", &ad1, &ad2, &ad3, &ad4, &ad5); // Code %lu for long unsigned decimal integer
 	// It sum just the IP address
 	if (sum == 5) {
 		ip->S_un.S_un_b.s_b1 = ad1;

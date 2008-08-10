@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 	my_router = new MyRouter("");
 
 	ih = new InputHandler();
-	ihrs = ih->InitRouter(argc, argv, my_router);
+	ihrs = ih->InitRouter(argc, argv, &my_router);
 
 	switch (ihrs)
 	{
