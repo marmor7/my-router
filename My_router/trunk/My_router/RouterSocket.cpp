@@ -3,7 +3,7 @@
 
 #define AUTO_SELECT_PROTOCOL 0
 
-int RouterSocket::router_socket_sd = socket(PF_INET, SOCK_DGRAM, AUTO_SELECT_PROTOCOL);
+int RouterSocket::ms_router_socket_sd = socket(PF_INET, SOCK_DGRAM, AUTO_SELECT_PROTOCOL);
 
 RouterSocket::RouterSocket(void)
 {
@@ -61,9 +61,13 @@ Utils::SocketReturnStatus RouterSocket::SocketAccept(IN int router_socket_descri
 }
 
 //Receive a massage from a neighbour router
-Utils::ReturnStatus RouterSocket::SocketReceive()
+Utils::SocketReturnStatus RouterSocket::SocketReceive(IN int& sd,
+												OUT BYTE* buff, 
+												IN int& len)
 {
-	return Utils::STATUS_OK;
+	int bytes_recived = recv(sd, (char*) buff, len, 0);
+
+	return bytes_recived == -1 ? Utils::STATUS_RECIVE_FAILED : Utils::STATUS_RECIVE_OK;
 }
 
 //Send a massage to a neighbour router
@@ -87,7 +91,7 @@ Utils::SocketReturnStatus RouterSocket::SocketSend(IN int& socket_out,
 		bytesleft -= n;
 	}
 	len = total;
-	return n==-1 ? Utils::STATUS_SEND_OK : Utils::STATUS_SEND_FAILED;
+	return n==-1 ? Utils::STATUS_SEND_FAILED : Utils::STATUS_SEND_OK;
 }
 
 void RouterSocket::SetConnectionParameters( struct sockaddr_in *dest, int port, char *hostname )
@@ -107,4 +111,17 @@ void RouterSocket::SetConnectionParameters( struct sockaddr_in *dest, int port, 
 		printf("DEBUG: Server IP is: %s\n", he->h_name);
 		printf("\n");
 	#endif
+}
+
+Utils::SocketReturnStatus RouterSocket::SocketClose( IN int& sd )
+{
+	//TBD: Change to close
+	int result = closesocket(sd);
+
+	return result == 0 ? Utils::STATUS_CLOSE_OK : Utils::STATUS_CLOSE_FAILED;
+}
+
+int RouterSocket::GetRouterSocketDescriptor()
+{
+	return RouterSocket::ms_router_socket_sd;
 }
