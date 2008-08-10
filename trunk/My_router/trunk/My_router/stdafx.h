@@ -5,9 +5,8 @@
 
 #pragma once
 
-#include "targetver.h"
-
 #include <stdio.h>
+#include <WinSock2.h>
 #include <tchar.h>
 #include <iostream>
 #include <string>
@@ -15,7 +14,9 @@
 #include <cwchar>
 #include <list>
 #include <vector>
-#include <Windows.h>
 #include <fstream>
+#include <sys/types.h>
+#include <assert.h>
+
 
 // TODO: reference additional headers your program requires here

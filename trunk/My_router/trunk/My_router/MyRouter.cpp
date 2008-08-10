@@ -5,11 +5,14 @@
 
 MyRouter::~MyRouter()
 {
+	delete (this->m_handler);
+	delete (this->m_routers);
+	delete (this->m_table);
 }
 
-MyRouter::MyRouter( string name )
+MyRouter::MyRouter( string name ) : m_name(name)
 {
-	this->m_name = name;
+	
 	this->m_table = new RoutingTable();
 	this->m_handler = new EventHandler(m_table);
 	this->m_routers = new RouterEntry[NUM_OF_ROUTERS];
@@ -64,6 +67,4 @@ void MyRouter::Run()
 	{
 		break;
 	}
-
-	delete(m_handler);
 }
