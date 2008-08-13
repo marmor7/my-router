@@ -44,14 +44,6 @@ public:
 	Utils::ReturnStatus InitRouter(int argc, char** argv, MyRouter** router_ptr_ptr);
 
 protected:
-	//Filename of input file
-	string filename;
-
-	//Program arguments
-	int myArgc; char** myArgv;
-
-	MyRouter* m_my_router;
-
 	//************************************
 	// Method:    HandleIpLine
 	// FullName:  InputHandler::HandleIpLine
@@ -72,5 +64,24 @@ protected:
 	//************************************
 	void HandleRipLine(string line);
 
-private:
+	//************************************
+	// Method:    GetSubnetStructFromString
+	// FullName:  InputHandler::GetSubnetStructFromString
+	// Access:    protected 
+	// Returns:   Subnet
+	// Qualifier: Return a Subnet struct parsed from string
+	// Parameter: string str
+	//************************************
+	Subnet* GetSubnetStructFromString(string str);
+
+	//All routers discovered in configuration file
+	vector<RouterEntry>* m_all_routers;
+
+	//Filename of input file
+	string filename;
+
+	//Program arguments
+	int myArgc; char** myArgv;
+
+	MyRouter* m_my_router;
 };

@@ -14,9 +14,12 @@
 #include <cwchar>
 #include <list>
 #include <vector>
+#include <map>
+#include <algorithm>
 #include <fstream>
 #include <sys/types.h>
 #include <assert.h>
 
+using namespace std;
 
 // TODO: reference additional headers your program requires here

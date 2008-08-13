@@ -3,6 +3,13 @@
 #include "EventHandler.h"
 #include "RoutingTable.h"
 
+MyRouter::MyRouter() : m_name(""), m_num_of_routers(0), m_router_port(0)
+{
+	this->m_table = new RoutingTable();
+	this->m_handler = new EventHandler(m_table);
+	this->m_routers = new RouterEntry[NUM_OF_ROUTERS];
+}
+
 MyRouter::~MyRouter()
 {
 	delete (this->m_handler);
@@ -10,13 +17,12 @@ MyRouter::~MyRouter()
 	delete (this->m_table);
 }
 
-MyRouter::MyRouter( string name ) : m_name(name)
+MyRouter::MyRouter( string name ) : m_name(name), m_num_of_routers(0), m_router_port(0)
 {
 	
 	this->m_table = new RoutingTable();
 	this->m_handler = new EventHandler(m_table);
 	this->m_routers = new RouterEntry[NUM_OF_ROUTERS];
-	this->m_num_of_routers = 0;
 }
 
 string MyRouter::GetName()
@@ -54,7 +60,7 @@ Utils::ReturnStatus MyRouter::AddRoute(char name[MAX_ROUTER_NAME], in_addr* ip_a
 
 	//TBD: check if router is a neighbour and add it's details
 
-	this->m_handler->addRoutes(name, ip_array, num);
+	this->m_handler->AddRoutes(name, ip_array, num);
 
 	return Utils::STATUS_OK;
 }
@@ -67,4 +73,37 @@ void MyRouter::Run()
 	{
 		break;
 	}
+}
+
+void MyRouter::SetRoutersIpAndPort( string ip, short port )
+{
+	long ip_long;
+	struct in_addr s;
+
+	memset(&this->m_router_ip, 0, sizeof(struct sockaddr_in));
+	memset(&s, 0, sizeof(struct in_addr));
+
+	this->m_router_ip.sin_family = AF_INET;
+	this->m_router_ip.sin_port = htons(port);
+	ip_long = inet_addr(ip.c_str());
+
+	assert(ip_long != INADDR_ANY);
+
+	s.S_un.S_addr = ip_long;
+	this->m_router_ip.sin_addr = s;
+	this->m_router_port = port;
+
+	IF_DEBUG(TRACE)
+	{
+		cout << "MyRouter's IP is : " << (unsigned int) this->m_router_ip.sin_addr.S_un.S_un_b.s_b1 << "."
+									  << (unsigned int) this->m_router_ip.sin_addr.S_un.S_un_b.s_b2 << "."
+									  << (unsigned int) this->m_router_ip.sin_addr.S_un.S_un_b.s_b3 << "."
+									  << (unsigned int) this->m_router_ip.sin_addr.S_un.S_un_b.s_b4 << endl;
+		cout << "MyRouter's port is: " << this->m_router_port << endl; 
+	}
+}
+
+void MyRouter::AddSubnet( Subnet* subnet )
+{
+	this->m_my_router_subnets.push_back(subnet);
 }

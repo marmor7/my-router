@@ -64,7 +64,7 @@ public:
 
 	void setNumOfRouters(int num) { m_num_of_routers = num; };
 
-	Utils::ReturnStatus addRoutes(char name[MAX_ROUTER_NAME], in_addr* ip_array, int num);
+	Utils::ReturnStatus AddRoutes(char name[MAX_ROUTER_NAME], in_addr* ip_array, int num);
 	
 private:
 	//Routing table

@@ -3,7 +3,7 @@
 
 #define AUTO_SELECT_PROTOCOL 0
 
-int RouterSocket::ms_router_socket_sd = socket(PF_INET, SOCK_DGRAM, AUTO_SELECT_PROTOCOL);
+int RouterSocket::ms_router_socket_sd = 0;//socket(PF_INET, SOCK_DGRAM, AUTO_SELECT_PROTOCOL);
 
 RouterSocket::RouterSocket(void)
 {
