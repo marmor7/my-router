@@ -8,19 +8,27 @@ using namespace std;
 #define DEBUG_TRACE 2
 #define DEBUG_ALL 3
 
-#define DEBUG_LEVEL DEBUG_TRACE
+#define DEBUG_LEVEL DEBUG_ALL
 
 #define IF_DEBUG(level) if (DEBUG_##level <= DEBUG_LEVEL)
 
 #define NUM_OF_ROUTERS 32
 #define MAX_ROUTER_NAME 8
 
-struct RouterEntry{
+struct RouterEntry
+{
 	int socketId;
 	char name[MAX_ROUTER_NAME];
 	in_addr address;
 	short port;
 	bool neighbour;
+};
+
+struct Subnet
+{
+	in_addr address;
+	short int cost;
+	short int mask;
 };
 
 class Utils

@@ -20,18 +20,20 @@ int main(int argc, char* argv[])
 	{
 	case(Utils::STATUS_OK):
 		cout << "Init OK\n";
+		my_router->Run();
 		break;
+
 	case(Utils::STATUS_BAD_NUM_OF_ARGUMENTS):
-		cout << "Init bad - wrong num of arguments\n";
+		cout << "Init bad - wrong number of arguments\n";
 		break;
+
 	case(Utils::STATUS_BAD_FILENAME_OR_FILE_DONT_EXISTS):
-		cout << "Init bad - filename or file dont exists\n";
+		cout << "Init bad - filename or file don't exists\n";
 		break;
+
 	default:
 		break;
 	}
-
-	my_router->Run();
 
 	delete (my_router);
 	delete (ih);

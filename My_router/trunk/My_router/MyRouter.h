@@ -70,6 +70,16 @@ public:
 	//************************************
 	Utils::ReturnStatus AddRouter(char name[MAX_ROUTER_NAME], in_addr* address, short port);
 
+	//************************************
+	// Method:    AddRoute
+	// FullName:  MyRouter::AddRoute
+	// Access:    public 
+	// Returns:   Utils::ReturnStatus
+	// Qualifier: Adds a new route
+	// Parameter: char name[MAX_ROUTER_NAME]
+	// Parameter: in_addr * ip_array
+	// Parameter: int num
+	//************************************
 	Utils::ReturnStatus AddRoute(char name[MAX_ROUTER_NAME], in_addr* ip_array, int num);
 
 	//************************************
@@ -81,9 +91,43 @@ public:
 	//************************************
 	void Run();
 
+	//************************************
+	// Method:    SetRoutersIpAndPort
+	// FullName:  MyRouter::SetRoutersIpAndPort
+	// Access:    public 
+	// Returns:   void
+	// Qualifier: Set the routers internal configuration of its own IP and port
+	// Parameter: string ip
+	// Parameter: short port
+	//************************************
+	void SetRoutersIpAndPort(string ip, short port);
+
+	//************************************
+	// Method:    GetMySubnets
+	// FullName:  MyRouter::GetMySubnets
+	// Access:    public 
+	// Returns:   vector<Subnet*>
+	// Qualifier: Gets the vector containing the router's subnets which it is connected to
+	//************************************
+	vector<Subnet*> GetMySubnets();
+
+	//************************************
+	// Method:    AddSubnet
+	// FullName:  MyRouter::AddSubnet
+	// Access:    public 
+	// Returns:   void
+	// Qualifier: Adds a subnet to subnet's vector
+	// Parameter: Subnet * subnet
+	//************************************
+	void AddSubnet(Subnet* subnet);
+
 protected:
 	//Router's name
 	string m_name;
+
+	sockaddr_in m_router_ip; //Remove
+ 
+	short m_router_port; //Remove
 
 	//Incoming event handler
 	EventHandler* m_handler;
@@ -96,6 +140,9 @@ protected:
 
 	//Number of neighboring routers
 	int m_num_of_routers;
+
+	//List of router's subnets
+	vector<Subnet*> m_my_router_subnets;
 
 private:
 };

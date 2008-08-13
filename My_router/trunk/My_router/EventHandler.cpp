@@ -58,9 +58,10 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 	return Utils::STATUS_OK;
 }
 
-Utils::ReturnStatus EventHandler::addRoutes(char name[MAX_ROUTER_NAME], in_addr* ip_array, int num){
-	for (int i=0; i < num; i++){
-		RoutingTable::addRoute(name, &(ip_array[i]));
+Utils::ReturnStatus EventHandler::AddRoutes(char name[MAX_ROUTER_NAME], in_addr* ip_array, int num){
+	for (int i=0; i < num; i++)
+	{
+		RoutingTable::AddRoute(name, &(ip_array[i]));
 	}
 
 	return Utils::STATUS_OK;
