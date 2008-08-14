@@ -5,7 +5,7 @@
 typedef int Router; //TBD: Change to actual return type.
 
 
-class RoutingTable
+class 
 {
 public:
 	RoutingTable();
@@ -14,7 +14,8 @@ public:
 
 	void printDV();
 
-	void RoutingTable::getDV(MyRIPMessage* msg);
+	//Fill msg with DV data
+	void RoutingTable::GetDV(MyRIPMessage* msg);
 
 	static Utils::ReturnStatus AddRoute(char name[MAX_ROUTER_NAME], in_addr* ip_array);
 

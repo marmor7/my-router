@@ -6,9 +6,9 @@
 MyRouter::MyRouter() : m_name(""), m_num_of_routers(0), m_router_port(0)
 {
 	this->m_table = new RoutingTable();
+	this->m_routers = new RouterEntry[NUM_OF_ROUTERS];
 	this->m_handler = new EventHandler(m_table, m_routers, 
 		&m_active_fd_set, &m_read_fd_set, &m_write_fd_set);
-	this->m_routers = new RouterEntry[NUM_OF_ROUTERS];
 }
 
 MyRouter::~MyRouter()
@@ -56,14 +56,15 @@ Utils::ReturnStatus MyRouter::AddRouter(char name[MAX_ROUTER_NAME], in_addr* add
 	return Utils::STATUS_OK;
 }
 
-Utils::ReturnStatus MyRouter::AddRoute(char name[MAX_ROUTER_NAME], in_addr* ip_array, int num){
+Utils::ReturnStatus MyRouter::AddRoute( char name[MAX_ROUTER_NAME], in_addr* ip_array, int size )
+{
 	IF_DEBUG(ALL){
 		cout << "addRoute: " << name << endl;
 	}
 
 	//TBD: check if router is a neighbour and add it's details
 
-	this->m_handler->AddRoutes(name, ip_array, num);
+	this->m_handler->AddRoutes(name, ip_array, size);
 
 	return Utils::STATUS_OK;
 }
@@ -77,13 +78,13 @@ void MyRouter::initSets()
 
 void MyRouter::Run()
 {
-	m_handler->Handle(EventHandler::RT_EVENT_READ_CONFIG, (void *)this->m_routers);
-
 	int i = 0, res = 0;
 	timeval timeout = {0};
 	//const timeval timeout = {30, 0}; //TMP
 	initSets();
 	srand((int) time(NULL));
+
+	m_handler->Handle(EventHandler::RT_EVENT_READ_CONFIG, (void *)this->m_routers);
 
 	while (true)
 	{

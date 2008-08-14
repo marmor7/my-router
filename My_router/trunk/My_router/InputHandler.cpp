@@ -145,14 +145,9 @@ void InputHandler::HandleIpLine( string line )
 
 	this->m_all_routers->push_back(router_entry);
 
-	bool isNeighbour = true;
+	bool isNeighbour = false;
 
-	//TBD: update isNeighbour here
-
-	if (isNeighbour)
-	{
-		this->m_my_router->AddRouter(router_name, &ip, port);
-	}
+	this->m_my_router->AddRouter(router_name, &ip, port);
 
 	IF_DEBUG(TRACE)
 	{

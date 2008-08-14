@@ -13,7 +13,7 @@ void RoutingTable::printDV(void){
 	//TBD: print DV to screen
 }
 
-void RoutingTable::getDV(MyRIPMessage* msg){
+void RoutingTable::GetDV(MyRIPMessage* msg){
 	//TBD: fill msg with DV data
 }
 
