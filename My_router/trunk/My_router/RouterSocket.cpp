@@ -32,7 +32,12 @@ Utils::SocketReturnStatus RouterSocket::SocketEstablish(IN RouterEntry* entry)
 
 	entry->socketId = sd;
 
-	SetConnectionParameters(&addr, entry->port, entry->name);
+	addr.sin_addr = entry->address;
+	addr.sin_port = htons(entry->port);
+	addr.sin_family = AF_INET;
+	memset(addr.sin_zero, 0, sizeof(addr.sin_zero));
+
+	//TMP SetConnectionParameters(&addr, entry->port, entry->name);
 
 	IF_DEBUG(TRACE){
 		cout << "Establishing UDP socket to " << entry->name << 
