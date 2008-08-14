@@ -17,8 +17,8 @@ typedef struct
 
 typedef struct
 {
-	BYTE[FIELD_LENGTH] Length;
-	BYTE[FIELD_LENGTH] ProtocolID;
+	BYTE length[FIELD_LENGTH];
+	BYTE protocolID[FIELD_LENGTH];
 	int ConnectingNETMYIPSubnet; //32 bit
 	int ConnectingNETMYIPMask; //32 bit
 	char SenderName[MAX_SENDER_NAME]; //64 bit

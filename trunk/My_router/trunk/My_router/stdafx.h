@@ -19,6 +19,8 @@
 #include <fstream>
 #include <sys/types.h>
 #include <assert.h>
+#include <ctime>
+#include <cstdlib> 
 
 using namespace std;
 

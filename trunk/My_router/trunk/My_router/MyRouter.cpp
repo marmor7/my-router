@@ -6,7 +6,8 @@
 MyRouter::MyRouter() : m_name(""), m_num_of_routers(0), m_router_port(0)
 {
 	this->m_table = new RoutingTable();
-	this->m_handler = new EventHandler(m_table);
+	this->m_handler = new EventHandler(m_table, m_routers, 
+		&m_active_fd_set, &m_read_fd_set, &m_write_fd_set);
 	this->m_routers = new RouterEntry[NUM_OF_ROUTERS];
 }
 
@@ -21,7 +22,8 @@ MyRouter::MyRouter( string name ) : m_name(name), m_num_of_routers(0), m_router_
 {
 	
 	this->m_table = new RoutingTable();
-	this->m_handler = new EventHandler(m_table);
+	this->m_handler = new EventHandler(m_table, m_routers,
+		&m_active_fd_set, &m_read_fd_set, &m_write_fd_set);
 	this->m_routers = new RouterEntry[NUM_OF_ROUTERS];
 }
 
@@ -39,13 +41,14 @@ void MyRouter::SetName( string name )
 Utils::ReturnStatus MyRouter::AddRouter(char name[MAX_ROUTER_NAME], in_addr* address, short port){
 	IF_DEBUG(ALL){
 		cout << "addRouter: " << name << ", ..." << 
-			address->S_un.S_un_b.s_b1 << ":" << port << endl;
+			(int)address->S_un.S_un_b.s_b4 << " : " << port << endl;
 	}
 
 	memcpy(this->m_routers[m_num_of_routers].name, name, MAX_ROUTER_NAME);
 	this->m_routers[m_num_of_routers].address = *address;
 	this->m_routers[m_num_of_routers].port = port;
 	this->m_num_of_routers++;
+	this->m_handler->m_num_of_routers++;
 
 	//TBD: is he a neighbour?
 	this->m_routers[m_num_of_routers].neighbour = true;
@@ -65,13 +68,73 @@ Utils::ReturnStatus MyRouter::AddRoute(char name[MAX_ROUTER_NAME], in_addr* ip_a
 	return Utils::STATUS_OK;
 }
 
+void MyRouter::initSets()
+{
+	FD_ZERO(&m_write_fd_set);
+	FD_ZERO(&m_active_fd_set);
+	FD_ZERO(&m_read_fd_set);
+}
+
 void MyRouter::Run()
 {
 	m_handler->Handle(EventHandler::RT_EVENT_READ_CONFIG, (void *)this->m_routers);
 
+	int i = 0, res = 0;
+	timeval timeout = {0};
+	//const timeval timeout = {30, 0}; //TMP
+	initSets();
+	srand((int) time(NULL));
+
 	while (true)
 	{
-		break;
+		IF_DEBUG(ALL){
+			cout << "while loop..." << endl;
+		}
+
+		//Set a random timeout in range NIM ... MAX
+		timeout.tv_sec = rand() % (TIMEOUT_SEC_MAX - TIMEOUT_SEC_MIN) + TIMEOUT_SEC_MIN;
+
+		m_read_fd_set = m_active_fd_set;
+		
+		res = select (FD_SETSIZE, &m_read_fd_set, &m_write_fd_set, NULL, &timeout);
+		if (res < 0)
+		{
+			IF_DEBUG(ERROR){
+				cout << "select error " << res << endl;
+			}
+			perror ("select error ");
+			cout << WSAGetLastError() << endl;//TMP
+			exit (EXIT_FAILURE);
+		}
+
+		/* write to all ready sockets that have something in their buffer */
+		for (i = 1; i < FD_SETSIZE; ++i)
+			if (FD_ISSET(i, &m_write_fd_set))
+			{
+				if (this->m_routers[i].msg_len > 0)
+				{
+					RouterSocket::SocketSend(i, this->m_routers[i].msg_len, this->m_routers[i].msg);
+				}
+
+				if (this->m_routers[i].msg_len <= 0)
+				{
+					FD_CLR(i, &m_write_fd_set);
+				}
+			}
+
+		/* read from all ready sockets */
+		/*for (i = 1; i < FD_SETSIZE; ++i)
+			if (FD_ISSET (i, &read_fd_set))
+			{
+				// recv data from a client 
+				res = recv_msg (i, clients[i].buf, &clients[i].len, &msg_handle);
+				if (res < 0)
+				{
+					close (i);
+					client_disconnect(i);
+				}
+				}
+			}*/
 	}
 }
 

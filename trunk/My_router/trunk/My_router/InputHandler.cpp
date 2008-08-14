@@ -145,6 +145,15 @@ void InputHandler::HandleIpLine( string line )
 
 	this->m_all_routers->push_back(router_entry);
 
+	bool isNeighbour = true;
+
+	//TBD: update isNeighbour here
+
+	if (isNeighbour)
+	{
+		this->m_my_router->AddRouter(router_name, &ip, port);
+	}
+
 	IF_DEBUG(TRACE)
 	{
 		cout << "MyIP router name: " << router_name << " "; //Do something with information

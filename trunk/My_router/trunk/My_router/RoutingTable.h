@@ -14,6 +14,8 @@ public:
 
 	void printDV();
 
+	void RoutingTable::getDV(MyRIPMessage* msg);
+
 	static Utils::ReturnStatus AddRoute(char name[MAX_ROUTER_NAME], in_addr* ip_array);
 
 	static Router GetBestRoute();

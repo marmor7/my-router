@@ -10,6 +10,11 @@ RoutingTable::~RoutingTable(void)
 }
 
 void RoutingTable::printDV(void){
+	//TBD: print DV to screen
+}
+
+void RoutingTable::getDV(MyRIPMessage* msg){
+	//TBD: fill msg with DV data
 }
 
 Utils::ReturnStatus RoutingTable::AddRoute( char name[MAX_ROUTER_NAME], in_addr* ip_array )
