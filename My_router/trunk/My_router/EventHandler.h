@@ -16,7 +16,7 @@ public:
 	// Qualifier: Constructor
 	// Parameter: RoutingTable * router_table
 	//************************************
-	EventHandler(RoutingTable* router_table);
+	EventHandler(RoutingTable* router_table, RouterEntry* routers, fd_set* active, fd_set* read, fd_set* write);
 	
 	//************************************
 	// Method:    ~EventHandler
@@ -65,6 +65,9 @@ public:
 	void setNumOfRouters(int num) { m_num_of_routers = num; };
 
 	Utils::ReturnStatus AddRoutes(char name[MAX_ROUTER_NAME], in_addr* ip_array, int num);
+
+	//Num of registered routers
+	int m_num_of_routers; //TBD: change to private?
 	
 private:
 	//Routing table
@@ -73,9 +76,11 @@ private:
 	//Router entries for routers
 	RouterEntry* m_routers;
 
-	//Num of registered routers
-	int m_num_of_routers;
-
 	//Name of router
 	string m_name;
+
+	//Sets of sockets - used by select function in MyRouter
+	fd_set* m_active_fd_set;
+	fd_set* m_read_fd_set;
+	fd_set* m_write_fd_set;
 };

@@ -1,10 +1,15 @@
 #include "stdafx.h"
 #include "EventHandler.h"
 
-EventHandler::EventHandler(RoutingTable* router_table)
+EventHandler::EventHandler(RoutingTable* router_table, RouterEntry* routers, 
+						   fd_set* active, fd_set* read, fd_set* write)
 {
 	this->m_table = router_table;
+	this->m_routers = routers;
 	this->m_num_of_routers = 0;
+	this->m_active_fd_set = active;
+	this->m_read_fd_set = read;
+	this->m_write_fd_set = write;
 }
 
 EventHandler::~EventHandler(void)
@@ -28,6 +33,8 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 {
 	cout << this->m_name << " MYRIP Event: " << PrintEvent(event) << endl;
 
+	int len = 0;
+
 	switch (event)
 	{
 	case RT_EVENT_READ_CONFIG:
@@ -40,7 +47,14 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 		/* NO BREAK NEEDED */
 	case RT_EVENT_SENDING_DV:
 		IF_DEBUG(TRACE){
-			cout << "Sending my DV to neighbors" << endl;
+			cout << "Handle: sending my DV to neighbors" << endl;
+		}
+		MyRIPMessage msg;
+		this->m_table->getDV(&msg);
+		for (int i=0; i < m_num_of_routers; i++){
+			m_routers[i].msg_len = len;
+			memcpy(m_routers[i].msg, &msg, len);
+			FD_SET (m_routers[i].socketId, m_write_fd_set);
 		}
 		break;
 	case RT_EVENT_TIMEOUT:
@@ -50,8 +64,8 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 		}
 		break;
 	default:
-		IF_DEBUG(IMPORTANT){
-			cout << "got a weird event!!! Don't know what to do" << endl;
+		IF_DEBUG(ERROR){
+			cout << "ERROR: got a weird event!!! Don't know what to do" << endl;
 		}
 	}
 

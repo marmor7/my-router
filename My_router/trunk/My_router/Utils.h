@@ -1,9 +1,10 @@
 #pragma once
 #include "stdafx.h"
+#include "MyRIPMessage.h"
 
 using namespace std;
 
-#define DEBUG_NONE 0
+#define DEBUG_ERROR 0
 #define DEBUG_IMPORTANT 1
 #define DEBUG_TRACE 2
 #define DEBUG_ALL 3
@@ -14,6 +15,9 @@ using namespace std;
 
 #define NUM_OF_ROUTERS 32
 #define MAX_ROUTER_NAME 8
+#define SIZE_OF_RIP_MSG 156
+#define TIMEOUT_SEC_MIN 20
+#define TIMEOUT_SEC_MAX 40
 
 struct RouterEntry
 {
@@ -22,6 +26,8 @@ struct RouterEntry
 	in_addr address;
 	short port;
 	bool neighbour;
+	byte msg[SIZE_OF_RIP_MSG];
+	int msg_len;
 };
 
 struct Subnet

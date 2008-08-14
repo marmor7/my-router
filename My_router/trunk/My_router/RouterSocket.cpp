@@ -23,6 +23,10 @@ Utils::SocketReturnStatus RouterSocket::SocketEstablish(IN RouterEntry* entry)
 
 	if (sd <= 0)
 	{
+		IF_DEBUG(ERROR){
+			cout << "ERROR: Establishing UDP socket to " << entry->name << 
+				" on port " << entry->port << " FAILED" << endl;
+		}
 		return Utils::STATUS_BAD_SOCKET;
 	}
 
@@ -30,6 +34,10 @@ Utils::SocketReturnStatus RouterSocket::SocketEstablish(IN RouterEntry* entry)
 
 	SetConnectionParameters(&addr, entry->port, entry->name);
 
+	IF_DEBUG(TRACE){
+		cout << "Establishing UDP socket to " << entry->name << 
+			" on port " << entry->port << endl;
+	}
 	status = connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr));
 
 	if (status == -1)
@@ -75,16 +83,31 @@ Utils::SocketReturnStatus RouterSocket::SocketSend(IN int& socket_out,
 												   IN int& len, 
 												   IN BYTE* data )
 {
+	if (socket_out <= 0){
+		IF_DEBUG(TRACE){
+			cout << "SocketSend: bad socket " << socket_out << endl;
+		}
+		return Utils::STATUS_BAD_SOCKET;
+	}
 	int total = 0;
 	int bytesleft = len;
-	int n;
+	int n = -1;
 	while(total < len)
 	{
+		IF_DEBUG(TRACE){
+			cout << "SocketSend: Sending msg on socket " << socket_out << " - " ;
+		}
 		n = send(socket_out, (char*) data+total, bytesleft, 0);
 		
 		if (n == -1) 
 		{
+			IF_DEBUG(TRACE){
+				cout << "FAILED!" << endl;
+			}
 			break;
+		}
+		IF_DEBUG(TRACE){
+			cout << n << " bytes sent" << endl;
 		}
 
 		total += n;
