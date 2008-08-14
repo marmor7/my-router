@@ -50,7 +50,7 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 			cout << "Handle: sending my DV to neighbors" << endl;
 		}
 		MyRIPMessage msg;
-		this->m_table->getDV(&msg);
+		this->m_table->GetDV(&msg);
 		for (int i=0; i < m_num_of_routers; i++){
 			m_routers[i].msg_len = len;
 			memcpy(m_routers[i].msg, &msg, len);
@@ -72,9 +72,12 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 	return Utils::STATUS_OK;
 }
 
-Utils::ReturnStatus EventHandler::AddRoutes(char name[MAX_ROUTER_NAME], in_addr* ip_array, int num){
-	for (int i=0; i < num; i++)
+Utils::ReturnStatus EventHandler::AddRoutes( char name[MAX_ROUTER_NAME], in_addr* ip_array, int size )
+{
+	for (int i=0; i < size; i++)
 	{
+		//TBD: Check if IP and mask equals the router's subnet.
+		//If yes, updates the m_routers table (turn on the neighbor bit only)
 		RoutingTable::AddRoute(name, &(ip_array[i]));
 	}
 

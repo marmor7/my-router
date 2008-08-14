@@ -75,12 +75,12 @@ public:
 	// FullName:  MyRouter::AddRoute
 	// Access:    public 
 	// Returns:   Utils::ReturnStatus
-	// Qualifier: Adds a new route
+	// Qualifier: Adds a subnets array for a router
 	// Parameter: char name[MAX_ROUTER_NAME]
 	// Parameter: in_addr * ip_array
-	// Parameter: int num
+	// Parameter: int mask
 	//************************************
-	Utils::ReturnStatus AddRoute(char name[MAX_ROUTER_NAME], in_addr* ip_array, int num);
+	Utils::ReturnStatus AddRoute(char name[MAX_ROUTER_NAME], in_addr* ip_array, int size);
 
 	//************************************
 	// Method:    Run
@@ -121,10 +121,11 @@ public:
 	//************************************
 	void AddSubnet(Subnet* subnet);
 
+
+protected:
 	//Initialize the fd_sets
 	void initSets();
 
-protected:
 	//Router's name
 	string m_name;
 
