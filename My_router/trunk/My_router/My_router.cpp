@@ -10,6 +10,15 @@ int main(int argc, char* argv[])
 	MyRouter* my_router;
 	InputHandler* ih;
 	Utils::ReturnStatus ihrs;
+	WSADATA wsaData;
+	int retval;
+
+	//Initializing winsock2
+	if ((retval = WSAStartup(0x202,&wsaData)) != 0) 
+	{
+		fprintf(stderr,"WSAStartup failed with error %d\n",retval);
+		WSACleanup();
+	}
 
 	my_router = new MyRouter("");
 
