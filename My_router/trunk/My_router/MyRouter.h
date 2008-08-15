@@ -146,7 +146,7 @@ protected:
 	int m_num_of_routers;
 
 	//List of router's subnets
-	vector<Subnet*> m_my_router_subnets;
+	vector<Subnet*>* m_my_router_subnets;
 
 	//Sets of sockets - used by select function
 	fd_set m_active_fd_set, m_read_fd_set, m_write_fd_set;

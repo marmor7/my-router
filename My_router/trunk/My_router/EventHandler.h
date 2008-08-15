@@ -16,7 +16,8 @@ public:
 	// Qualifier: Constructor
 	// Parameter: RoutingTable * router_table
 	//************************************
-	EventHandler(RoutingTable* router_table, RouterEntry* routers, fd_set* active, fd_set* read, fd_set* write);
+	EventHandler(RoutingTable* router_table, RouterEntry* routers, fd_set* active, fd_set* read, fd_set* write,
+				 vector<Subnet*>* subnets);
 	
 	//************************************
 	// Method:    ~EventHandler
@@ -75,6 +76,9 @@ private:
 
 	//Router entries for routers
 	RouterEntry* m_routers;
+	
+	//Router's subnets
+	vector<Subnet*>* m_router_subnets;
 
 	//Name of router
 	string m_name;

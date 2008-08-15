@@ -6,9 +6,11 @@
 MyRouter::MyRouter() : m_name(""), m_num_of_routers(0), m_router_port(0)
 {
 	this->m_table = new RoutingTable();
+	this->m_my_router_subnets = new vector<Subnet*>();
 	this->m_routers = new RouterEntry[NUM_OF_ROUTERS];
 	this->m_handler = new EventHandler(m_table, m_routers, 
-		&m_active_fd_set, &m_read_fd_set, &m_write_fd_set);
+		&m_active_fd_set, &m_read_fd_set, &m_write_fd_set, m_my_router_subnets);
+	
 }
 
 MyRouter::~MyRouter()
@@ -22,8 +24,9 @@ MyRouter::MyRouter( string name ) : m_name(name), m_num_of_routers(0), m_router_
 {
 	
 	this->m_table = new RoutingTable();
+	this->m_my_router_subnets = new vector<Subnet*>();
 	this->m_handler = new EventHandler(m_table, m_routers,
-		&m_active_fd_set, &m_read_fd_set, &m_write_fd_set);
+		&m_active_fd_set, &m_read_fd_set, &m_write_fd_set, m_my_router_subnets);
 	this->m_routers = new RouterEntry[NUM_OF_ROUTERS];
 }
 
@@ -60,10 +63,8 @@ Utils::ReturnStatus MyRouter::AddRoute( char name[MAX_ROUTER_NAME], vector<Subne
 {
 	IF_DEBUG(ALL)
 	{
-		cout << "AddRoute: " << name << endl;
+		cout << "AddRoute " << name << endl;
 	}
-
-	//TBD: check if router is a neighbour and add it's details
 
 	this->m_handler->AddRoutes(name, subnets_vector_ptr);
 
@@ -102,7 +103,8 @@ void MyRouter::Run()
 		res = select (FD_SETSIZE, &m_read_fd_set, &m_write_fd_set, NULL, &timeout);
 		if (res < 0)
 		{
-			IF_DEBUG(ERROR){
+			IF_DEBUG(ERROR)
+			{
 				cout << "select error " << res << endl;
 			}
 			perror ("select error ");
@@ -171,5 +173,5 @@ void MyRouter::SetRoutersIpAndPort( string ip, short port )
 
 void MyRouter::AddSubnet( Subnet* subnet )
 {
-	this->m_my_router_subnets.push_back(subnet);
+	this->m_my_router_subnets->push_back(subnet);
 }
