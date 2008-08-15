@@ -2,7 +2,7 @@
 #include "EventHandler.h"
 
 EventHandler::EventHandler(RoutingTable* router_table, RouterEntry* routers, 
-						   fd_set* active, fd_set* read, fd_set* write)
+						   fd_set* active, fd_set* read, fd_set* write,vector<Subnet*>* subnets)
 {
 	this->m_table = router_table;
 	this->m_routers = routers;
@@ -10,6 +10,7 @@ EventHandler::EventHandler(RoutingTable* router_table, RouterEntry* routers,
 	this->m_active_fd_set = active;
 	this->m_read_fd_set = read;
 	this->m_write_fd_set = write;
+	this->m_router_subnets = subnets;
 }
 
 EventHandler::~EventHandler(void)
@@ -81,6 +82,13 @@ Utils::ReturnStatus EventHandler::AddRoutes( char name[MAX_ROUTER_NAME], vector<
 		//TBD: Check if IP and mask equals the router's subnet.
 		//If yes, updates the m_routers table (turn on the neighbor bit only)		
 		RoutingTable::AddRoute(name, *it);
+	}
+
+	for (vector<Subnet*>::iterator it = this->m_router_subnets->begin();
+		it != this->m_router_subnets->end();
+		++it)
+	{
+		cout << (long int) (*it)->address.S_un.S_addr << endl;
 	}
 
 	return Utils::STATUS_OK;

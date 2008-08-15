@@ -206,7 +206,8 @@ void InputHandler::HandleRipLine( string line )
 			cout << "MyRIP label: " << current_ip << endl;	
 		}
 	}
-
+	
+	//TBD: Do this to each router after first iterating on list and finding MyRouter subnets!
 	if (subnets_vector_ptr->size() > 0)
 	{
 		strcpy_s(router_name_c_srt, MAX_ROUTER_NAME, router_name.c_str());
