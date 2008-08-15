@@ -64,7 +64,7 @@ public:
 
 	void setNumOfRouters(int num) { m_num_of_routers = num; };
 
-	Utils::ReturnStatus AddRoutes(char name[MAX_ROUTER_NAME], in_addr* ip_array, int size);
+	Utils::ReturnStatus AddRoutes(char name[MAX_ROUTER_NAME], vector<Subnet*>* subnets_vector_ptr);
 
 	//Num of registered routers
 	int m_num_of_routers; //TBD: change to private?

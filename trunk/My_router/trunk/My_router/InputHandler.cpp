@@ -126,8 +126,6 @@ void InputHandler::HandleIpLine( string line )
 
 	TextToIpPort(line, &ip, &port);
 
-
-
 	if (this->m_my_router->GetName().compare(router_name) == 0)
 	{
 		//If code reaches here then this is MyRouter line and
@@ -140,12 +138,10 @@ void InputHandler::HandleIpLine( string line )
 	router_entry.address = ip;
 	router_entry.port = port;
 	strcpy_s((char *) &router_entry.name, 8, (char *) &router_name);
-	router_entry.neighbour = 0; //Currently no neighbor.
+	router_entry.neighbour = false; //Currently no neighbor.
 	router_entry.socketId = 0; //Currently no open connection with router
 
 	this->m_all_routers->push_back(router_entry);
-
-	bool isNeighbour = false;
 
 	this->m_my_router->AddRouter(router_name, &ip, port);
 
@@ -159,8 +155,10 @@ void InputHandler::HandleIpLine( string line )
 void InputHandler::HandleRipLine( string line )
 {
 	string router_name, current_ip;
+	char router_name_c_srt[MAX_ROUTER_NAME];
 	int pos ,last_pos;
-	Subnet* sub;
+	Subnet* sub_ptr;
+	vector<Subnet*>* subnets_vector_ptr = new vector<Subnet*>();
 	bool is_my_router = false;
 
 	pos = line.find_first_not_of(" "); //Space if any at beginning
@@ -189,30 +187,30 @@ void InputHandler::HandleRipLine( string line )
 			current_ip = line;
 		}
 
-		sub = this->GetSubnetStructFromString(current_ip);
+		sub_ptr = this->GetSubnetStructFromString(current_ip);
 
 		//My router
 		if (router_name.compare(this->m_my_router->GetName()) == 0)
 		{
-			is_my_router = true;
-			this->m_my_router->AddSubnet(sub);
+			is_my_router = true; //TBD: Can be removed if won't be used later
+			this->m_my_router->AddSubnet(sub_ptr);
 		}
 		//Other router
 		else
 		{
-			
+			subnets_vector_ptr->push_back(sub_ptr);
 		}
 
 		IF_DEBUG(TRACE)
 		{
-			cout << "MyRIP label: " << current_ip << endl; //Do something with information		
+			cout << "MyRIP label: " << current_ip << endl;	
 		}
 	}
 
-	//Not my router, update router and subnets vector
-	if (!is_my_router)
+	if (subnets_vector_ptr->size() > 0)
 	{
-		
+		strcpy_s(router_name_c_srt, MAX_ROUTER_NAME, router_name.c_str());
+		this->m_my_router->AddRoute(router_name_c_srt, subnets_vector_ptr);
 	}
 }
 
