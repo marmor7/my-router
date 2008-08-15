@@ -56,15 +56,16 @@ Utils::ReturnStatus MyRouter::AddRouter(char name[MAX_ROUTER_NAME], in_addr* add
 	return Utils::STATUS_OK;
 }
 
-Utils::ReturnStatus MyRouter::AddRoute( char name[MAX_ROUTER_NAME], in_addr* ip_array, int size )
+Utils::ReturnStatus MyRouter::AddRoute( char name[MAX_ROUTER_NAME], vector<Subnet*>* subnets_vector_ptr )
 {
-	IF_DEBUG(ALL){
-		cout << "addRoute: " << name << endl;
+	IF_DEBUG(ALL)
+	{
+		cout << "AddRoute: " << name << endl;
 	}
 
 	//TBD: check if router is a neighbour and add it's details
 
-	this->m_handler->AddRoutes(name, ip_array, size);
+	this->m_handler->AddRoutes(name, subnets_vector_ptr);
 
 	return Utils::STATUS_OK;
 }
@@ -88,7 +89,8 @@ void MyRouter::Run()
 
 	while (true)
 	{
-		IF_DEBUG(ALL){
+		IF_DEBUG(ALL)
+		{
 			cout << "while loop..." << endl;
 		}
 

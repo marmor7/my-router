@@ -60,7 +60,7 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 	case RT_EVENT_TIMEOUT:
 	case RT_EVENT_DV_RECEIVED:
 		IF_DEBUG(TRACE){
-			cout << "got an event!!! not doing anything yet..." << endl;
+			cout << "Got an event!!! Not doing anything yet..." << endl;
 		}
 		break;
 	default:
@@ -72,13 +72,15 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 	return Utils::STATUS_OK;
 }
 
-Utils::ReturnStatus EventHandler::AddRoutes( char name[MAX_ROUTER_NAME], in_addr* ip_array, int size )
+Utils::ReturnStatus EventHandler::AddRoutes( char name[MAX_ROUTER_NAME], vector<Subnet*>* subnets_vector_ptr )
 {
-	for (int i=0; i < size; i++)
+	for (vector<Subnet*>::iterator it = subnets_vector_ptr->begin();
+		it != subnets_vector_ptr->end();
+		++it)
 	{
 		//TBD: Check if IP and mask equals the router's subnet.
-		//If yes, updates the m_routers table (turn on the neighbor bit only)
-		RoutingTable::AddRoute(name, &(ip_array[i]));
+		//If yes, updates the m_routers table (turn on the neighbor bit only)		
+		RoutingTable::AddRoute(name, *it);
 	}
 
 	return Utils::STATUS_OK;

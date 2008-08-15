@@ -20,6 +20,8 @@ int main(int argc, char* argv[])
 		WSACleanup();
 	}
 
+	ios::sync_with_stdio(); //C++ cout syncs with c's output libraries
+
 	my_router = new MyRouter("");
 
 	ih = new InputHandler();
