@@ -75,9 +75,74 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 
 Utils::ReturnStatus EventHandler::AddRoutes( char name[MAX_ROUTER_NAME], Subnet* subnet_ptr )
 {
+	for (vector<Subnet*>::iterator it = this->m_router_subnets->begin();
+		it != this->m_router_subnets->end();
+		++it)
+	{
+		if (this->IsNeighbor(*it, subnet_ptr))
+		{
+			IF_DEBUG(TRACE)
+			{
+				cout << "Found neighbor: " << name << endl;	
+			}
+			RoutingTable::AddRoute(name, subnet_ptr);
+		}
+	}
 	//TBD: Check if IP and mask equals the router's subnet.
 	//If yes, updates the m_routers table (turn on the neighbor bit only)		
-	RoutingTable::AddRoute(name, subnet_ptr);
 
 	return Utils::STATUS_OK;
+}
+
+bool EventHandler::IsNeighbor( Subnet* first_subnet_ptr, Subnet* second_subnet_ptr )
+{
+	unsigned int mask, first_subnet_address, second_subnet_address;
+	mask = 0xFFFFFFFF;
+	IF_DEBUG(ALL)
+	{
+		cout << "Comparing 2 subnets:" << endl;
+		cout << "First subnet: " << inet_ntoa(first_subnet_ptr->address) << 
+				" with mask " << first_subnet_ptr->mask << endl;
+		cout << "Second subnet: " << inet_ntoa(second_subnet_ptr->address) << 
+				" with mask " << second_subnet_ptr->mask << endl;
+	}
+	
+	//If the 2 masks are different always return false
+	if (first_subnet_ptr->mask != second_subnet_ptr->mask)
+	{
+		IF_DEBUG(ALL)
+		{
+			cout << "Mask are not equal, returning false." << endl;
+		}
+
+		return false;
+	}
+	else
+	{
+		mask = mask << (32 - first_subnet_ptr->mask);
+
+		first_subnet_address = htonl(first_subnet_ptr->address.S_un.S_addr);
+		second_subnet_address = htonl(second_subnet_ptr->address.S_un.S_addr);
+
+		first_subnet_address = first_subnet_address & mask;
+		second_subnet_address = second_subnet_address & mask;
+		
+		if (first_subnet_address == second_subnet_address)
+		{
+			IF_DEBUG(ALL)
+			{
+				cout << "Subnets equals, returning true." << endl;
+			}
+
+			return true;
+		}
+		else
+		{
+			IF_DEBUG(ALL)
+			{
+				cout << "Subnets are not equal, returning false." << endl;
+			}
+			return false;
+		}
+	}
 }

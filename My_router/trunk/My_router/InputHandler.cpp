@@ -209,7 +209,7 @@ void InputHandler::HandleRipLine( string line )
 			subnets_vector_ptr->push_back(sub_ptr);
 		}
 
-		IF_DEBUG(TRACE)
+		IF_DEBUG(ALL)
 		{
 			cout << "MyRIP label: " << current_ip << endl;	
 		}

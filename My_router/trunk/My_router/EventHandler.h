@@ -71,6 +71,16 @@ public:
 	int m_num_of_routers; //TBD: change to private?
 	
 private:
+	//************************************
+	// Method:    IsNeighbor
+	// FullName:  EventHandler::IsNeighbor
+	// Access:    private 
+	// Returns:   bool
+	// Qualifier: Checks if two subnets are the same network
+	// Parameter: Subnet * first_subnet_ptr
+	// Parameter: Subnet * second_subnet_ptr
+	//************************************
+	bool IsNeighbor(Subnet* first_subnet_ptr, Subnet* second_subnet_ptr);
 	//Routing table
 	RoutingTable* m_table;
 
