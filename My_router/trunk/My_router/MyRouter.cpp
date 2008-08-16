@@ -59,14 +59,14 @@ Utils::ReturnStatus MyRouter::AddRouter(char name[MAX_ROUTER_NAME], in_addr* add
 	return Utils::STATUS_OK;
 }
 
-Utils::ReturnStatus MyRouter::AddRoute( char name[MAX_ROUTER_NAME], vector<Subnet*>* subnets_vector_ptr )
+Utils::ReturnStatus MyRouter::AddRoute( char name[MAX_ROUTER_NAME], Subnet* subnet_ptr )
 {
 	IF_DEBUG(ALL)
 	{
 		cout << "AddRoute " << name << endl;
 	}
 
-	this->m_handler->AddRoutes(name, subnets_vector_ptr);
+	this->m_handler->AddRoutes(name, subnet_ptr);
 
 	return Utils::STATUS_OK;
 }
