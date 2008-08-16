@@ -23,4 +23,7 @@ public:
 
 private:
 	static int* ms_routing_table;
+
+	//Sorted list for each router. First element is the best route
+	static map<string, list<Subnet*> > m_routing_table;
 };
