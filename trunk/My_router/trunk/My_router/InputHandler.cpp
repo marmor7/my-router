@@ -20,6 +20,7 @@ Utils::ReturnStatus InputHandler::InitRouter( int argc, char** argv, MyRouter** 
 {
 	string line, my_ip_str, my_rip_str, start_char;
 	bool my_ip_attribute, my_rip_attribute;
+	char router_name_c_srt[MAX_ROUTER_NAME];
 	ifstream in_file(FILENAME, ifstream::in);
 
 	this->m_my_router = *router_ptr_ptr;
@@ -80,6 +81,14 @@ Utils::ReturnStatus InputHandler::InitRouter( int argc, char** argv, MyRouter** 
 					this->HandleRipLine(line);
 				}
 			}
+		}
+
+		for (vector<MyRipRoute>::iterator it = this->m_my_rip_route.begin();
+			it != this->m_my_rip_route.end();
+			++it)
+		{
+			strcpy_s(router_name_c_srt, MAX_ROUTER_NAME, it->first.c_str());
+			this->m_my_router->AddRoute(router_name_c_srt, it->second);
 		}
 		return Utils::STATUS_OK;
 	}
@@ -155,7 +164,6 @@ void InputHandler::HandleIpLine( string line )
 void InputHandler::HandleRipLine( string line )
 {
 	string router_name, current_ip;
-	char router_name_c_srt[MAX_ROUTER_NAME];
 	int pos ,last_pos;
 	Subnet* sub_ptr;
 	vector<Subnet*>* subnets_vector_ptr = new vector<Subnet*>();
@@ -207,11 +215,15 @@ void InputHandler::HandleRipLine( string line )
 		}
 	}
 	
-	//TBD: Do this to each router after first iterating on list and finding MyRouter subnets!
 	if (subnets_vector_ptr->size() > 0)
 	{
-		strcpy_s(router_name_c_srt, MAX_ROUTER_NAME, router_name.c_str());
-		this->m_my_router->AddRoute(router_name_c_srt, subnets_vector_ptr);
+		for (vector<Subnet*>::iterator it = subnets_vector_ptr->begin();
+			it != subnets_vector_ptr->end();
+			++it)
+		{
+			MyRipRoute rip_pair(router_name, *it);
+			this->m_my_rip_route.push_back(rip_pair);
+		}
 	}
 }
 

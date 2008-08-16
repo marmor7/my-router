@@ -80,7 +80,7 @@ public:
 	// Parameter: in_addr * ip_array
 	// Parameter: int mask
 	//************************************
-	Utils::ReturnStatus AddRoute(char name[MAX_ROUTER_NAME], vector<Subnet*>* subnets_vector_ptr);
+	Utils::ReturnStatus AddRoute(char name[MAX_ROUTER_NAME], Subnet* subnet_ptr);
 
 	//************************************
 	// Method:    Run

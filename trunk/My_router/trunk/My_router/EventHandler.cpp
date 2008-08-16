@@ -73,23 +73,11 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 	return Utils::STATUS_OK;
 }
 
-Utils::ReturnStatus EventHandler::AddRoutes( char name[MAX_ROUTER_NAME], vector<Subnet*>* subnets_vector_ptr )
+Utils::ReturnStatus EventHandler::AddRoutes( char name[MAX_ROUTER_NAME], Subnet* subnet_ptr )
 {
-	for (vector<Subnet*>::iterator it = subnets_vector_ptr->begin();
-		it != subnets_vector_ptr->end();
-		++it)
-	{
-		//TBD: Check if IP and mask equals the router's subnet.
-		//If yes, updates the m_routers table (turn on the neighbor bit only)		
-		RoutingTable::AddRoute(name, *it);
-	}
-
-	for (vector<Subnet*>::iterator it = this->m_router_subnets->begin();
-		it != this->m_router_subnets->end();
-		++it)
-	{
-		cout << (long int) (*it)->address.S_un.S_addr << endl;
-	}
+	//TBD: Check if IP and mask equals the router's subnet.
+	//If yes, updates the m_routers table (turn on the neighbor bit only)		
+	RoutingTable::AddRoute(name, subnet_ptr);
 
 	return Utils::STATUS_OK;
 }
