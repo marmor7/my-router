@@ -42,7 +42,8 @@ void MyRouter::SetName( string name )
 }
 
 Utils::ReturnStatus MyRouter::AddRouter(char name[MAX_ROUTER_NAME], in_addr* address, short port){
-	IF_DEBUG(ALL){
+	IF_DEBUG(ALL)
+	{
 		cout << "addRouter: " << name << ", ..." << 
 			(int)address->S_un.S_un_b.s_b4 << " : " << port << endl;
 	}
