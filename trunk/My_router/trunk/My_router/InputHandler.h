@@ -9,7 +9,7 @@ class MyRouter;
 #define MAX_FILENAME_LENGTH 256
 #define FILENAME "myrouter.cfg"
 
-typedef pair<string, Subnet*> MyRipRoute;
+//typedef pair<string, Subnet*> MyRipRoute;
 
 using namespace std;
 
@@ -89,5 +89,9 @@ protected:
 	MyRouter* m_my_router;
 
 	//List of all RIP routes found in input file
-	vector<MyRipRoute> m_my_rip_route;
+	//vector<MyRipRoute> m_my_rip_route;
+
+	string m_rip_name[NUM_OF_ROUTERS];
+	Subnet* m_rip_subnet[NUM_OF_ROUTERS];
+	int m_idx;
 };

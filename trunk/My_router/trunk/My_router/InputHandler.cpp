@@ -6,7 +6,7 @@
 #include "MyRouter.h"
 
 using namespace std;
-InputHandler::InputHandler() : m_all_routers(new vector<RouterEntry>)
+InputHandler::InputHandler() : m_all_routers(new vector<RouterEntry>), m_idx(0)
 {
 	
 }
@@ -83,12 +83,10 @@ Utils::ReturnStatus InputHandler::InitRouter( int argc, char** argv, MyRouter** 
 			}
 		}
 
-		for (vector<MyRipRoute>::iterator it = this->m_my_rip_route.begin();
-			it != this->m_my_rip_route.end();
-			++it)
+		for (int i = 0; i < this->m_idx; i++)
 		{
-			strcpy_s(router_name_c_srt, MAX_ROUTER_NAME, it->first.c_str());
-			this->m_my_router->AddRoute(router_name_c_srt, it->second);
+			strcpy_s(router_name_c_srt, MAX_ROUTER_NAME, this->m_rip_name[i].c_str());
+			this->m_my_router->AddRoute(router_name_c_srt, this->m_rip_subnet[i]);
 		}
 		return Utils::STATUS_OK;
 	}
@@ -221,8 +219,9 @@ void InputHandler::HandleRipLine( string line )
 			it != subnets_vector_ptr->end();
 			++it)
 		{
-			MyRipRoute rip_pair(router_name, *it);
-			this->m_my_rip_route.push_back(rip_pair);
+			this->m_rip_name[this->m_idx] = router_name;
+			this->m_rip_subnet[this->m_idx] = *it;
+			this->m_idx++;
 		}
 	}
 }
