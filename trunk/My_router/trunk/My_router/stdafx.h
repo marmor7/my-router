@@ -9,13 +9,14 @@
 #include <WinSock2.h>
 #include <tchar.h>
 #include <iostream>
+#include <map>
 #include <string>
 #include <string.h>
 #include <cwchar>
 #include <list>
 #include <vector>
-#include <map>
 #include <algorithm>
+#include <functional>
 #include <fstream>
 #include <sys/types.h>
 #include <assert.h>
