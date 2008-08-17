@@ -38,6 +38,15 @@ struct Subnet
 	short int mask;
 };
 
+//Functor to compare 2 subnets by STL sort
+struct CompareSubnetsByCost
+{
+	bool operator()(Subnet* subnet1, Subnet* subnet2)
+	{
+		return subnet1->cost < subnet2->cost;
+	}
+};
+
 class Utils
 {
 public:
