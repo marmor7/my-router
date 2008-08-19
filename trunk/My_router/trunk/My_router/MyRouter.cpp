@@ -79,15 +79,32 @@ void MyRouter::initSets()
 	FD_ZERO(&m_read_fd_set);
 }
 
+void MyRouter::displaySet(fd_set & set)
+{
+	int i;
+	cout << "Set is: ";
+	for (i = 0; i < m_num_of_routers; i++)
+		if (FD_ISSET(m_sockets[i], &m_write_fd_set))
+			cout << i << ":" << m_sockets[i] << ", ";
+	cout << "end." << endl;
+}
+
 void MyRouter::Run()
 {
 	int i = 0, res = 0;
-	timeval timeout = {0};
-	//const timeval timeout = {30, 0}; //TMP
+	m_max_fd = 0;
+	//timeval timeout = {0};
+	timeval timeout = {30, 0}; //TMP
 	initSets();
 	srand((int) time(NULL));
 
 	m_handler->Handle(EventHandler::RT_EVENT_READ_CONFIG, (void *)this->m_routers);
+
+	for (i = 0; i < m_num_of_routers; i++){
+		m_sockets[i] = m_routers[i].socketId;
+		if (m_sockets[i] > m_max_fd)
+			m_max_fd = m_sockets[i];
+	}
 
 	while (true)
 	{
@@ -97,11 +114,20 @@ void MyRouter::Run()
 		}
 
 		//Set a random timeout in range NIM ... MAX
-		timeout.tv_sec = rand() % (TIMEOUT_SEC_MAX - TIMEOUT_SEC_MIN) + TIMEOUT_SEC_MIN;
+		timeout.tv_sec = 5;//TBD: rand() % (TIMEOUT_SEC_MAX - TIMEOUT_SEC_MIN) + TIMEOUT_SEC_MIN;
 
+		FD_CLR(0, &m_active_fd_set);
 		m_read_fd_set = m_active_fd_set;
+
+		displaySet(m_read_fd_set);
+		displaySet(m_write_fd_set);
 		
-		res = select (FD_SETSIZE, &m_read_fd_set, &m_write_fd_set, NULL, &timeout);
+		res = select(m_max_fd, &m_read_fd_set, &m_write_fd_set, NULL, &timeout);
+		
+		IF_DEBUG(TRACE)
+		{
+			cout << "select returned " << res << endl;
+		}
 		if (res < 0)
 		{
 			IF_DEBUG(ERROR)
@@ -113,35 +139,45 @@ void MyRouter::Run()
 			exit (EXIT_FAILURE);
 		}
 
+		displaySet(m_read_fd_set);
+
 		/* write to all ready sockets that have something in their buffer */
-		for (i = 1; i < FD_SETSIZE; ++i)
-			if (FD_ISSET(i, &m_write_fd_set))
+		for (i = 0; i < m_num_of_routers; ++i)
+			if (FD_ISSET(m_sockets[i], &m_write_fd_set))
 			{
+				IF_DEBUG(TRACE){
+					cout << "writing to socket " << m_sockets[i] << endl;
+				}
 				if (this->m_routers[i].msg_len > 0)
 				{
 					RouterSocket::SocketSend(i, this->m_routers[i].msg_len, this->m_routers[i].msg);
 				}
-
+				FD_CLR(m_sockets[i], &m_write_fd_set);//TMP!
 				if (this->m_routers[i].msg_len <= 0)
 				{
-					FD_CLR(i, &m_write_fd_set);
+					FD_CLR(m_sockets[i], &m_write_fd_set);
 				}
 			}
 
 		/* read from all ready sockets */
-		/*for (i = 1; i < FD_SETSIZE; ++i)
-			if (FD_ISSET (i, &read_fd_set))
+		for (i = 0; i < m_num_of_routers; ++i)
+			if (FD_ISSET (m_sockets[i], &m_read_fd_set))
 			{
+				IF_DEBUG(TRACE){
+					cout << "reading from socket " << m_sockets[i] << endl;
+				}
 				// recv data from a client 
-				res = recv_msg (i, clients[i].buf, &clients[i].len, &msg_handle);
+				/*res = recv_msg (i, clients[i].buf, &clients[i].len, &msg_handle);
 				if (res < 0)
 				{
 					close (i);
 					client_disconnect(i);
-				}
-				}
-			}*/
+				}*/
+				FD_CLR(m_sockets[i], &m_read_fd_set);
+			}
 	}
+
+	cout << "While loop exit" << endl;
 }
 
 void MyRouter::SetRoutersIpAndPort( string ip, short port )
