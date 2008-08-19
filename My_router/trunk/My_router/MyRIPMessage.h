@@ -4,21 +4,22 @@
 #define MAX_RECEIVER_NAME 8
 #define NUMBER_OF_DESTINATIONS 32
 #define FIELD_LENGTH 4
+#define PROTOCOL_ID 1
 
 #pragma pack(push)
 #pragma pack(1)
 
 typedef struct
 {
-	DWORD DestinationNETSubnet; //32 bit
-	DWORD DestinationNETMask; //32 bit
-	DWORD DestinationNETSubnetDistance; //32 bit
+	int DestinationNETSubnet; //32 bit
+	int DestinationNETMask; //32 bit
+	int DestinationNETSubnetDistance; //32 bit
 } DestinationProperties;
 
 typedef struct
 {
-	BYTE length[FIELD_LENGTH];
-	BYTE protocolID[FIELD_LENGTH];
+	short length;
+	short protocolID;
 	int ConnectingNETMYIPSubnet; //32 bit
 	int ConnectingNETMYIPMask; //32 bit
 	char SenderName[MAX_SENDER_NAME]; //64 bit

@@ -3,16 +3,6 @@
 #include "EventHandler.h"
 #include "RoutingTable.h"
 
-MyRouter::MyRouter() : m_name(""), m_num_of_routers(0), m_router_port(0)
-{
-	this->m_table = new RoutingTable();
-	this->m_my_router_subnets = new vector<Subnet*>();
-	this->m_routers = new RouterEntry[NUM_OF_ROUTERS];
-	this->m_handler = new EventHandler(m_table, m_routers, 
-		&m_active_fd_set, &m_read_fd_set, &m_write_fd_set, m_my_router_subnets);
-	
-}
-
 MyRouter::~MyRouter()
 {
 	delete (this->m_handler);
@@ -25,7 +15,7 @@ MyRouter::MyRouter( string name ) : m_name(name), m_num_of_routers(0), m_router_
 	
 	this->m_table = new RoutingTable();
 	this->m_my_router_subnets = new vector<Subnet*>();
-	this->m_handler = new EventHandler(m_table, m_routers,
+	this->m_handler = new EventHandler(m_table, m_routers, 
 		&m_active_fd_set, &m_read_fd_set, &m_write_fd_set, m_my_router_subnets);
 	this->m_routers = new RouterEntry[NUM_OF_ROUTERS];
 }
@@ -79,13 +69,17 @@ void MyRouter::initSets()
 	FD_ZERO(&m_read_fd_set);
 }
 
-void MyRouter::displaySet(fd_set & set)
+void MyRouter::displaySet(string title, fd_set & set)
 {
 	int i;
-	cout << "Set is: ";
+	cout << title << " set is: ";
+	for (i = 0; i < m_max_fd; i++)
+		if (FD_ISSET(i, &set))
+			cout << i << ", ";
+	cout << endl;
 	for (i = 0; i < m_num_of_routers; i++)
-		if (FD_ISSET(m_sockets[i], &m_write_fd_set))
-			cout << i << ":" << m_sockets[i] << ", ";
+		if (FD_ISSET(m_sockets[i], &set))
+			cout << i << ": "<< m_sockets[i] << ", ";
 	cout << "end." << endl;
 }
 
@@ -93,17 +87,24 @@ void MyRouter::Run()
 {
 	int i = 0, res = 0;
 	m_max_fd = 0;
+	int myId = -1;
 	//timeval timeout = {0};
 	timeval timeout = {30, 0}; //TMP
 	initSets();
 	srand((int) time(NULL));
+
+	//Some sizes checks:
+	assert(sizeof(int) == 4);
+	assert(sizeof(long) == 4);
+	assert(sizeof(short) == 2);
+	assert(sizeof(byte) == 1);
 
 	m_handler->Handle(EventHandler::RT_EVENT_READ_CONFIG, (void *)this->m_routers);
 
 	for (i = 0; i < m_num_of_routers; i++){
 		m_sockets[i] = m_routers[i].socketId;
 		if (m_sockets[i] > m_max_fd)
-			m_max_fd = m_sockets[i];
+			m_max_fd = m_sockets[i] + 1;
 	}
 
 	while (true)
@@ -119,10 +120,10 @@ void MyRouter::Run()
 		FD_CLR(0, &m_active_fd_set);
 		m_read_fd_set = m_active_fd_set;
 
-		displaySet(m_read_fd_set);
-		displaySet(m_write_fd_set);
+		displaySet("Read", m_read_fd_set);
+		displaySet("Write", m_write_fd_set);
 		
-		res = select(m_max_fd, &m_read_fd_set, &m_write_fd_set, NULL, &timeout);
+		res = select(m_max_fd + 1, &m_read_fd_set, &m_write_fd_set, NULL, &timeout);
 		
 		IF_DEBUG(TRACE)
 		{
@@ -139,7 +140,8 @@ void MyRouter::Run()
 			exit (EXIT_FAILURE);
 		}
 
-		displaySet(m_read_fd_set);
+		displaySet("Read", m_read_fd_set);
+		displaySet("Write", m_write_fd_set);
 
 		/* write to all ready sockets that have something in their buffer */
 		for (i = 0; i < m_num_of_routers; ++i)
