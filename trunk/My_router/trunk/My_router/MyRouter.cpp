@@ -101,11 +101,18 @@ void MyRouter::Run()
 
 	m_handler->Handle(EventHandler::RT_EVENT_READ_CONFIG, (void *)this->m_routers);
 
-	for (i = 0; i < m_num_of_routers; i++){
+	/*
+	for (i = 0; i < m_num_of_routers; i++)
+	{
 		m_sockets[i] = m_routers[i].socketId;
 		if (m_sockets[i] > m_max_fd)
 			m_max_fd = m_sockets[i] + 1;
-	}
+	} */
+	
+	FD_SET(m_max_fd, &m_active_fd_set);
+	FD_SET(m_max_fd, &m_write_fd_set);
+
+	m_max_fd = RouterSocket::GetRouterSocketDescriptor();
 
 	while (true)
 	{
@@ -129,6 +136,7 @@ void MyRouter::Run()
 		{
 			cout << "select returned " << res << endl;
 		}
+
 		if (res < 0)
 		{
 			IF_DEBUG(ERROR)
