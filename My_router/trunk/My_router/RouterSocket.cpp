@@ -5,11 +5,11 @@
 
 int RouterSocket::ms_router_socket_sd = 0;//socket(PF_INET, SOCK_DGRAM, AUTO_SELECT_PROTOCOL);
 
-RouterSocket::RouterSocket(void)
+RouterSocket::RouterSocket()
 {
 }
 
-RouterSocket::~RouterSocket(void)
+RouterSocket::~RouterSocket()
 {
 }
 
