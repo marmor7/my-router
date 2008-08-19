@@ -11,14 +11,6 @@ using namespace std;
 class MyRouter
 {
 public:
-	//************************************
-	// Method:    MyRouter
-	// FullName:  MyRouter::MyRouter
-	// Access:    public 
-	// Returns:   
-	// Qualifier: Constructor
-	//************************************
-	MyRouter();
 
 	//************************************
 	// Method:    ~MyRouter
@@ -121,13 +113,12 @@ public:
 	//************************************
 	void AddSubnet(Subnet* subnet);
 
-
 protected:
 	//Initialize the fd_sets
 	void initSets();
 
 	//Display an fd_set
-	void displaySet(fd_set & set);
+	void displaySet(string title, fd_set & set);
 
 	//Router's name
 	string m_name;

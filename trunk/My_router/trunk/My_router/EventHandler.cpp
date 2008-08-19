@@ -11,6 +11,7 @@ EventHandler::EventHandler(RoutingTable* router_table, RouterEntry* routers,
 	this->m_read_fd_set = read;
 	this->m_write_fd_set = write;
 	this->m_router_subnets = subnets;
+	this->m_my_id = -1;
 }
 
 EventHandler::~EventHandler(void)
@@ -47,6 +48,8 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 				cout << "socket to " << m_routers[i].name << 
 					" established on " << m_routers[i].socketId << endl;
 			}
+			if (m_name.compare(m_routers[i].name) == 0)
+				m_my_id = i;
 		}
 
 		/* NO BREAK NEEDED */
@@ -55,9 +58,25 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 			cout << "Handle: sending my DV to neighbors" << endl;
 		}
 		MyRIPMessage msg;
+		memset(&msg, 0, sizeof(msg));
+		//Set all known fields:
+		msg.protocolID = htons(PROTOCOL_ID);
+		memcpy(msg.SenderName, m_routers[m_my_id].name, MAX_SENDER_NAME);
+		//Let routing table set it's related fields:
 		this->m_table->GetDV(&msg);
 		for (int i=0; i < m_num_of_routers; i++){
-			m_routers[i].msg_len = len;
+			//Set receiver specific fields:
+			memcpy(msg.ReceiverName, m_routers[i].name, MAX_SENDER_NAME);
+			Subnet subnet;
+			/*TBD:
+				this->m_table->GetRouterSubnet(&subnet);
+				msg.ConnectingNETMYIPSubnet = subnet.address;
+				msg.ConnectingNETMYIPMask   = subnet.mask;
+			*/
+			IF_DEBUG(TRACE){
+				if (i==0)
+					Utils::PrintMsg(&msg);
+			}
 			memcpy(m_routers[i].msg, &msg, len);
 			FD_SET (m_routers[i].socketId, m_write_fd_set);
 		}

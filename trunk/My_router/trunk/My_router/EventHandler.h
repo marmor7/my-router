@@ -65,6 +65,9 @@ public:
 
 	void setNumOfRouters(int num) { m_num_of_routers = num; };
 
+	//Set my id member
+	void setMyId(int id) { m_my_id = id; };
+
 	Utils::ReturnStatus AddRoutes(char name[MAX_ROUTER_NAME], Subnet* subnet_ptr);
 
 	//Num of registered routers
@@ -97,4 +100,7 @@ private:
 	fd_set* m_active_fd_set;
 	fd_set* m_read_fd_set;
 	fd_set* m_write_fd_set;
+
+	//This routers ID in the routers table
+	int m_my_id;
 };

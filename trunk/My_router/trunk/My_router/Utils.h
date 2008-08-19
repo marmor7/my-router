@@ -53,6 +53,9 @@ public:
 	Utils();
 	~Utils();
 
+	static void PrintMsg(MyRIPMessage* msg);
+	static void PrintDest(int i, DestinationProperties* dest);
+
 	//Enumerator of the possible return statuses by InitRouter.
 	enum ReturnStatus
 	{
