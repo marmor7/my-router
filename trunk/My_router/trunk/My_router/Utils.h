@@ -20,6 +20,8 @@ using namespace std;
 #define TIMEOUT_SEC_MIN 20
 #define TIMEOUT_SEC_MAX 40
 
+#define ROUTER_PORT	44444
+
 struct RouterEntry
 {
 	int socketId;
@@ -76,6 +78,7 @@ public:
 		STATUS_RECIVE_OK,
 		STATUS_RECIVE_FAILED,
 		STATUS_CLOSE_OK,
-		STATUS_CLOSE_FAILED
+		STATUS_CLOSE_FAILED,
+		STATUS_BAD_BIND
 	};
 };

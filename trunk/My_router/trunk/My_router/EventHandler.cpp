@@ -41,6 +41,14 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 	{
 	case RT_EVENT_READ_CONFIG:
 		this->m_routers = (RouterEntry* )data;
+
+		RouterSocket::SocketInit();
+
+		IF_DEBUG(TRACE)
+		{
+			cout << "Return value from socket init is: " << RouterSocket::GetRouterSocketDescriptor() << endl;
+		}
+
 		//TBD: RoutingTable::
 		for (int i=0; i < m_num_of_routers; i++)
 		{

@@ -16,7 +16,8 @@ RouterSocket::~RouterSocket(void)
 //Establish a connection to a neighbour router
 Utils::SocketReturnStatus RouterSocket::SocketEstablish(IN RouterEntry* entry)
 {
-	int sd;
+	int sd, con;
+	sockaddr_in router_sockaddr;
 
 	sd = socket(PF_INET, SOCK_DGRAM, AUTO_SELECT_PROTOCOL);
 
@@ -35,7 +36,17 @@ Utils::SocketReturnStatus RouterSocket::SocketEstablish(IN RouterEntry* entry)
 
 	entry->socketId = sd;
 
-	//TMP SetConnectionParameters(&addr, entry->port, entry->name);
+	router_sockaddr.sin_family = AF_INET;
+	router_sockaddr.sin_addr = entry->address;
+	router_sockaddr.sin_port = htons(entry->port);
+	memset(router_sockaddr.sin_zero, '\0', sizeof router_sockaddr.sin_zero);
+
+	con = connect(sd, (struct sockaddr *) &router_sockaddr, sizeof(router_sockaddr));
+
+	if (con != 0)
+	{
+		return Utils::STATUS_BAD_CONNECT;
+	}
 
 	IF_DEBUG(TRACE)
 	{
@@ -48,14 +59,13 @@ Utils::SocketReturnStatus RouterSocket::SocketEstablish(IN RouterEntry* entry)
 
 //Accept a connection from a neighbour router
 Utils::SocketReturnStatus RouterSocket::SocketAccept(IN int router_socket_descriptor,
-													 IN sockaddr_in* my_router_properties, 
-													 OUT int* new_sd)
+													 OUT sockaddr_in* my_router_properties, 
+													 OUT int* new_sd )
 {
 	int sin_size;
 	int* new_sd_ptr = new int;
-	struct sockaddr_in remote_addr;
 	
-	sin_size = sizeof (remote_addr);
+	sin_size = sizeof (*my_router_properties);
 	*new_sd_ptr = accept(router_socket_descriptor, (struct sockaddr *)my_router_properties, &sin_size);
 
 	if (*new_sd_ptr == -1)
@@ -81,6 +91,8 @@ Utils::SocketReturnStatus RouterSocket::SocketSend(IN int& socket_out,
 												   IN int& len, 
 												   IN BYTE* data )
 {
+	//int sendto(int sockfd, const void *msg, int len, unsigned int flags, const struct sockaddr *to, socklen_t tolen); 
+
 	if (socket_out <= 0)
 	{
 		IF_DEBUG(TRACE)
@@ -97,7 +109,8 @@ Utils::SocketReturnStatus RouterSocket::SocketSend(IN int& socket_out,
 	
 	while(total < len)
 	{
-		IF_DEBUG(TRACE){
+		IF_DEBUG(TRACE)
+		{
 			cout << "SocketSend: Sending msg on socket " << socket_out << " - " ;
 		}
 		n = send(socket_out, (char*) data+total, bytesleft, 0);
@@ -156,6 +169,30 @@ int RouterSocket::GetRouterSocketDescriptor()
 	return RouterSocket::ms_router_socket_sd;
 }
 
+Utils::SocketReturnStatus RouterSocket::SocketInit()
+{
+	int bind_ret;
+	struct sockaddr_in serv_addr;
+
+	RouterSocket::ms_router_socket_sd = socket(AF_INET, SOCK_DGRAM, AUTO_SELECT_PROTOCOL);
+
+	if (RouterSocket::ms_router_socket_sd < 0)
+	{
+		return Utils::STATUS_BAD_SOCKET;
+	}
+
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	serv_addr.sin_port = htons(ROUTER_PORT);
+	memset(serv_addr.sin_zero, '\0', sizeof serv_addr.sin_zero);
+
+	bind_ret = bind (RouterSocket::ms_router_socket_sd, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+
+	if(bind_ret<0)
+	{
+		return Utils::STATUS_BAD_BIND;
+	}
+}
 /*
 
 struct sockaddr_in addr;
