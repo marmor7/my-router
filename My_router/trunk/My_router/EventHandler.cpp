@@ -42,9 +42,11 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 	case RT_EVENT_READ_CONFIG:
 		this->m_routers = (RouterEntry* )data;
 		//TBD: RoutingTable::
-		for (int i=0; i < m_num_of_routers; i++){
+		for (int i=0; i < m_num_of_routers; i++)
+		{
 			RouterSocket::SocketEstablish(&m_routers[i]);
-			IF_DEBUG(TRACE){
+			IF_DEBUG(TRACE)
+			{
 				cout << "socket to " << m_routers[i].name << 
 					" established on " << m_routers[i].socketId << endl;
 			}
@@ -54,41 +56,51 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 
 		/* NO BREAK NEEDED */
 	case RT_EVENT_SENDING_DV:
-		IF_DEBUG(TRACE){
+		IF_DEBUG(TRACE)
+		{
 			cout << "Handle: sending my DV to neighbors" << endl;
 		}
+
 		MyRIPMessage msg;
 		memset(&msg, 0, sizeof(msg));
+
 		//Set all known fields:
 		msg.protocolID = htons(PROTOCOL_ID);
 		memcpy(msg.SenderName, m_routers[m_my_id].name, MAX_SENDER_NAME);
+
 		//Let routing table set it's related fields:
 		this->m_table->GetDV(&msg);
-		for (int i=0; i < m_num_of_routers; i++){
+		for (int i=0; i < m_num_of_routers; i++)
+		{
 			//Set receiver specific fields:
 			memcpy(msg.ReceiverName, m_routers[i].name, MAX_SENDER_NAME);
+		
 			Subnet subnet;
 			/*TBD:
 				this->m_table->GetRouterSubnet(&subnet);
 				msg.ConnectingNETMYIPSubnet = subnet.address;
 				msg.ConnectingNETMYIPMask   = subnet.mask;
 			*/
-			IF_DEBUG(TRACE){
+			IF_DEBUG(TRACE)
+			{
 				if (i==0)
 					Utils::PrintMsg(&msg);
 			}
+
 			memcpy(m_routers[i].msg, &msg, len);
 			FD_SET (m_routers[i].socketId, m_write_fd_set);
 		}
 		break;
 	case RT_EVENT_TIMEOUT:
 	case RT_EVENT_DV_RECEIVED:
-		IF_DEBUG(TRACE){
+		IF_DEBUG(TRACE)
+		{
 			cout << "Got an event!!! Not doing anything yet..." << endl;
 		}
 		break;
 	default:
-		IF_DEBUG(ERROR){
+		IF_DEBUG(ERROR)
+		{
 			cout << "ERROR: got a weird event!!! Don't know what to do" << endl;
 		}
 	}

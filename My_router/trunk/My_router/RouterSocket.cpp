@@ -16,38 +16,31 @@ RouterSocket::~RouterSocket(void)
 //Establish a connection to a neighbour router
 Utils::SocketReturnStatus RouterSocket::SocketEstablish(IN RouterEntry* entry)
 {
-	int sd, status;
-	sockaddr_in addr;
+	int sd;
 
 	sd = socket(PF_INET, SOCK_DGRAM, AUTO_SELECT_PROTOCOL);
 
 	if (sd <= 0)
 	{
-		IF_DEBUG(ERROR){
+		entry->socketId = -1;
+
+		IF_DEBUG(ERROR)
+		{
 			cout << "ERROR: Establishing UDP socket to " << entry->name << 
 				" on port " << entry->port << " FAILED" << endl;
 		}
+
 		return Utils::STATUS_BAD_SOCKET;
 	}
 
 	entry->socketId = sd;
 
-	addr.sin_addr = entry->address;
-	addr.sin_port = htons(entry->port);
-	addr.sin_family = AF_INET;
-	memset(addr.sin_zero, 0, sizeof(addr.sin_zero));
-
 	//TMP SetConnectionParameters(&addr, entry->port, entry->name);
 
-	IF_DEBUG(TRACE){
-		cout << "Establishing UDP socket to " << entry->name << 
-			" on port " << entry->port << endl;
-	}
-	status = connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr));
-
-	if (status == -1)
+	IF_DEBUG(TRACE)
 	{
-		return Utils::STATUS_BAD_CONNECT;
+		cout << "Establishing UDP socket to " << entry->name << 
+				" on port " << entry->port << endl;
 	}
 
 	return Utils::STATUS_SOCKET_OK;
@@ -75,8 +68,8 @@ Utils::SocketReturnStatus RouterSocket::SocketAccept(IN int router_socket_descri
 
 //Receive a massage from a neighbour router
 Utils::SocketReturnStatus RouterSocket::SocketReceive(IN int& sd,
-												OUT BYTE* buff, 
-												IN int& len)
+													  OUT BYTE* buff, 
+													  IN int& len)
 {
 	int bytes_recived = recv(sd, (char*) buff, len, 0);
 
@@ -88,15 +81,20 @@ Utils::SocketReturnStatus RouterSocket::SocketSend(IN int& socket_out,
 												   IN int& len, 
 												   IN BYTE* data )
 {
-	if (socket_out <= 0){
-		IF_DEBUG(TRACE){
+	if (socket_out <= 0)
+	{
+		IF_DEBUG(TRACE)
+		{
 			cout << "SocketSend: bad socket " << socket_out << endl;
 		}
+		
 		return Utils::STATUS_BAD_SOCKET;
 	}
+
 	int total = 0;
 	int bytesleft = len;
 	int n = -1;
+	
 	while(total < len)
 	{
 		IF_DEBUG(TRACE){
@@ -106,18 +104,21 @@ Utils::SocketReturnStatus RouterSocket::SocketSend(IN int& socket_out,
 		
 		if (n == -1) 
 		{
-			IF_DEBUG(TRACE){
+			IF_DEBUG(TRACE)
+			{
 				cout << "FAILED!" << endl;
 			}
 			break;
 		}
-		IF_DEBUG(TRACE){
+		IF_DEBUG(TRACE)
+		{
 			cout << n << " bytes sent" << endl;
 		}
 
 		total += n;
 		bytesleft -= n;
 	}
+
 	len = total;
 	return n==-1 ? Utils::STATUS_SEND_FAILED : Utils::STATUS_SEND_OK;
 }
@@ -134,11 +135,12 @@ void RouterSocket::SetConnectionParameters( struct sockaddr_in *dest, int port, 
 	dest->sin_addr = *((struct in_addr *)he->h_addr);
 	memset(dest->sin_zero, 0, sizeof(dest->sin_zero));
 
-	#ifdef _DEBUG
+	IF_DEBUG(ALL)
+	{
 		printf("DEBUG: Server name is: %s\n", hostname);
 		printf("DEBUG: Server IP is: %s\n", he->h_name);
 		printf("\n");
-	#endif
+	}
 }
 
 Utils::SocketReturnStatus RouterSocket::SocketClose( IN int& sd )
@@ -153,3 +155,31 @@ int RouterSocket::GetRouterSocketDescriptor()
 {
 	return RouterSocket::ms_router_socket_sd;
 }
+
+/*
+
+struct sockaddr_in addr;
+struct hostent* h;
+h = gethostbyname(entry->name);
+
+if (h == NULL)
+{
+//assert(h != NULL); //TBD: remove
+return Utils::STATUS_BAD_SOCKET;
+} 
+entry->socketId = sd;
+
+addr.sin_addr = entry->address;
+addr.sin_port = htons(entry->port);
+addr.sin_family = AF_INET;
+memset(addr.sin_zero, 0, sizeof(addr.sin_zero));
+
+status = connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr));
+
+
+if (status == -1)
+{
+return Utils::STATUS_BAD_CONNECT;
+}
+
+*/
