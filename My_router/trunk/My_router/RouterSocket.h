@@ -28,7 +28,7 @@ public:
 	// Parameter: IN sockaddr_in * my_router_properties - Remote router's properties
 	// Parameter: OUT int * new_sd - New socket descriptor that has returned from accept
 	//************************************
-	static Utils::SocketReturnStatus SocketAccept(IN int router_socket_descriptor,IN sockaddr_in* my_router_properties, OUT int* new_sd );
+	static Utils::SocketReturnStatus SocketAccept(IN int router_socket_descriptor,OUT sockaddr_in* my_router_properties, OUT int* new_sd );
 
 	//************************************
 	// Method:    SocketReceive
@@ -63,6 +63,15 @@ public:
 	// Parameter: IN int & sd - Socket descriptor
 	//************************************
 	static Utils::SocketReturnStatus SocketClose(IN int& sd);
+
+	//************************************
+	// Method:    SocketInit
+	// FullName:  RouterSocket::SocketInit
+	// Access:    public static 
+	// Returns:   Utils::SocketReturnStatus
+	// Qualifier: Initializes the router's socket
+	//************************************
+	static Utils::SocketReturnStatus SocketInit();
 
 	//************************************
 	// Method:    GetRouterSocketDescriptor
