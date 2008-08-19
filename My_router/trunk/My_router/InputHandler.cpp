@@ -48,6 +48,10 @@ Utils::ReturnStatus InputHandler::InitRouter( int argc, char** argv, MyRouter** 
 
 		while (getline(in_file, line))
 		{
+			//skip empty lines
+			if (line.length() <= 0)
+				continue;
+
 			start_char = line.at(0);
 			//Line is not a comment or empty line or begin with space
 			if (!(start_char == "#") && !(start_char == ""))
@@ -241,6 +245,7 @@ Subnet* InputHandler::GetSubnetStructFromString( string str )
 	cost = str;
 
 	sub->address.S_un.S_addr = inet_addr(ip.c_str());
+	cout << "converting" << endl; //TMP
 	sub->cost = atoi(cost.c_str());
 	sub->mask = atoi(mask.c_str());
 

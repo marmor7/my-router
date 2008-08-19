@@ -126,6 +126,9 @@ protected:
 	//Initialize the fd_sets
 	void initSets();
 
+	//Display an fd_set
+	void displaySet(fd_set & set);
+
 	//Router's name
 	string m_name;
 
@@ -150,6 +153,12 @@ protected:
 
 	//Sets of sockets - used by select function
 	fd_set m_active_fd_set, m_read_fd_set, m_write_fd_set;
+
+	//Array from index to socketId
+	int m_sockets[NUM_OF_ROUTERS];
+
+	//Max file descriptor
+	int m_max_fd;
 
 private:
 };

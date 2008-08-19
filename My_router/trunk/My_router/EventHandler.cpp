@@ -43,6 +43,10 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 		//TBD: RoutingTable::
 		for (int i=0; i < m_num_of_routers; i++){
 			RouterSocket::SocketEstablish(&m_routers[i]);
+			IF_DEBUG(TRACE){
+				cout << "socket to " << m_routers[i].name << 
+					" established on " << m_routers[i].socketId << endl;
+			}
 		}
 
 		/* NO BREAK NEEDED */

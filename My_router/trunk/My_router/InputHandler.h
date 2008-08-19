@@ -8,6 +8,7 @@ class MyRouter;
 #define NUMBER_OF_ALLOWED_ARGUMENTS 2
 #define MAX_FILENAME_LENGTH 256
 #define FILENAME "myrouter.cfg"
+//TBD: #define FILENAME "myrouter.cfg"
 
 using namespace std;
 
