@@ -66,7 +66,10 @@ public:
 	void setNumOfRouters(int num) { m_num_of_routers = num; };
 
 	//Set my id member
-	void setMyId(int id) { m_my_id = id; };
+	void setMyId(int id) { m_my_entry = &(m_routers[id]); };
+
+	//Get my entry
+	RouterEntry*  getMyEntry() { return m_my_entry; };
 
 	Utils::ReturnStatus AddRoutes(char name[MAX_ROUTER_NAME], Subnet* subnet_ptr);
 
@@ -89,6 +92,7 @@ private:
 
 	//Router entries for routers
 	RouterEntry* m_routers;
+	RouterEntry* m_my_entry;
 	
 	//Router's subnets
 	vector<Subnet*>* m_router_subnets;
@@ -100,7 +104,4 @@ private:
 	fd_set* m_active_fd_set;
 	fd_set* m_read_fd_set;
 	fd_set* m_write_fd_set;
-
-	//This routers ID in the routers table
-	int m_my_id;
 };

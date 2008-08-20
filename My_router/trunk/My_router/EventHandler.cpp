@@ -11,7 +11,7 @@ EventHandler::EventHandler(RoutingTable* router_table, RouterEntry* routers,
 	this->m_read_fd_set = read;
 	this->m_write_fd_set = write;
 	this->m_router_subnets = subnets;
-	this->m_my_id = -1;
+	this->m_my_entry = 0;
 }
 
 EventHandler::~EventHandler(void)
@@ -62,7 +62,7 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 			} 
 			*/
 			if (m_name.compare(m_routers[i].name) == 0)
-				m_my_id = i;
+				m_my_entry = &(m_routers[i]);
 		}
 
 		/* NO BREAK NEEDED */
@@ -77,7 +77,7 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 
 		//Set all known fields:
 		msg.protocolID = htons(PROTOCOL_ID);
-		memcpy(msg.SenderName, m_routers[m_my_id].name, MAX_SENDER_NAME);
+		memcpy(msg.SenderName, m_my_entry->name, MAX_SENDER_NAME);
 
 		//Let routing table set it's related fields:
 		this->m_table->GetDV(&msg);
@@ -85,9 +85,8 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 		{
 			//Set receiver specific fields:
 			memcpy(msg.ReceiverName, m_routers[i].name, MAX_SENDER_NAME);
-		
-			Subnet subnet;
 			/*TBD:
+			Subnet subnet;
 				this->m_table->GetRouterSubnet(&subnet);
 				msg.ConnectingNETMYIPSubnet = subnet.address;
 				msg.ConnectingNETMYIPMask   = subnet.mask;
@@ -99,7 +98,7 @@ Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data)
 			}
 
 			memcpy(m_routers[i].msg, &msg, len);
-			FD_SET (m_routers[i].socketId, m_write_fd_set);
+			//TBD? FD_SET (m_routers[i].socketId, m_write_fd_set);
 		}
 		break;
 	case RT_EVENT_TIMEOUT:
