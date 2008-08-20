@@ -192,6 +192,8 @@ Utils::SocketReturnStatus RouterSocket::SocketInit()
 	{
 		return Utils::STATUS_BAD_BIND;
 	}
+
+	return Utils::STATUS_SOCKET_OK;
 }
 /*
 

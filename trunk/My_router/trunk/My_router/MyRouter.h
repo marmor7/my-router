@@ -135,6 +135,7 @@ protected:
 
 	//Router database (name, ip, port)
 	RouterEntry* m_routers;
+	RouterEntry* m_my_entry;
 
 	//Number of neighboring routers
 	int m_num_of_routers;
@@ -148,8 +149,11 @@ protected:
 	//Array from index to socketId
 	int m_sockets[NUM_OF_ROUTERS];
 
-	//Max file descriptor
+	//Max socket descriptor
 	int m_max_fd;
+
+	//This router socket descriptor
+	int m_my_fd;
 
 private:
 };
