@@ -59,21 +59,67 @@ public:
 	//************************************
 	Utils::ReturnStatus EventHandler::Handle(RouterEvents event, void* data);
 
-	string getName() { return m_name; };
+	//************************************
+	// Method:    GetName
+	// FullName:  EventHandler::GetName
+	// Access:    public 
+	// Returns:   std::string
+	// Qualifier: Gets the router's name
+	//************************************
+	string GetName() { return m_name; };
 
-	void setName(string name) { m_name = name; };
+	//************************************
+	// Method:    SetName
+	// FullName:  EventHandler::SetName
+	// Access:    public 
+	// Returns:   void
+	// Qualifier: Set the router's name
+	// Parameter: string name
+	//************************************
+	void SetName(string name) { m_name = name; };
 
-	void setNumOfRouters(int num) { m_num_of_routers = num; };
+	//************************************
+	// Method:    SetNumOfRouters
+	// FullName:  EventHandler::SetNumOfRouters
+	// Access:    public 
+	// Returns:   void
+	// Qualifier: Set number of router
+	// Parameter: int num
+	//************************************
+	void SetNumOfRouters(int num) { m_num_of_routers = num; };
 
 	//Set my id member
-	void setMyId(int id) { m_my_entry = &(m_routers[id]); };
+	//************************************
+	// Method:    SetMyId
+	// FullName:  EventHandler::SetMyId
+	// Access:    public 
+	// Returns:   void
+	// Qualifier: Set a pointer to the MyRouter in the router's array
+	// Parameter: int id
+	//************************************
+	void SetMyId(int id) { m_my_entry = &(m_routers[id]); };
 
-	//Get my entry
-	RouterEntry*  getMyEntry() { return m_my_entry; };
+	//************************************
+	// Method:    GetMyEntry
+	// FullName:  EventHandler::GetMyEntry
+	// Access:    public 
+	// Returns:   RouterEntry*
+	// Qualifier: Get router's entry
+	//************************************
+	RouterEntry* GetMyEntry() { return m_my_entry; };
 
+	//************************************
+	// Method:    AddRoutes
+	// FullName:  EventHandler::AddRoutes
+	// Access:    public 
+	// Returns:   Utils::ReturnStatus
+	// Qualifier: Adds route to routing table
+	// Parameter: char name[MAX_ROUTER_NAME]
+	// Parameter: Subnet * subnet_ptr
+	//************************************
 	Utils::ReturnStatus AddRoutes(char name[MAX_ROUTER_NAME], Subnet* subnet_ptr);
 
-	//Num of registered routers
+	//Number of registered routers
 	int m_num_of_routers; //TBD: change to private?
 	
 private:
