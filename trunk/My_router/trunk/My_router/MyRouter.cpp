@@ -171,7 +171,11 @@ void MyRouter::Run()
 					cout << "writing to socket " << m_sockets[i] << endl;
 				if (this->m_routers[i].msg_len > 0)
 				{
-					RouterSocket::SocketSend(i, this->m_routers[i].msg_len, this->m_routers[i].msg);
+					//TBD: Handle return status
+					RouterSocket::SocketSend(RouterSocket::GetRouterSocketDescriptor(),		//Out sd
+											 this->m_routers[i].msg_len,					//Length of data
+											 this->m_routers[i].msg,						//Message to send
+											 m_routers[i]);									//Router entry
 				}
 				if (this->m_routers[i].msg_len <= 0)
 				{
@@ -182,9 +186,17 @@ void MyRouter::Run()
 		/* read from all ready sockets */
 		if (FD_ISSET (m_my_fd, &m_read_fd_set))
 		{
+			sockaddr_in sender;
 			IF_DEBUG(TRACE)
+			{
 				cout << "reading from socket " << m_my_fd << endl;
-			RouterSocket::SocketReceive(m_my_fd, this->m_my_entry->msg, this->m_my_entry->msg_len);
+			}
+
+			RouterSocket::SocketReceive(m_my_fd,					//Socket descriptor
+										this->m_my_entry->msg,		//In buffer
+										this->m_my_entry->msg_len,	//Buffer length
+										&sender);					//Sender struct containing sender data
+			
 			FD_CLR(m_my_fd, &m_read_fd_set);
 		}
 	}

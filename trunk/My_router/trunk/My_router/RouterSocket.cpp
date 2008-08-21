@@ -79,25 +79,40 @@ Utils::SocketReturnStatus RouterSocket::SocketAccept(IN int router_socket_descri
 //Receive a massage from a neighbour router
 Utils::SocketReturnStatus RouterSocket::SocketReceive(IN int& sd,
 													  OUT BYTE* buff, 
-													  IN int& len)
+													  IN int& len, 
+													  OUT sockaddr_in *data_sender)
 {
-	int bytes_recived = recv(sd, (char*) buff, len, 0);
+	int sender_len = sizeof(sockaddr_in);
 
-	return bytes_recived == -1 ? Utils::STATUS_RECIVE_FAILED : Utils::STATUS_RECIVE_OK;
+	int bytes_recived = recvfrom(sd,								//In socket descriptor
+		                         (char*) buff,						//In buffer
+								 len,								//Bytes to receive
+								 0,									//No flag
+								 (struct sockaddr *) &data_sender,	//Sender
+								 &sender_len);						//Struct length
+
+	IF_DEBUG(TRACE)
+	{
+		cout << "SocketReceive: Recieved message from socket " << sd << endl ;
+		cout << "Message recieved from: " << inet_ntoa(data_sender->sin_addr) << endl;
+	}
+
+
+
+	return (bytes_recived == -1) ? Utils::STATUS_RECIVE_FAILED : Utils::STATUS_RECIVE_OK;
 }
 
 //Send a massage to a neighbour router
-Utils::SocketReturnStatus RouterSocket::SocketSend(IN int& socket_out, 
-												   IN int& len, 
-												   IN BYTE* data )
+Utils::SocketReturnStatus RouterSocket::SocketSend(IN int sd, 
+												   IN int& len,
+												   IN BYTE* data,
+												   IN RouterEntry& dest)
 {
-	//int sendto(int sockfd, const void *msg, int len, unsigned int flags, const struct sockaddr *to, socklen_t tolen); 
-
-	if (socket_out <= 0)
+	if (sd <= 0)
 	{
 		IF_DEBUG(TRACE)
 		{
-			cout << "SocketSend: bad socket " << socket_out << endl;
+			cout << "SocketSend: bad socket " << sd << endl;
 		}
 		
 		return Utils::STATUS_BAD_SOCKET;
@@ -106,14 +121,26 @@ Utils::SocketReturnStatus RouterSocket::SocketSend(IN int& socket_out,
 	int total = 0;
 	int bytesleft = len;
 	int n = -1;
+	sockaddr_in address;
+
+	address.sin_family = AF_INET;         // host byte order
+	address.sin_port = htons(dest.port);     // short, network byte order
+	address.sin_addr = dest.address; //Destination - network order! = inet_addr("1.2.3.4")
+	memset(address.sin_zero, '\0', sizeof address.sin_zero);
 	
 	while(total < len)
 	{
 		IF_DEBUG(TRACE)
 		{
-			cout << "SocketSend: Sending msg on socket " << socket_out << " - " ;
+			cout << "SocketSend: Sending msg on socket " << sd << " - " ;
 		}
-		n = send(socket_out, (char*) data+total, bytesleft, 0);
+
+		n = sendto(sd,						//Output socket
+				   (char*) data+total,				//Output data
+				   bytesleft,						//How many bytes left
+				   0,								//No flags
+				   (struct sockaddr *) &address,	//Remote address
+				   sizeof(address));				//Size of struct
 		
 		if (n == -1) 
 		{
@@ -123,6 +150,7 @@ Utils::SocketReturnStatus RouterSocket::SocketSend(IN int& socket_out,
 			}
 			break;
 		}
+
 		IF_DEBUG(TRACE)
 		{
 			cout << n << " bytes sent" << endl;
@@ -133,7 +161,7 @@ Utils::SocketReturnStatus RouterSocket::SocketSend(IN int& socket_out,
 	}
 
 	len = total;
-	return n==-1 ? Utils::STATUS_SEND_FAILED : Utils::STATUS_SEND_OK;
+	return (n == -1) ? Utils::STATUS_SEND_FAILED : Utils::STATUS_SEND_OK;
 }
 
 void RouterSocket::SetConnectionParameters( struct sockaddr_in *dest, int port, char *hostname )

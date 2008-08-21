@@ -5,7 +5,22 @@
 class RouterSocket
 {
 public:
+	//************************************
+	// Method:    RouterSocket
+	// FullName:  RouterSocket::RouterSocket
+	// Access:    public 
+	// Returns:   
+	// Qualifier: Constructor
+	//************************************
 	RouterSocket();
+
+	//************************************
+	// Method:    ~RouterSocket
+	// FullName:  RouterSocket::~RouterSocket
+	// Access:    public 
+	// Returns:   
+	// Qualifier: Destructor
+	//************************************
 	~RouterSocket();
 
 	//************************************
@@ -40,19 +55,20 @@ public:
 	// Parameter: OUT BYTE * buff - Pointer to buffer that will be filled
 	// Parameter: IN int & len - Length of data to receive
 	//************************************
-	static Utils::SocketReturnStatus SocketReceive(IN int& sd, OUT BYTE* buff, IN int& len);
+	static Utils::SocketReturnStatus SocketReceive(IN int& sd, OUT BYTE* buff, IN int& len, OUT sockaddr_in *data_sender);
 
 	//************************************
 	// Method:    SocketSend
 	// FullName:  RouterSocket::SocketSend
-	// Access:    public static 
+	// Access:    public 
 	// Returns:   Utils::SocketReturnStatus
 	// Qualifier: Send a massage to a neighbor router
-	// Parameter: IN int & fd - Remote router's connection socket
+	// Parameter: IN int sd - Remote router's connection socket
 	// Parameter: IN int & len - Number of bytes to send
 	// Parameter: IN BYTE * data - Pointer to data
+	// Parameter: IN RouterEntry & dest - Remote computer destination
 	//************************************
-	static Utils::SocketReturnStatus SocketSend(IN int& fd, IN int& len, IN BYTE* data);
+	static Utils::SocketReturnStatus SocketSend(IN int sd, IN int& len, IN BYTE* data, IN RouterEntry& dest);
 
 	//************************************
 	// Method:    SocketClose
