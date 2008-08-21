@@ -245,7 +245,6 @@ Subnet* InputHandler::GetSubnetStructFromString( string str )
 	cost = str;
 
 	sub->address.S_un.S_addr = inet_addr(ip.c_str());
-	cout << "converting" << endl; //TMP
 	sub->cost = atoi(cost.c_str());
 	sub->mask = atoi(mask.c_str());
 

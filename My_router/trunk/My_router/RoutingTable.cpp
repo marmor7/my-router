@@ -52,8 +52,9 @@ Utils::ReturnStatus RoutingTable::AddRoute(char name[MAX_ROUTER_NAME], Subnet* s
 	return Utils::STATUS_OK;
 }
 
-Router RoutingTable::GetBestRoute( in_addr address )
+in_addr RoutingTable::GetBestRoute( in_addr address )
 {
-	//TBD: Change return type
-	return NULL;
+	in_addr ret;
+
+	return ret;
 }
