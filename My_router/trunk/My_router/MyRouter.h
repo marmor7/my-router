@@ -60,7 +60,7 @@ public:
 	// Parameter: in_addr * address
 	// Parameter: short port
 	//************************************
-	Utils::ReturnStatus AddRouter(char name[MAX_ROUTER_NAME], in_addr* address, short port);
+	Utils::ReturnStatus AddRouter(char name[MAX_ROUTER_NAME], in_addr* address, unsigned short port);
 
 	//************************************
 	// Method:    AddRoute
@@ -92,7 +92,7 @@ public:
 	// Parameter: string ip
 	// Parameter: short port
 	//************************************
-	void SetRoutersIpAndPort(string ip, short port);
+	void SetRoutersIpAndPort(string ip, unsigned short port);
 
 	//************************************
 	// Method:    GetMySubnets
@@ -125,7 +125,7 @@ protected:
 
 	sockaddr_in m_router_ip; //Remove
  
-	short m_router_port; //Remove
+	unsigned short m_router_port; //Remove
 
 	//Incoming event handler
 	EventHandler* m_handler;

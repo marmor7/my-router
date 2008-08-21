@@ -31,10 +31,10 @@ void MyRouter::SetName( string name )
 	this->m_name = name;
 }
 
-Utils::ReturnStatus MyRouter::AddRouter(char name[MAX_ROUTER_NAME], in_addr* address, short port){
+Utils::ReturnStatus MyRouter::AddRouter(char name[MAX_ROUTER_NAME], in_addr* address, unsigned short port){
 	IF_DEBUG(ALL)
 	{
-		cout << "addRouter: " << name << ", ..." << 
+		cout << "AddRouter: " << name << ", ..." << 
 			(int)address->S_un.S_un_b.s_b4 << " : " << port << endl;
 	}
 
@@ -192,7 +192,7 @@ void MyRouter::Run()
 	cout << "While loop exit" << endl;
 }
 
-void MyRouter::SetRoutersIpAndPort( string ip, short port )
+void MyRouter::SetRoutersIpAndPort( string ip,unsigned short port )
 {
 	long ip_long;
 	struct in_addr s;
