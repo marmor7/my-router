@@ -2,8 +2,6 @@
 #include "stdafx.h"
 #include "Utils.h"
 
-typedef int Router; //TBD: Change to actual return type.
-
 class RoutingTable
 {
 public:
@@ -59,11 +57,11 @@ public:
 	// Method:    GetBestRoute
 	// FullName:  RoutingTable::GetBestRoute
 	// Access:    public static 
-	// Returns:   Router
+	// Returns:   in_addr - Actual IP address to route you message to (best next link)
 	// Qualifier: Gets best route for address
 	// Parameter: in_addr address
 	//************************************
-	static Router GetBestRoute(in_addr address);
+	static in_addr GetBestRoute(in_addr address);
 
 private:
 	//Sorted list for each router. First element is the best route
