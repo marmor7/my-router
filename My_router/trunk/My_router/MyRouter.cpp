@@ -27,7 +27,7 @@ string MyRouter::GetName()
 
 void MyRouter::SetName( string name )
 {
-	this->m_handler->setName(name);
+	this->m_handler->SetName(name);
 	this->m_name = name;
 }
 
@@ -124,7 +124,7 @@ void MyRouter::Run()
 	displaySet("Read", m_read_fd_set);
 	displaySet("Write", m_write_fd_set);
 
-	this->m_my_entry = this->m_handler->getMyEntry();
+	this->m_my_entry = this->m_handler->GetMyEntry();
 
 	while (true)
 	{
