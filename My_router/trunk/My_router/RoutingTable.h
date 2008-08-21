@@ -53,7 +53,7 @@ public:
 	// Parameter: char name[MAX_ROUTER_NAME]
 	// Parameter: Subnet * subnet_ptr
 	//************************************
-	static Utils::ReturnStatus AddRoute(char name[MAX_ROUTER_NAME], Subnet* subnet_ptr);
+	static Utils::ReturnStatus AddRoute(__in char name[MAX_ROUTER_NAME], __in Subnet* subnet_ptr);
 
 	//************************************
 	// Method:    GetBestRoute
