@@ -96,7 +96,7 @@ Utils::ReturnStatus InputHandler::InitRouter( int argc, char** argv, MyRouter** 
 	}
 }
 
-Utils::ReturnStatus TextToIpPort(const string t, in_addr* ip, short* port) {
+Utils::ReturnStatus TextToIpPort(const string t, in_addr* ip, unsigned short* port) {
 	int sum, ad1, ad2, ad3, ad4, ad5;
 	sum = sscanf_s(t.c_str(), "%lu.%lu.%lu.%lu:%lu", &ad1, &ad2, &ad3, &ad4, &ad5); // Code %lu for long unsigned decimal integer
 	// It sum just the IP address
@@ -106,7 +106,7 @@ Utils::ReturnStatus TextToIpPort(const string t, in_addr* ip, short* port) {
 		ip->S_un.S_un_b.s_b2 = ad2;
 		ip->S_un.S_un_b.s_b3 = ad3;
 		ip->S_un.S_un_b.s_b4 = ad4;
-		*port = ad5;
+		*port = (unsigned short int) ad5;
 		return Utils::STATUS_OK;
 	} 
 	else
@@ -120,7 +120,7 @@ void InputHandler::HandleIpLine( string line )
 	char router_name[MAX_ROUTER_NAME];
 	int pos, last_pos;
 	in_addr ip = {0};
-	short port = 0;
+	unsigned short int port = 0;
 
 	pos = line.find_first_not_of(" "); //Space if any at beginning
 	last_pos = line.find_first_of(" ", pos);
