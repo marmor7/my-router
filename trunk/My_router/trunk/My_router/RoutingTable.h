@@ -2,6 +2,20 @@
 #include "stdafx.h"
 #include "Utils.h"
 
+typedef struct
+{
+	in_addr ip_address;
+	short int mask;
+} Address;
+
+typedef struct
+{
+	char* router_name[MAX_ROUTER_NAME];
+	in_addr router_ip;
+} RouterAddress;
+
+typedef pair<Address, list<RouterAddress>* > RoutingTableEntry;
+
 class RoutingTable
 {
 public:
@@ -65,5 +79,5 @@ public:
 
 private:
 	//Sorted list for each router. First element is the best route
-	static map<const string, vector<Subnet*> > m_routing_table;	
+	static vector<RoutingTableEntry> *m_routing_table;
 };
