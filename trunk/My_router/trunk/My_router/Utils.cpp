@@ -4,10 +4,14 @@
 
 void Utils::PrintMsg(MyRIPMessage* msg)
 {
+	in_addr tmp;
+	tmp.S_un.S_addr = ntohl(msg->ConnectingNETMYIPSubnet);
+	char* subnet = inet_ntoa(tmp);
+	
 	cout << "len: " << ntohs(msg->length) << "\t";
-	cout << "prot: " << ntohs(msg->protocolID) << "\n";
-	cout << "subnet: " << msg->ConnectingNETMYIPSubnet << "\n";
-	cout << "mask: " << msg->ConnectingNETMYIPMask << "\n";
+	cout << "protocol: " << ntohs(msg->protocolID) << "\n";
+	cout << "subnet: " << subnet << "\n";
+	cout << "mask: " << ntohl(msg->ConnectingNETMYIPMask) << "\n";
 	cout << "sender name: " << msg->SenderName << "\n";
 	cout << "receiver name: " << msg->ReceiverName << "\n";
 	for (int i=0; i < NUMBER_OF_DESTINATIONS; i++)
