@@ -10,13 +10,13 @@ typedef struct
 
 typedef struct
 {
-	char* router_name[MAX_ROUTER_NAME];
+	char* router_name;
 	in_addr router_ip;
 	short int cost;
 	unsigned short port;
 } RouterAddress;
 
-typedef pair<Address, list<RouterAddress>* > RoutingTableEntry;
+typedef pair<Address, vector<RouterAddress>* > RoutingTableEntry;
 
 class RoutingTable
 {

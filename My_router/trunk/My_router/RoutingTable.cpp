@@ -4,6 +4,14 @@
 //map<const string, vector<Subnet*> > RoutingTable::m_routing_table = map<const string, vector<Subnet*> >();
 vector<RoutingTableEntry>* RoutingTable::m_routing_table = new vector<RoutingTableEntry>();
 
+struct SortRouterAddressByCost
+{
+	bool operator()(RouterAddress& r_a_1, RouterAddress& r_a_2)
+	{
+		return r_a_1.cost < r_a_2.cost;
+	}
+};
+
 RoutingTable::RoutingTable()
 {
 
@@ -28,10 +36,19 @@ Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
 										   __in Subnet* subnet_ptr )
 {
 	bool add_new_vector_entry = true;
-	Address new_router_addr;
+	bool router_found_in_subnet = false;
+	Address new_router_subnet;
+	RouterAddress new_router_addr;
 
-	new_router_addr.ip_address = subnet_ptr->address;
-	new_router_addr.mask = subnet_ptr->mask;
+	//Create new vector entry
+	new_router_subnet.ip_address = subnet_ptr->address;
+	new_router_subnet.mask = subnet_ptr->mask;
+	
+	//Create new router's list entry
+	new_router_addr.cost = subnet_ptr->cost;
+	new_router_addr.port = port;
+	new_router_addr.router_ip = actual_router_ip;
+	new_router_addr.router_name = name;
 
 	//Check if the new router's network is already exist in our routing table
 	for (vector<RoutingTableEntry>::iterator it = RoutingTable::m_routing_table->begin();
@@ -39,17 +56,52 @@ Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
 		 ++it)
 	{
 		//Found!
-		if (RoutingTable::CompareSubnets(new_router_addr, it->first))
+		if (RoutingTable::CompareSubnets(new_router_subnet, it->first))
 		{
+			//Handle case that router's entry already exist! (update parameters)
+			for (vector<RouterAddress>::iterator jt = it->second->begin();
+				 jt != it->second->end();
+				 ++jt)
+			{
+				//Router exists!
+				if (strcmp(jt->router_name, name) == 0)
+				{
+					router_found_in_subnet = true;
+					
+					//Replace entry:
+					it->second->erase(jt);
+					it->second->push_back(new_router_addr);
+				}
+			}
+			
+			//Router does not exist in vector, add it
+			if (!router_found_in_subnet)
+			{
+				it->second->push_back(new_router_addr);
+			}
+
 			add_new_vector_entry = false;
+			
+			//Sort list to get the lowest cost first
+			sort(it->second->begin(), it->second->end(), SortRouterAddressByCost());
 		}
+		//break; can be placed here, if an entry found then it is unique
 	}
 
 	//Subnet not found, should add new entry
 	if (add_new_vector_entry)
 	{
+		RoutingTableEntry rte;
 
+		//Set entry parameters
+		rte.first = new_router_subnet;
+		rte.second = new vector<RouterAddress>();
+
+		//Add new entry to vector
+		RoutingTable::m_routing_table->push_back(rte);
 	}
+
+	//TBD: Sort RoutingTable::m_routing_table ?
 	return Utils::STATUS_OK;
 }
 
