@@ -9,7 +9,7 @@ void Utils::PrintMsg(MyRIPMessage* msg)
 	cout << "subnet: " << msg->ConnectingNETMYIPSubnet << "\n";
 	cout << "mask: " << msg->ConnectingNETMYIPMask << "\n";
 	cout << "sender name: " << msg->SenderName << "\n";
-	cout << "reveiver name: " << msg->ReceiverName << "\n";
+	cout << "receiver name: " << msg->ReceiverName << "\n";
 	for (int i=0; i < NUMBER_OF_DESTINATIONS; i++)
 		Utils::PrintDest(i, &(msg->dest[i]));
 }
