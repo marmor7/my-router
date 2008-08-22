@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "RoutingTable.h"
+#include "Utils.h"
 
 //map<const string, vector<Subnet*> > RoutingTable::m_routing_table = map<const string, vector<Subnet*> >();
 vector<RoutingTableEntry>* RoutingTable::m_routing_table = new vector<RoutingTableEntry>();
@@ -32,6 +33,7 @@ void RoutingTable::PrintDV()
 void RoutingTable::GetDV(MyRIPMessage* msg)
 {
 	int i = 0;
+	unsigned int distance;
 	//Iterate all over subnets and get minimal cost
 	for (vector<RoutingTableEntry>::iterator it = RoutingTable::m_routing_table->begin();
 		it != RoutingTable::m_routing_table->end();
@@ -39,7 +41,17 @@ void RoutingTable::GetDV(MyRIPMessage* msg)
 	{
 		msg->dest[i].DestinationNETMask = htonl(it->first.mask);
 		msg->dest[i].DestinationNETSubnet = htonl(it->first.ip_address.S_un.S_addr);
-		msg->dest[i].DestinationNETSubnetDistance = htonl(it->second->at(0).cost);
+
+		distance = htonl(it->second->at(0).cost);
+		
+		//Convert back from INFINITY to 0
+		if (distance == INFINITY)
+		{
+			distance = 0;
+		}
+
+		//Assign new distance
+		msg->dest[i].DestinationNETSubnetDistance = distance;
 		i++;
 	}
 }
