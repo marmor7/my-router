@@ -8,6 +8,8 @@ class RoutingTable;
 
 using namespace std;
 
+#define null 0
+
 struct buffer
 {
 	byte msg[SIZE_OF_RIP_MSG];//TBD: should we support more than one msg?

@@ -87,7 +87,7 @@ void MyRouter::Run()
 	assert(sizeof(short) == 2);
 	assert(sizeof(byte) == 1);
 
-	Handle(MyRouter::RT_EVENT_READ_CONFIG, (void *)this->m_routers);
+	Handle(MyRouter::RT_EVENT_READ_CONFIG, null);
 
 	/*
 	for (i = 0; i < m_num_of_routers; i++)
@@ -130,16 +130,12 @@ void MyRouter::Run()
 		res = select(m_my_fd+1, &m_read_fd_set, &m_write_fd_set, NULL, &timeout);
 		
 		IF_DEBUG(TRACE)
-		{
 			cout << "select returned " << res << endl;
-		}
 
 		if (res < 0)
 		{
 			IF_DEBUG(ERROR)
-			{
 				cout << "select error " << res << endl;
-			}
 			perror ("select error ");
 			cout << WSAGetLastError() << endl;//TMP
 			exit (EXIT_FAILURE);
@@ -147,6 +143,12 @@ void MyRouter::Run()
 
 		displaySet("Read", m_read_fd_set);
 		displaySet("Write", m_write_fd_set);
+
+		if (res == 0){
+			IF_DEBUG(TRACE)
+				cout << "Timed out!" << endl;
+			Handle(MyRouter::RT_EVENT_TIMEOUT, null);
+		}
 
 		/* write to all ready sockets that have something in their buffer */
 		if (FD_ISSET(m_my_fd, &m_write_fd_set))
@@ -245,12 +247,12 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 	switch (event)
 	{
 	case RT_EVENT_READ_CONFIG:
-		this->m_routers = (RouterEntry* )data;
-
 		RouterSocket::SocketInit();
 
 		IF_DEBUG(TRACE)
 			cout << "Return value from socket init is: " << RouterSocket::GetRouterSocketDescriptor() << endl;
+
+		m_table->PrintDV();
 
 		/* NO BREAK NEEDED */
 	case RT_EVENT_SENDING_DV:

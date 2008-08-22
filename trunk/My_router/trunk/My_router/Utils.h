@@ -22,6 +22,8 @@ using namespace std;
 
 #define ROUTER_PORT	44444
 
+#define INFINITY (SHRT_MAX-1)
+
 struct RouterEntry
 {
 	//int socketId;
