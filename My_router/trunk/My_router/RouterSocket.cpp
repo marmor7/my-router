@@ -14,48 +14,48 @@ RouterSocket::~RouterSocket()
 }
 
 //Establish a connection to a neighbour router
-Utils::SocketReturnStatus RouterSocket::SocketEstablish(IN RouterEntry* entry)
-{
-	int sd, con;
-	sockaddr_in router_sockaddr;
-
-	sd = socket(PF_INET, SOCK_DGRAM, AUTO_SELECT_PROTOCOL);
-
-	if (sd <= 0)
-	{
-		entry->socketId = -1;
-
-		IF_DEBUG(ERROR)
-		{
-			cout << "ERROR: Establishing UDP socket to " << entry->name << 
-				" on port " << entry->port << " FAILED" << endl;
-		}
-
-		return Utils::STATUS_BAD_SOCKET;
-	}
-
-	entry->socketId = sd;
-
-	router_sockaddr.sin_family = AF_INET;
-	router_sockaddr.sin_addr = entry->address;
-	router_sockaddr.sin_port = htons(entry->port);
-	memset(router_sockaddr.sin_zero, '\0', sizeof router_sockaddr.sin_zero);
-
-	con = connect(sd, (struct sockaddr *) &router_sockaddr, sizeof(router_sockaddr));
-
-	if (con != 0)
-	{
-		return Utils::STATUS_BAD_CONNECT;
-	}
-
-	IF_DEBUG(TRACE)
-	{
-		cout << "Establishing UDP socket to " << entry->name << 
-				" on port " << entry->port << endl;
-	}
-
-	return Utils::STATUS_SOCKET_OK;
-}
+//Utils::SocketReturnStatus RouterSocket::SocketEstablish(IN RouterEntry* entry)
+//{
+//	int sd, con;
+//	sockaddr_in router_sockaddr;
+//
+//	sd = socket(PF_INET, SOCK_DGRAM, AUTO_SELECT_PROTOCOL);
+//
+//	if (sd <= 0)
+//	{
+//		entry->socketId = -1;
+//
+//		IF_DEBUG(ERROR)
+//		{
+//			cout << "ERROR: Establishing UDP socket to " << entry->name << 
+//				" on port " << entry->port << " FAILED" << endl;
+//		}
+//
+//		return Utils::STATUS_BAD_SOCKET;
+//	}
+//
+//	entry->socketId = sd;
+//
+//	router_sockaddr.sin_family = AF_INET;
+//	router_sockaddr.sin_addr = entry->address;
+//	router_sockaddr.sin_port = htons(entry->port);
+//	memset(router_sockaddr.sin_zero, '\0', sizeof router_sockaddr.sin_zero);
+//
+//	con = connect(sd, (struct sockaddr *) &router_sockaddr, sizeof(router_sockaddr));
+//
+//	if (con != 0)
+//	{
+//		return Utils::STATUS_BAD_CONNECT;
+//	}
+//
+//	IF_DEBUG(TRACE)
+//	{
+//		cout << "Establishing UDP socket to " << entry->name << 
+//				" on port " << entry->port << endl;
+//	}
+//
+//	return Utils::STATUS_SOCKET_OK;
+//}
 
 //Accept a connection from a neighbour router
 Utils::SocketReturnStatus RouterSocket::SocketAccept(IN int router_socket_descriptor,

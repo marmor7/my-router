@@ -8,6 +8,12 @@ class RoutingTable;
 
 using namespace std;
 
+struct buffer
+{
+	byte msg[SIZE_OF_RIP_MSG];//TBD: should we support more than one msg?
+	int len;
+};
+
 class MyRouter
 {
 public:
@@ -113,9 +119,63 @@ public:
 	//************************************
 	void AddSubnet(Subnet* subnet);
 
+
+	//Enumerator of the possible events.
+	enum RouterEvents
+	{
+		RT_EVENT_READ_CONFIG,
+		RT_EVENT_TIMEOUT,
+		RT_EVENT_DV_RECEIVED,
+		RT_EVENT_SENDING_DV
+	};
+
+	//************************************
+	// Method:    PrintEvent
+	// FullName:  MyRouter::PrintEvent
+	// Access:    public 
+	// Returns:   std::string
+	// Qualifier: Prints an event
+	// Parameter: RouterEvents event
+	//************************************
+	string PrintEvent(RouterEvents event);
+
+	//************************************
+	// Method:    Handle
+	// FullName:  MyRouter::Handle
+	// Access:    public 
+	// Returns:   Utils::ReturnStatus
+	// Qualifier: Handles incoming data
+	// Parameter: RouterEvents event
+	// Parameter: void * data
+	//************************************
+	Utils::ReturnStatus Handle(RouterEvents event, void* data);
+
+	//Set my id member
+	//************************************
+	// Method:    SetMyId
+	// FullName:  MyRouter::SetMyId
+	// Access:    public 
+	// Returns:   void
+	// Qualifier: Set a pointer to the MyRouter in the router's array
+	// Parameter: int id
+	//************************************
+	void SetMyId(int id) { m_my_entry = &(m_routers[id]); };
+
+	//************************************
+	// Method:    GetMyEntry
+	// FullName:  MyRouter::GetMyEntry
+	// Access:    public 
+	// Returns:   RouterEntry*
+	// Qualifier: Get router's entry
+	//************************************
+	RouterEntry* GetMyEntry() { return m_my_entry; };
+
 protected:
 	//Initialize the fd_sets
 	void InitSets();
+
+	//Is a router a neighbour
+	bool IsNeighbor(Subnet* first_subnet_ptr, Subnet* second_subnet_ptr);
 
 	//Display an fd_set
 	void displaySet(string title, fd_set & set);
@@ -126,9 +186,6 @@ protected:
 	sockaddr_in m_router_ip; //Remove
  
 	unsigned short m_router_port; //Remove
-
-	//Incoming event handler
-	EventHandler* m_handler;
 
 	//Router's routing table
 	RoutingTable* m_table;
@@ -147,13 +204,18 @@ protected:
 	fd_set m_active_fd_set, m_read_fd_set, m_write_fd_set;
 
 	//Array from index to socketId
-	int m_sockets[NUM_OF_ROUTERS];
+	//int m_sockets[NUM_OF_ROUTERS];
 
 	//Max socket descriptor
 	int m_max_fd;
 
 	//This router socket descriptor
 	int m_my_fd;
+	
+	//In and out buffers
+	buffer m_in_buf;
+	buffer m_out_buf;
 
 private:
+
 };
