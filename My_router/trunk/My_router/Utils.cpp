@@ -16,8 +16,12 @@ void Utils::PrintMsg(MyRIPMessage* msg)
 
 void Utils::PrintDest(int i, DestinationProperties* dest)
 {
+	in_addr tmp;
+	tmp.S_un.S_addr = ntohl(dest->DestinationNETSubnet);
+	char* subnet = inet_ntoa(tmp);
+
 	cout << "dest " << i << ": ";
-	cout << "mask: " << dest->DestinationNETMask << "\t";
-	cout << "subnet: " << dest->DestinationNETSubnet << "\t";
-	cout << "cost: " << dest->DestinationNETSubnetDistance << endl;
+	cout << "mask: " << ntohl(dest->DestinationNETMask) << "\t";
+	cout << "subnet: " << subnet << "\t";
+	cout << "cost: " << ntohl(dest->DestinationNETSubnetDistance) << endl;
 }
