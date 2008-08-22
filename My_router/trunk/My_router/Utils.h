@@ -9,7 +9,7 @@ using namespace std;
 #define DEBUG_TRACE 2
 #define DEBUG_ALL 3
 
-#define DEBUG_LEVEL DEBUG_ERROR
+#define DEBUG_LEVEL DEBUG_TRACE
 
 #define IF_DEBUG(level) if (DEBUG_##level <= DEBUG_LEVEL)
 
@@ -17,8 +17,6 @@ using namespace std;
 #define MAX_ROUTER_NAME 8
 #define MAX_SUBNETS_FOR_SINGLE_ROUTER 8
 #define SIZE_OF_RIP_MSG 156
-#define TIMEOUT_SEC_MIN 20
-#define TIMEOUT_SEC_MAX 40
 
 #define INFINITY (SHRT_MAX-1)
 
@@ -34,6 +32,7 @@ struct RouterEntry
 	in_addr address;
 	short port;
 	bool neighbour;
+	timeval timeout;
 	buffer out;
 };
 
