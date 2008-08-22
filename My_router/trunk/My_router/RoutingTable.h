@@ -12,6 +12,7 @@ typedef struct
 {
 	char* router_name[MAX_ROUTER_NAME];
 	in_addr router_ip;
+	short int cost;
 } RouterAddress;
 
 typedef pair<Address, list<RouterAddress>* > RoutingTableEntry;
@@ -62,10 +63,11 @@ public:
 	// Access:    public 
 	// Returns:   Utils::ReturnStatus
 	// Qualifier: Adds route to DV table
-	// Parameter: char name[MAX_ROUTER_NAME]
-	// Parameter: Subnet * subnet_ptr
+	// Parameter: char name[MAX_ROUTER_NAME] - Router's name
+	// Parameter: in_addr actual_router_ip - Actual router's IP
+	// Parameter: Subnet * subnet_ptr - Router's spanned IP
 	//************************************
-	static Utils::ReturnStatus AddRoute(__in char name[MAX_ROUTER_NAME], __in Subnet* subnet_ptr);
+	static Utils::ReturnStatus AddRoute(__in char name[MAX_ROUTER_NAME],__in in_addr actual_router_ip, __in Subnet* subnet_ptr);
 
 	//************************************
 	// Method:    GetBestRoute
@@ -77,7 +79,9 @@ public:
 	//************************************
 	static in_addr GetBestRoute(in_addr address);
 
-private:
+protected:
+	static bool CompareSubnets(Address first_address, Address second_address);
+
 	//Sorted list for each router. First element is the best route
 	static vector<RoutingTableEntry> *m_routing_table;
 };

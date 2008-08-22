@@ -62,7 +62,7 @@ Utils::ReturnStatus MyRouter::AddRoute( char name[MAX_ROUTER_NAME], Subnet* subn
 	return Utils::STATUS_OK;
 }
 
-void MyRouter::initSets()
+void MyRouter::InitSets()
 {
 	FD_ZERO(&m_write_fd_set);
 	FD_ZERO(&m_active_fd_set);
@@ -89,7 +89,7 @@ void MyRouter::Run()
 	m_max_fd = 10000;
 	int myId = -1;
 	timeval timeout = {30, 0};
-	initSets();
+	InitSets();
 	srand((int) time(NULL));
 
 	displaySet("Read", m_read_fd_set);
