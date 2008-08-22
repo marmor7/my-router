@@ -115,7 +115,7 @@ public:
 
 protected:
 	//Initialize the fd_sets
-	void initSets();
+	void InitSets();
 
 	//Display an fd_set
 	void displaySet(string title, fd_set & set);
