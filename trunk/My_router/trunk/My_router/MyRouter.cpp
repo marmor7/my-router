@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "MyRouter.h"
-#include "EventHandler.h"
 #include "RoutingTable.h"
+#include "RouterSocket.h"
 
 MyRouter::~MyRouter()
 {
