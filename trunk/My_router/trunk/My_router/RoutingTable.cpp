@@ -25,8 +25,58 @@ RoutingTable::~RoutingTable()
 
 void RoutingTable::PrintDV()
 {
-	//TBD: print DV to screen
-	cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<endl;
+ 	in_addr ip_addr;
+ 	
+	cout << "My New RIP Table is:" << endl;
+	cout << "To: >>>Best_Route(Best_Distance)<<< *[Alternative Routes (Alternative Distances)]" << endl;
+
+	//Iterate over all subnets
+	for (vector<RoutingTableEntry>::iterator it = RoutingTable::m_routing_table->begin();
+		 it != RoutingTable::m_routing_table->end();
+		 ++it)
+	{
+		ip_addr.S_un.S_addr = (it->first.ip_address.S_un.S_addr);
+		
+		//Print header:
+		cout<< inet_ntoa(ip_addr) << ":" << it->first.mask << " >>>";
+		
+		//Print best route:
+		cout << it->second->at(0).router_name << "(";
+		
+		//Handle INFINITY routes
+		if (it->second->at(0).cost == INFINITY)
+		{
+			cout << "0";
+		}
+		else
+		{
+			cout << it->second->at(0).cost;
+		}
+
+		cout << ")<<< ";
+
+		//Print additional routes
+		for (vector<RouterAddress>::iterator jt = (++(it->second->begin())); //Begin at second router
+			jt != it->second->end();
+			++jt)
+		{
+			cout << jt->router_name << "(";
+			
+			//Handle INFINITY routes
+			if (jt->cost == INFINITY)
+			{
+				cout << "0";
+			}
+			else
+			{
+				cout << jt->cost;
+			}
+
+			cout << ") ";
+		}
+
+		cout << endl;
+	}
 }
 
 
