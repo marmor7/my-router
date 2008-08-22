@@ -319,7 +319,8 @@ Utils::ReturnStatus MyRouter::AddRoute(char name[MAX_ROUTER_NAME], Subnet* subne
 		if (strncmp(name, m_routers[i].name, MAX_ROUTER_NAME) == 0)
 			break;
 	}
-	if (i >= m_num_of_routers){
+	if (i >= m_num_of_routers)
+	{
 		IF_DEBUG(ERROR)
 			cout << "Error: " << name << " wasn't found in table" << endl;
 		return Utils::STATUS_BAD_PARAMETER;
