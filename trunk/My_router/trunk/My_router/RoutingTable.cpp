@@ -55,9 +55,9 @@ void RoutingTable::GetDV(MyRIPMessage* msg)
 		++it)
 	{
 		//TBD: Change all to big endian!
-		msg->dest[i].DestinationNETMask = it->first.mask;
-		msg->dest[i].DestinationNETSubnet = it->first.ip_address.S_un.S_addr;
-		msg->dest[i].DestinationNETSubnetDistance = it->second->at(0).cost;
+		msg->dest[i].DestinationNETMask = htonl(it->first.mask);
+		msg->dest[i].DestinationNETSubnet = htonl(it->first.ip_address.S_un.S_addr);
+		msg->dest[i].DestinationNETSubnetDistance = htonl(it->second->at(0).cost);
 		i++;
 	}
 }
