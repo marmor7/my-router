@@ -22,29 +22,12 @@ RoutingTable::~RoutingTable()
 
 }
 
-void RoutingTable::PrintDV(){
+void RoutingTable::PrintDV()
+{
 	//TBD: print DV to screen
+	cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"<<endl;
 }
 
-/*
-typedef struct
-{
-int DestinationNETSubnet; //32 bit
-int DestinationNETMask; //32 bit
-int DestinationNETSubnetDistance; //32 bit
-} DestinationProperties;
-
-typedef struct
-{
-short length;
-short protocolID;
-int ConnectingNETMYIPSubnet; //32 bit
-int ConnectingNETMYIPMask; //32 bit
-char SenderName[MAX_SENDER_NAME]; //64 bit
-char ReceiverName[MAX_RECEIVER_NAME]; //64 bit
-DestinationProperties dest[NUMBER_OF_DESTINATIONS];	//96 bit * NUMBER_OF_DESTINATIONS
-} MyRIPMessage;
-*/
 
 void RoutingTable::GetDV(MyRIPMessage* msg)
 {
@@ -54,7 +37,6 @@ void RoutingTable::GetDV(MyRIPMessage* msg)
 		it != RoutingTable::m_routing_table->end();
 		++it)
 	{
-		//TBD: Change all to big endian!
 		msg->dest[i].DestinationNETMask = htonl(it->first.mask);
 		msg->dest[i].DestinationNETSubnet = htonl(it->first.ip_address.S_un.S_addr);
 		msg->dest[i].DestinationNETSubnetDistance = htonl(it->second->at(0).cost);
