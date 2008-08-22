@@ -5,12 +5,36 @@
 //map<const string, vector<Subnet*> > RoutingTable::m_routing_table = map<const string, vector<Subnet*> >();
 vector<RoutingTableEntry>* RoutingTable::m_routing_table = new vector<RoutingTableEntry>();
 
+//Functor
 struct SortRouterAddressByCost
 {
 	bool operator()(RouterAddress& r_a_1, RouterAddress& r_a_2)
 	{
 		return r_a_1.cost < r_a_2.cost;
 	}
+};
+
+//Functor
+struct SortRoutingTableEntry
+{
+	bool operator()(RoutingTableEntry& rta_1, RoutingTableEntry& rta_2)
+	{
+		unsigned int first_mask, second_mask, first_subnet_address, second_subnet_address;
+		first_mask = 0xFFFFFFFF;
+		second_mask = 0xFFFFFFFF;
+
+		first_mask = first_mask << (32 - rta_1.first.mask);
+		second_mask = second_mask << (32 - rta_2.first.mask);
+
+		first_subnet_address = htonl(rta_1.first.ip_address.S_un.S_addr);
+		second_subnet_address = htonl(rta_2.first.ip_address.S_un.S_addr);
+
+		first_subnet_address = first_subnet_address & first_mask;
+		second_subnet_address = second_subnet_address & second_mask;
+
+		return (first_subnet_address < second_subnet_address);
+	}
+
 };
 
 RoutingTable::RoutingTable()
@@ -179,7 +203,9 @@ Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
 		RoutingTable::m_routing_table->push_back(rte);
 	}
 
-	//TBD: Sort RoutingTable::m_routing_table ?
+	//Sort RoutingTable::m_routing_table by ascending order
+	sort(RoutingTable::m_routing_table->begin(), RoutingTable::m_routing_table->end(), SortRoutingTableEntry());
+
 	return Utils::STATUS_OK;
 }
 

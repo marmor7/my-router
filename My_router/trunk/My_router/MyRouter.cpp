@@ -388,7 +388,7 @@ bool MyRouter::IsNeighbor( Subnet* first_subnet_ptr, Subnet* second_subnet_ptr )
 
 		first_subnet_address = first_subnet_address & mask;
 		second_subnet_address = second_subnet_address & mask;
-		
+
 		if (first_subnet_address == second_subnet_address)
 		{
 			IF_DEBUG(ALL)
