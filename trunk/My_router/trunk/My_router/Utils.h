@@ -22,15 +22,19 @@ using namespace std;
 
 #define INFINITY (SHRT_MAX-1)
 
+struct buffer
+{
+	byte msg[SIZE_OF_RIP_MSG];//TBD: should we support more than one msg?
+	int len;
+};
+
 struct RouterEntry
 {
-	//int socketId;
 	char name[MAX_ROUTER_NAME];
 	in_addr address;
 	short port;
 	bool neighbour;
-	//byte msg[SIZE_OF_RIP_MSG];
-	//int msg_len;
+	buffer out;
 };
 
 struct Subnet

@@ -73,7 +73,7 @@ void MyRouter::Run()
 	int i = 0, res = 0;
 	m_max_fd = 10000;
 	int myId = -1;
-	timeval timeout = {30, 0};
+	timeval timeout = {3, 0};//TBD: ok?
 	InitSets();
 	srand((int) time(NULL));
 
@@ -101,15 +101,11 @@ void MyRouter::Run()
 
 	InitSets();
 
-	displaySet("Read", m_read_fd_set);
-	displaySet("Write", m_write_fd_set);
-	displaySet("Active", m_active_fd_set);
-	
 	FD_SET(m_my_fd, &m_active_fd_set);
-	//TBD? FD_SET(m_max_fd, &m_write_fd_set);
 
 	displaySet("Read", m_read_fd_set);
 	displaySet("Write", m_write_fd_set);
+	displaySet("Active", m_active_fd_set);
 
 	while (true)
 	{
@@ -118,16 +114,24 @@ void MyRouter::Run()
 			cout << "while loop..." << endl;
 		}
 
-		//Set a random timeout in range NIM ... MAX
-		timeout.tv_sec = 4;//TBD: rand() % (TIMEOUT_SEC_MAX - TIMEOUT_SEC_MIN) + TIMEOUT_SEC_MIN;
+		if ((timeout.tv_sec == 0) && (timeout.tv_usec == 0)){
+			//Set a random timeout in range NIM ... MAX
+			timeout.tv_sec = 5;//TBD: rand() % (TIMEOUT_SEC_MAX - TIMEOUT_SEC_MIN) + TIMEOUT_SEC_MIN;
+		}
 
 		FD_CLR(0, &m_active_fd_set);
 		m_read_fd_set = m_active_fd_set;
 
-		displaySet("Read", m_read_fd_set);
-		displaySet("Write", m_write_fd_set);
+		IF_DEBUG(TRACE){
+			displaySet("Write", m_write_fd_set);
+		}
 		
 		res = select(m_my_fd+1, &m_read_fd_set, &m_write_fd_set, NULL, &timeout);
+
+		IF_DEBUG(TRACE){
+			cout << timeout.tv_sec << ": " << timeout.tv_usec << endl;
+			displaySet("Write", m_write_fd_set);
+		}
 		
 		IF_DEBUG(TRACE)
 			cout << "select returned " << res << endl;
@@ -141,32 +145,33 @@ void MyRouter::Run()
 			exit (EXIT_FAILURE);
 		}
 
-		displaySet("Read", m_read_fd_set);
-		displaySet("Write", m_write_fd_set);
-
-		if (res == 0){
-			IF_DEBUG(TRACE)
-				cout << "Timed out!" << endl;
-			Handle(MyRouter::RT_EVENT_TIMEOUT, null);
-		}
-
 		/* write to all ready sockets that have something in their buffer */
 		if (FD_ISSET(m_my_fd, &m_write_fd_set))
 		{
 			IF_DEBUG(TRACE)
 				cout << "writing to socket " << m_my_fd << endl;
-			if (m_out_buf.len > 0)
-			{
-				//TBD: Handle return status
-				RouterSocket::SocketSend(RouterSocket::GetRouterSocketDescriptor(),	//Out sd
-										 m_out_buf.len,								//Length of data
-										 m_out_buf.msg,								//Message to send
-										 m_my_entry);								//Router entry
+			int i;
+			//Send a msg to every neighbor with a waiting msg
+			for (i=0; i < m_num_of_routers; i++){
+				if (m_routers[i].out.len > 0){
+					//TBD: Handle return status
+					RouterSocket::SocketSend(
+							RouterSocket::GetRouterSocketDescriptor(),	//Out sd
+							m_routers[i].out.len,						//Length of data
+							m_routers[i].out.msg,						//Message to send
+							m_routers[i]);								//Router entry
+					if (m_routers[i].out.len >= sizeof(MyRIPMessage))
+						m_routers[i].out.len = 0;
+					else
+						m_routers[i].out.len = sizeof(MyRIPMessage);
+				}
 			}
-			if (m_out_buf.len <= 0)
-			{
+			//If we've finished sending to everyone, clear write fd
+			for (i=0; i < m_num_of_routers; i++)
+				if (m_routers[i].out.len > 0)
+					break;
+			if (i >= m_num_of_routers)
 				FD_CLR(m_my_fd, &m_write_fd_set);
-			}
 		}
 
 		/* read from all ready sockets */
@@ -184,6 +189,12 @@ void MyRouter::Run()
 										&sender);		//Sender struct containing sender data
 			
 			FD_CLR(m_my_fd, &m_read_fd_set);
+		}
+
+		if (res == 0){
+			IF_DEBUG(TRACE)
+				cout << "my timer expired - calling send event!" << endl;
+			Handle(MyRouter::RT_EVENT_SENDING_DV, null);
 		}
 	}
 
@@ -280,18 +291,17 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 				msg.ConnectingNETMYIPSubnet = subnet.address;
 				msg.ConnectingNETMYIPMask   = subnet.mask;
 			*/
-			IF_DEBUG(TRACE)
-			{
+			IF_DEBUG(TRACE){
 				if (!printed){
 					printed = true;
 					Utils::PrintMsg(&msg);
 				}
 			}
 
-			memcpy(m_out_buf.msg, &msg, len);
-			m_out_buf.len = sizeof(msg);
-			FD_SET (m_my_fd, &m_write_fd_set);
+			memcpy(m_routers[i].out.msg, &msg, len);
+			m_routers[i].out.len = sizeof(msg);
 		}
+		FD_SET(m_my_fd, &m_write_fd_set);
 		break;
 	case RT_EVENT_TIMEOUT:
 		IF_DEBUG(TRACE)
