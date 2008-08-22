@@ -247,7 +247,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 	switch (event)
 	{
 	case RT_EVENT_READ_CONFIG:
-		RouterSocket::SocketInit();
+		RouterSocket::SocketInit(this->m_router_port);
 
 		IF_DEBUG(TRACE)
 			cout << "Return value from socket init is: " << RouterSocket::GetRouterSocketDescriptor() << endl;

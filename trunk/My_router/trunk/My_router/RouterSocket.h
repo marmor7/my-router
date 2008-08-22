@@ -87,7 +87,7 @@ public:
 	// Returns:   Utils::SocketReturnStatus
 	// Qualifier: Initializes the router's socket
 	//************************************
-	static Utils::SocketReturnStatus SocketInit();
+	static Utils::SocketReturnStatus SocketInit(unsigned short router_port);
 
 	//************************************
 	// Method:    GetRouterSocketDescriptor

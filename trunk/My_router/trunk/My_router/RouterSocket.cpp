@@ -197,7 +197,7 @@ int RouterSocket::GetRouterSocketDescriptor()
 	return RouterSocket::ms_router_socket_sd;
 }
 
-Utils::SocketReturnStatus RouterSocket::SocketInit()
+Utils::SocketReturnStatus RouterSocket::SocketInit( unsigned short router_port )
 {
 	int bind_ret;
 	struct sockaddr_in serv_addr;
@@ -211,7 +211,7 @@ Utils::SocketReturnStatus RouterSocket::SocketInit()
 
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv_addr.sin_port = htons(ROUTER_PORT);
+	serv_addr.sin_port = htons(router_port);
 	memset(serv_addr.sin_zero, '\0', sizeof serv_addr.sin_zero);
 
 	bind_ret = bind (RouterSocket::ms_router_socket_sd, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
