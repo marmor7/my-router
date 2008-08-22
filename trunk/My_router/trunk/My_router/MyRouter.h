@@ -9,6 +9,22 @@ class RoutingTable;
 using namespace std;
 
 #define null 0
+#define TIMEOUT_FAIL 8/*TBD 82*/
+#define TIMEOUT_SEND_MIN 2/*TBD 20*/
+#define TIMEOUT_SEND_MAX 4/*TBD 40*/
+
+#define SET_TIMEOUT(time, val) time.tv_sec = val; time.tv_usec = 0;
+
+//TBD: taken from GNU C, is this ok?
+#define TIMERSUB(a, b, result)                         \
+  do {                                                 \
+    (result)->tv_sec = (a)->tv_sec - (b)->tv_sec;      \
+    (result)->tv_usec = (a)->tv_usec - (b)->tv_usec;   \
+    if ((result)->tv_usec < 0) {                       \
+      --(result)->tv_sec;                              \
+      (result)->tv_usec += 1000000;                    \
+    }                                                  \
+  } while (0)
 
 class MyRouter
 {

@@ -73,10 +73,13 @@ void MyRouter::Run()
 	int i = 0, res = 0;
 	m_max_fd = 10000;
 	int myId = -1;
-	timeval timeout = {3, 0};//TBD: ok?
-	InitSets();
+	timeval timeout = {0, 0};
+	timeval oldtime = {0, 0};
+	time_t before = {0}; //TMP?
+	time_t after = {0}; //TMP?
 	srand((int) time(NULL));
 
+	InitSets();
 	displaySet("Read", m_read_fd_set);
 	displaySet("Write", m_write_fd_set);
 	displaySet("Active", m_active_fd_set);
@@ -88,18 +91,15 @@ void MyRouter::Run()
 	assert(sizeof(byte) == 1);
 
 	Handle(MyRouter::RT_EVENT_READ_CONFIG, null);
-
-	/*
+	
 	for (i = 0; i < m_num_of_routers; i++)
 	{
-		m_sockets[i] = m_routers[i].socketId;
-		if (m_sockets[i] > m_max_fd)
-			m_max_fd = m_sockets[i] + 1;
-	} */
+		//Set the initial fail timeout for each neighbor
+		SET_TIMEOUT(m_routers[i].timeout, TIMEOUT_FAIL)
+	}
+	SET_TIMEOUT(m_my_entry.timeout, 0);
 
 	m_my_fd = RouterSocket::GetRouterSocketDescriptor();
-
-	InitSets();
 
 	FD_SET(m_my_fd, &m_active_fd_set);
 
@@ -114,27 +114,37 @@ void MyRouter::Run()
 			cout << "while loop..." << endl;
 		}
 
-		if ((timeout.tv_sec == 0) && (timeout.tv_usec == 0)){
+		if ((m_my_entry.timeout.tv_sec == 0) && (m_my_entry.timeout.tv_usec == 0)){
 			//Set a random timeout in range NIM ... MAX
-			timeout.tv_sec = 5;//TBD: rand() % (TIMEOUT_SEC_MAX - TIMEOUT_SEC_MIN) + TIMEOUT_SEC_MIN;
+			SET_TIMEOUT(m_my_entry.timeout, rand() % 
+				(TIMEOUT_SEND_MIN - TIMEOUT_SEND_MAX) + TIMEOUT_SEND_MIN);
 		}
+
+		//Set timeout to be the LOWEST timeout, se we'll wake up
+		SET_TIMEOUT(timeout, m_my_entry.timeout.tv_sec);
+		for (i=0; i < m_num_of_routers; i++){
+			if (timeout.tv_sec > m_routers[i].timeout.tv_sec)
+				timeout = m_routers[i].timeout;
+		}
+		oldtime = timeout;
 
 		FD_CLR(0, &m_active_fd_set);
 		m_read_fd_set = m_active_fd_set;
 
 		IF_DEBUG(TRACE){
+			cout << "Timeout: " << timeout.tv_sec << ": " << timeout.tv_usec << endl;
 			displaySet("Write", m_write_fd_set);
 		}
 		
+		time(&before); //TMP?
 		res = select(m_my_fd+1, &m_read_fd_set, &m_write_fd_set, NULL, &timeout);
+		time(&after); //TMP?
 
 		IF_DEBUG(TRACE){
-			cout << timeout.tv_sec << ": " << timeout.tv_usec << endl;
+			cout << "Timeout: " << timeout.tv_sec << ": " << timeout.tv_usec << endl;
 			displaySet("Write", m_write_fd_set);
-		}
-		
-		IF_DEBUG(TRACE)
 			cout << "select returned " << res << endl;
+		}
 
 		if (res < 0)
 		{
@@ -143,6 +153,36 @@ void MyRouter::Run()
 			perror ("select error ");
 			cout << WSAGetLastError() << endl;//TMP
 			exit (EXIT_FAILURE);
+		}
+
+		//TMP: check that timeout is modified on linux, 
+		//     and remove this if
+		if (timeout.tv_sec > (after - before))
+			timeout.tv_sec -= (long)(after - before);
+		else
+			SET_TIMEOUT(timeout, 0);
+
+		//Set the difference to oldtime
+		TIMERSUB(&oldtime, &timeout, &oldtime);
+		for (i=0; i < m_num_of_routers; i++){
+			if (m_routers[i].timeout.tv_sec <= oldtime.tv_sec){
+				//Neighbor #i had not responded - assume down:
+				SET_TIMEOUT(m_routers[i].timeout, TIMEOUT_FAIL);
+				Handle(RT_EVENT_TIMEOUT, ((void *)&i));
+			}
+			else{
+				//Reduce the timeout value by the difference
+				TIMERSUB(&m_routers[i].timeout, &oldtime, &m_routers[i].timeout);
+			}
+		}
+		if (m_my_entry.timeout.tv_sec <= oldtime.tv_sec){
+			//Neighbor #i had not responded - assume down:
+			SET_TIMEOUT(m_my_entry.timeout, 0);
+			Handle(RT_EVENT_SENDING_DV, null);
+		}
+		else{
+			//Reduce the timeout value by the difference
+			TIMERSUB(&m_my_entry.timeout, &oldtime, &m_my_entry.timeout);
 		}
 
 		/* write to all ready sockets that have something in their buffer */
@@ -187,14 +227,17 @@ void MyRouter::Run()
 										m_in_buf.msg,	//In buffer
 										m_in_buf.len,	//Buffer length
 										&sender);		//Sender struct containing sender data
+
+			if (m_in_buf.len == SIZE_OF_RIP_MSG)
+				for (i=0; i < m_num_of_routers; i++){
+					if ((m_routers[i].address.S_un.S_addr == sender.sin_addr.S_un.S_addr) && 
+						(m_routers[i].port == sender.sin_port)){
+							Handle(RT_EVENT_DV_RECEIVED, (void *)&i);
+							break;
+					}
+				}
 			
 			FD_CLR(m_my_fd, &m_read_fd_set);
-		}
-
-		if (res == 0){
-			IF_DEBUG(TRACE)
-				cout << "my timer expired - calling send event!" << endl;
-			Handle(MyRouter::RT_EVENT_SENDING_DV, null);
 		}
 	}
 
@@ -254,6 +297,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 
 	int len = 0;
 	bool printed = false;
+	int rt = 0;
 
 	switch (event)
 	{
@@ -265,7 +309,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 
 		m_table->PrintDV();
 
-		/* NO BREAK NEEDED */
+		break;
 	case RT_EVENT_SENDING_DV:
 		IF_DEBUG(TRACE)
 		{
@@ -304,12 +348,14 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 		FD_SET(m_my_fd, &m_write_fd_set);
 		break;
 	case RT_EVENT_TIMEOUT:
+		rt = *((int *)data);
 		IF_DEBUG(TRACE)
-			cout << "Handle: Timeout!" << endl;
+			cout << "Handle: Timeout on router " << m_routers[rt].name << endl;
 		break;
 	case RT_EVENT_DV_RECEIVED:
+		rt = *((int *)data);
 		IF_DEBUG(TRACE)
-			cout << "Got an event!!! Not doing anything yet..." << endl;
+			cout << "Handle: DV received from router " << m_routers[rt].name << endl;
 		break;
 	default:
 		IF_DEBUG(ERROR)
