@@ -10,12 +10,6 @@ using namespace std;
 
 #define null 0
 
-struct buffer
-{
-	byte msg[SIZE_OF_RIP_MSG];//TBD: should we support more than one msg?
-	int len;
-};
-
 class MyRouter
 {
 public:
@@ -199,7 +193,6 @@ protected:
 	
 	//In and out buffers
 	buffer m_in_buf;
-	buffer m_out_buf;
 
 private:
 
