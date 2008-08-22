@@ -20,8 +20,6 @@ using namespace std;
 #define TIMEOUT_SEC_MIN 20
 #define TIMEOUT_SEC_MAX 40
 
-#define ROUTER_PORT	44444
-
 #define INFINITY (SHRT_MAX-1)
 
 struct RouterEntry
