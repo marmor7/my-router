@@ -270,10 +270,6 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 		this->m_table->GetDV(&msg);
 		for (int i=0; i < m_num_of_routers; i++)
 		{
-			if (strncmp(m_routers[i].name, m_name, MAX_ROUTER_NAME) == 0){
-				//Skip sending to ourselves
-				continue;
-			}
 			//Set receiver specific fields:
 			memcpy(msg.ReceiverName, m_routers[i].name, MAX_SENDER_NAME);
 			/*TBD:
@@ -335,8 +331,8 @@ Utils::ReturnStatus MyRouter::AddRoute(char name[MAX_ROUTER_NAME], Subnet* subne
 			IF_DEBUG(TRACE)
 				cout << "Found neighbor: " << m_routers[i].name << endl;	
 
-			RoutingTable::AddRoute(m_routers[i].name, m_routers[i].address, 
-									m_routers[i].port, subnet_ptr);
+			RoutingTable::AddRoute(m_my_entry.name, m_my_entry.address, 
+									m_my_entry.port, *it);
 
 			//Mark entry as neighbour
 			m_routers[i].neighbour = true;
