@@ -150,7 +150,7 @@ void InputHandler::HandleIpLine( string line )
 	router_entry.port = port;
 	strcpy_s((char *) &router_entry.name, MAX_ROUTER_NAME, (char *) &router_name);
 	router_entry.neighbour = false; //Currently no neighbor.
-	router_entry.socketId = 0; //Currently no open connection with router
+	//router_entry.socketId = 0; //Currently no open connection with router
 
 	this->m_all_routers->push_back(router_entry);
 

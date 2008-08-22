@@ -24,13 +24,13 @@ using namespace std;
 
 struct RouterEntry
 {
-	int socketId;
+	//int socketId;
 	char name[MAX_ROUTER_NAME];
 	in_addr address;
 	short port;
 	bool neighbour;
-	byte msg[SIZE_OF_RIP_MSG];
-	int msg_len;
+	//byte msg[SIZE_OF_RIP_MSG];
+	//int msg_len;
 };
 
 struct Subnet
@@ -65,6 +65,7 @@ public:
 		STATUS_BAD_NUM_OF_ARGUMENTS,
 		STATUS_BAD_FILENAME_OR_FILE_DONT_EXISTS,
 		STATUS_BAD_IP_FORMAT,
+		STATUS_BAD_PARAMETER
 	};
 
 	enum SocketReturnStatus
