@@ -92,6 +92,9 @@ Utils::ReturnStatus InputHandler::InitRouter( int argc, char** argv, MyRouter** 
 			strcpy_s(router_name_c_srt, MAX_ROUTER_NAME, this->m_rip_name[i].c_str());
 			this->m_my_router->AddRoute(router_name_c_srt, this->m_rip_subnet[i]);
 		}
+
+		this->m_my_router->ClearRouters();
+
 		return Utils::STATUS_OK;
 	}
 }
@@ -137,7 +140,7 @@ void InputHandler::HandleIpLine( string line )
 
 	TextToIpPort(line, &ip, &port);
 
-	if (this->m_my_router->GetName().compare(router_name) == 0)
+	if (strncmp(this->m_my_router->GetName(), router_name, MAX_ROUTER_NAME) == 0)
 	{
 		//If code reaches here then this is MyRouter line and
 		//we need to update the routers parameters
@@ -149,7 +152,7 @@ void InputHandler::HandleIpLine( string line )
 	router_entry.address = ip;
 	router_entry.port = port;
 	strcpy_s((char *) &router_entry.name, MAX_ROUTER_NAME, (char *) &router_name);
-	router_entry.neighbour = false; //Currently no neighbor.
+	//router_entry.neighbour = false; //Currently no neighbor.
 	//router_entry.socketId = 0; //Currently no open connection with router
 
 	this->m_all_routers->push_back(router_entry);

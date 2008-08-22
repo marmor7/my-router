@@ -10,9 +10,9 @@ MyRouter::~MyRouter()
 	delete (this->m_table);
 }
 
-MyRouter::MyRouter( string name ) : m_name(name), m_num_of_routers(0), m_router_port(0)
+MyRouter::MyRouter( string name ) : m_num_of_routers(0), m_router_port(0)
 {
-	
+	memcpy(m_name, name.c_str(), MAX_ROUTER_NAME);
 	this->m_table = new RoutingTable();
 	this->m_my_router_subnets = new vector<Subnet*>();
 	//TMP this->m_handler = new EventHandler(m_table, m_routers, 
@@ -20,15 +20,14 @@ MyRouter::MyRouter( string name ) : m_name(name), m_num_of_routers(0), m_router_
 	this->m_routers = new RouterEntry[NUM_OF_ROUTERS];
 }
 
-string MyRouter::GetName()
+char* MyRouter::GetName()
 {
 	return m_name;
 }
 
 void MyRouter::SetName( string name )
 {
-	//TMP this->m_handler->SetName(name);
-	this->m_name = name;
+	memcpy(m_name, name.c_str(), MAX_ROUTER_NAME);
 }
 
 Utils::ReturnStatus MyRouter::AddRouter(char name[MAX_ROUTER_NAME], in_addr* address, unsigned short port){
@@ -39,33 +38,18 @@ Utils::ReturnStatus MyRouter::AddRouter(char name[MAX_ROUTER_NAME], in_addr* add
 	}
 
 	memcpy(this->m_routers[m_num_of_routers].name, name, MAX_ROUTER_NAME);
-	this->m_routers[m_num_of_routers].address = *address;
-	this->m_routers[m_num_of_routers].port = port;
-	this->m_num_of_routers++;
-	//TMP this->m_handler->m_num_of_routers++;
+	m_routers[m_num_of_routers].address = *address;
+	m_routers[m_num_of_routers].port = port;
+	m_routers[m_num_of_routers].neighbour = false;
 
-	//TBD: is he a neighbour?
-	this->m_routers[m_num_of_routers].neighbour = true;
+	if (strncmp(name, m_name, MAX_ROUTER_NAME) == 0){
+		m_my_entry = m_routers[m_num_of_routers];
+	}
+
+	this->m_num_of_routers++;
 
 	return Utils::STATUS_OK;
 }
-
-//TMP
-//Utils::ReturnStatus MyRouter::AddRoute( char name[MAX_ROUTER_NAME], Subnet* subnet_ptr )
-//{
-//	IF_DEBUG(ALL)
-//		cout << "AddRoute " << name << endl;
-//
-//	for (int i = 0; i < m_num_of_routers; i++)
-//	{
-//		if (strncmp(name, m_routers[i].name, MAX_ROUTER_NAME) == 0){
-//			this->m_handler->AddRoutes(&m_routers[i], subnet_ptr);
-//			break;
-//		}
-//	}
-//
-//	return Utils::STATUS_OK;
-//}
 
 void MyRouter::InitSets()
 {
@@ -127,8 +111,6 @@ void MyRouter::Run()
 	displaySet("Read", m_read_fd_set);
 	displaySet("Write", m_write_fd_set);
 
-	this->m_my_entry = GetMyEntry();
-
 	while (true)
 	{
 		IF_DEBUG(ALL)
@@ -137,7 +119,7 @@ void MyRouter::Run()
 		}
 
 		//Set a random timeout in range NIM ... MAX
-		timeout.tv_sec = 5;//TBD: rand() % (TIMEOUT_SEC_MAX - TIMEOUT_SEC_MIN) + TIMEOUT_SEC_MIN;
+		timeout.tv_sec = 4;//TBD: rand() % (TIMEOUT_SEC_MAX - TIMEOUT_SEC_MIN) + TIMEOUT_SEC_MIN;
 
 		FD_CLR(0, &m_active_fd_set);
 		m_read_fd_set = m_active_fd_set;
@@ -177,7 +159,7 @@ void MyRouter::Run()
 				RouterSocket::SocketSend(RouterSocket::GetRouterSocketDescriptor(),	//Out sd
 										 m_out_buf.len,								//Length of data
 										 m_out_buf.msg,								//Message to send
-										 *m_my_entry);								//Router entry
+										 m_my_entry);								//Router entry
 			}
 			if (m_out_buf.len <= 0)
 			{
@@ -193,7 +175,7 @@ void MyRouter::Run()
 			{
 				cout << "reading from socket " << m_my_fd << endl;
 			}
-
+			//TBD: Handle return status
 			RouterSocket::SocketReceive(m_my_fd,		//Socket descriptor
 										m_in_buf.msg,	//In buffer
 										m_in_buf.len,	//Buffer length
@@ -258,6 +240,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 	cout << this->m_name << " MYRIP Event: " << PrintEvent(event) << endl;
 
 	int len = 0;
+	bool printed = false;
 
 	switch (event)
 	{
@@ -267,25 +250,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 		RouterSocket::SocketInit();
 
 		IF_DEBUG(TRACE)
-		{
 			cout << "Return value from socket init is: " << RouterSocket::GetRouterSocketDescriptor() << endl;
-		}
-
-
-		//TBD: RoutingTable::
-		for (int i=0; i < m_num_of_routers; i++)
-		{
-			/*
-			RouterSocket::SocketEstablish(&m_routers[i]);
-			IF_DEBUG(TRACE)
-			{
-				cout << "socket to " << m_routers[i].name << 
-					" established on " << m_routers[i].socketId << endl;
-			} 
-			*/
-			if (m_name.compare(m_routers[i].name) == 0)
-				m_my_entry = &(m_routers[i]);
-		}
 
 		/* NO BREAK NEEDED */
 	case RT_EVENT_SENDING_DV:
@@ -299,12 +264,16 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 
 		//Set all known fields:
 		msg.protocolID = htons(PROTOCOL_ID);
-		memcpy(msg.SenderName, m_my_entry->name, MAX_SENDER_NAME);
+		memcpy(msg.SenderName, m_name, MAX_SENDER_NAME);
 
 		//Let routing table set it's related fields:
 		this->m_table->GetDV(&msg);
 		for (int i=0; i < m_num_of_routers; i++)
 		{
+			if (strncmp(m_routers[i].name, m_name, MAX_ROUTER_NAME) == 0){
+				//Skip sending to ourselves
+				continue;
+			}
 			//Set receiver specific fields:
 			memcpy(msg.ReceiverName, m_routers[i].name, MAX_SENDER_NAME);
 			/*TBD:
@@ -315,8 +284,10 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 			*/
 			IF_DEBUG(TRACE)
 			{
-				if (i==0)
+				if (!printed){
+					printed = true;
 					Utils::PrintMsg(&msg);
+				}
 			}
 
 			memcpy(m_out_buf.msg, &msg, len);
@@ -325,6 +296,9 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 		}
 		break;
 	case RT_EVENT_TIMEOUT:
+		IF_DEBUG(TRACE)
+			cout << "Handle: Timeout!" << endl;
+		break;
 	case RT_EVENT_DV_RECEIVED:
 		IF_DEBUG(TRACE)
 			cout << "Got an event!!! Not doing anything yet..." << endl;
@@ -358,11 +332,13 @@ Utils::ReturnStatus MyRouter::AddRoute(char name[MAX_ROUTER_NAME], Subnet* subne
 		if (this->IsNeighbor(*it, subnet_ptr))
 		{
 			IF_DEBUG(TRACE)
-			{
 				cout << "Found neighbor: " << m_routers[i].name << endl;	
-			}
+
 			RoutingTable::AddRoute(m_routers[i].name, m_routers[i].address, 
 									m_routers[i].port, subnet_ptr);
+
+			//Mark entry as neighbour
+			m_routers[i].neighbour = true;
 		}
 	}
 	//TBD: Check if IP and mask equals the router's subnet.
@@ -422,4 +398,34 @@ bool MyRouter::IsNeighbor( Subnet* first_subnet_ptr, Subnet* second_subnet_ptr )
 			return false;
 		}
 	}
+}
+
+Utils::ReturnStatus MyRouter::ClearRouters()
+{
+	int i;
+	IF_DEBUG(TRACE){
+		cout << "Before cleanup: " << endl;
+		for (i=0; i < m_num_of_routers; i++)
+			cout << m_routers[i].name << endl;
+	}
+
+	i = 0;
+	while (i < m_num_of_routers)
+	{
+		if (!m_routers[i].neighbour)
+		{
+			memcpy(&(m_routers[i]), &(m_routers[m_num_of_routers-1]), sizeof(RouterEntry));
+			m_num_of_routers--;
+			i--;
+		}
+		i++;
+	}
+
+	IF_DEBUG(TRACE){
+		cout << "After cleanup: " << endl;
+		for (i=0; i < m_num_of_routers; i++)
+			cout << m_routers[i].name << endl;
+	}
+
+	return Utils::STATUS_OK;
 }

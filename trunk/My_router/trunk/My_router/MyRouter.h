@@ -1,9 +1,9 @@
 #pragma once;
 #include "stdafx.h"
 #include "Utils.h"
+#include "RouterSocket.h"
 
 //Fwd declarations
-class EventHandler;
 class RoutingTable;
 
 using namespace std;
@@ -44,7 +44,7 @@ public:
 	// Returns:   std::string
 	// Qualifier: Gets router's name
 	//************************************
-	string GetName();
+	char* GetName();
 
 	//************************************
 	// Method:    SetName
@@ -150,25 +150,8 @@ public:
 	//************************************
 	Utils::ReturnStatus Handle(RouterEvents event, void* data);
 
-	//Set my id member
-	//************************************
-	// Method:    SetMyId
-	// FullName:  MyRouter::SetMyId
-	// Access:    public 
-	// Returns:   void
-	// Qualifier: Set a pointer to the MyRouter in the router's array
-	// Parameter: int id
-	//************************************
-	void SetMyId(int id) { m_my_entry = &(m_routers[id]); };
-
-	//************************************
-	// Method:    GetMyEntry
-	// FullName:  MyRouter::GetMyEntry
-	// Access:    public 
-	// Returns:   RouterEntry*
-	// Qualifier: Get router's entry
-	//************************************
-	RouterEntry* GetMyEntry() { return m_my_entry; };
+	//Removes non-neighbours from the RouterEntry table
+	Utils::ReturnStatus ClearRouters();
 
 protected:
 	//Initialize the fd_sets
@@ -181,7 +164,7 @@ protected:
 	void displaySet(string title, fd_set & set);
 
 	//Router's name
-	string m_name;
+	char m_name[MAX_ROUTER_NAME];
 
 	sockaddr_in m_router_ip; //Remove
  
@@ -192,7 +175,7 @@ protected:
 
 	//Router database (name, ip, port)
 	RouterEntry* m_routers;
-	RouterEntry* m_my_entry;
+	RouterEntry m_my_entry;
 
 	//Number of neighboring routers
 	int m_num_of_routers;
