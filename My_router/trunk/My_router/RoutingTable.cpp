@@ -26,8 +26,40 @@ void RoutingTable::PrintDV(){
 	//TBD: print DV to screen
 }
 
-void RoutingTable::GetDV(MyRIPMessage* msg){
-	//TBD: fill msg with DV data
+/*
+typedef struct
+{
+int DestinationNETSubnet; //32 bit
+int DestinationNETMask; //32 bit
+int DestinationNETSubnetDistance; //32 bit
+} DestinationProperties;
+
+typedef struct
+{
+short length;
+short protocolID;
+int ConnectingNETMYIPSubnet; //32 bit
+int ConnectingNETMYIPMask; //32 bit
+char SenderName[MAX_SENDER_NAME]; //64 bit
+char ReceiverName[MAX_RECEIVER_NAME]; //64 bit
+DestinationProperties dest[NUMBER_OF_DESTINATIONS];	//96 bit * NUMBER_OF_DESTINATIONS
+} MyRIPMessage;
+*/
+
+void RoutingTable::GetDV(MyRIPMessage* msg)
+{
+	int i = 0;
+	//Iterate all over subnets and get minimal cost
+	for (vector<RoutingTableEntry>::iterator it = RoutingTable::m_routing_table->begin();
+		it != RoutingTable::m_routing_table->end();
+		++it)
+	{
+		//TBD: Change all to big endian!
+		msg->dest[i].DestinationNETMask = it->first.mask;
+		msg->dest[i].DestinationNETSubnet = it->first.ip_address.S_un.S_addr;
+		msg->dest[i].DestinationNETSubnetDistance = it->second->at(0).cost;
+		i++;
+	}
 }
 
 Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
@@ -71,6 +103,7 @@ Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
 					//Replace entry:
 					it->second->erase(jt);
 					it->second->push_back(new_router_addr);
+					break; //jt iterator invalidates in erase(jt).
 				}
 			}
 			
@@ -96,6 +129,7 @@ Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
 		//Set entry parameters
 		rte.first = new_router_subnet;
 		rte.second = new vector<RouterAddress>();
+		rte.second->push_back(new_router_addr);
 
 		//Add new entry to vector
 		RoutingTable::m_routing_table->push_back(rte);
