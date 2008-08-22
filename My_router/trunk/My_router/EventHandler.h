@@ -117,7 +117,7 @@ public:
 	// Parameter: char name[MAX_ROUTER_NAME]
 	// Parameter: Subnet * subnet_ptr
 	//************************************
-	Utils::ReturnStatus AddRoutes(char name[MAX_ROUTER_NAME], Subnet* subnet_ptr);
+	Utils::ReturnStatus AddRoutes(RouterEntry* entry, Subnet* subnet_ptr);
 
 	//Number of registered routers
 	int m_num_of_routers; //TBD: change to private?

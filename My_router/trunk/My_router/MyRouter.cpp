@@ -53,11 +53,15 @@ Utils::ReturnStatus MyRouter::AddRouter(char name[MAX_ROUTER_NAME], in_addr* add
 Utils::ReturnStatus MyRouter::AddRoute( char name[MAX_ROUTER_NAME], Subnet* subnet_ptr )
 {
 	IF_DEBUG(ALL)
-	{
 		cout << "AddRoute " << name << endl;
-	}
 
-	this->m_handler->AddRoutes(name, subnet_ptr);
+	for (int i = 0; i < m_num_of_routers; i++)
+	{
+		if (strncmp(name, m_routers[i].name, MAX_ROUTER_NAME) == 0){
+			this->m_handler->AddRoutes(&m_routers[i], subnet_ptr);
+			break;
+		}
+	}
 
 	return Utils::STATUS_OK;
 }
@@ -73,14 +77,10 @@ void MyRouter::displaySet(string title, fd_set & set)
 {
 	int i;
 	cout << title << " set is: ";
-	for (i = 0; i <= m_max_fd; i++)
+	for (i = 0; i <= m_my_fd; i++)
 		if (FD_ISSET(i, &set))
 			cout << i << ", ";
 	cout << endl;
-	for (i = 0; i < m_num_of_routers; i++)
-		if (FD_ISSET(m_sockets[i], &set))
-			cout << i << ": "<< m_sockets[i] << ", ";
-	cout << "end." << endl;
 }
 
 void MyRouter::Run()
@@ -104,10 +104,6 @@ void MyRouter::Run()
 
 	m_handler->Handle(EventHandler::RT_EVENT_READ_CONFIG, (void *)this->m_routers);
 
-	displaySet("Read", m_read_fd_set);
-	displaySet("Write", m_write_fd_set);
-	displaySet("Active", m_active_fd_set);
-
 	/*
 	for (i = 0; i < m_num_of_routers; i++)
 	{
@@ -117,6 +113,12 @@ void MyRouter::Run()
 	} */
 
 	m_my_fd = RouterSocket::GetRouterSocketDescriptor();
+
+	InitSets();
+
+	displaySet("Read", m_read_fd_set);
+	displaySet("Write", m_write_fd_set);
+	displaySet("Active", m_active_fd_set);
 	
 	FD_SET(m_my_fd, &m_active_fd_set);
 	//TBD? FD_SET(m_max_fd, &m_write_fd_set);
@@ -142,7 +144,7 @@ void MyRouter::Run()
 		displaySet("Read", m_read_fd_set);
 		displaySet("Write", m_write_fd_set);
 		
-		res = select(m_max_fd, &m_read_fd_set, &m_write_fd_set, NULL, &timeout);
+		res = select(m_my_fd+1, &m_read_fd_set, &m_write_fd_set, NULL, &timeout);
 		
 		IF_DEBUG(TRACE)
 		{
@@ -164,24 +166,23 @@ void MyRouter::Run()
 		displaySet("Write", m_write_fd_set);
 
 		/* write to all ready sockets that have something in their buffer */
-		for (i = 0; i < m_num_of_routers; ++i)
-			if (FD_ISSET(m_sockets[i], &m_write_fd_set))
+		if (FD_ISSET(m_my_fd, &m_write_fd_set))
+		{
+			IF_DEBUG(TRACE)
+				cout << "writing to socket " << m_my_fd << endl;
+			if (m_my_entry->msg_len > 0)
 			{
-				IF_DEBUG(TRACE)
-					cout << "writing to socket " << m_sockets[i] << endl;
-				if (this->m_routers[i].msg_len > 0)
-				{
-					//TBD: Handle return status
-					RouterSocket::SocketSend(RouterSocket::GetRouterSocketDescriptor(),		//Out sd
-											 this->m_routers[i].msg_len,					//Length of data
-											 this->m_routers[i].msg,						//Message to send
-											 m_routers[i]);									//Router entry
-				}
-				if (this->m_routers[i].msg_len <= 0)
-				{
-					FD_CLR(m_sockets[i], &m_write_fd_set);
-				}
+				//TBD: Handle return status
+				RouterSocket::SocketSend(RouterSocket::GetRouterSocketDescriptor(),		//Out sd
+										 m_my_entry->msg_len,					//Length of data
+										 m_my_entry->msg,						//Message to send
+										 *m_my_entry);									//Router entry
 			}
+			if (m_my_entry->msg_len <= 0)
+			{
+				FD_CLR(m_my_fd, &m_write_fd_set);
+			}
+		}
 
 		/* read from all ready sockets */
 		if (FD_ISSET (m_my_fd, &m_read_fd_set))
