@@ -67,7 +67,8 @@ public:
 	// Parameter: in_addr actual_router_ip - Actual router's IP
 	// Parameter: Subnet * subnet_ptr - Router's spanned IP
 	//************************************
-	static Utils::ReturnStatus AddRoute(__in char name[MAX_ROUTER_NAME],__in in_addr actual_router_ip, __in Subnet* subnet_ptr);
+	static Utils::ReturnStatus AddRoute(__in char name[MAX_ROUTER_NAME],__in in_addr actual_router_ip, 
+										__in short port, __in Subnet* subnet_ptr);
 
 	//************************************
 	// Method:    GetBestRoute

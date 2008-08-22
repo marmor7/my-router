@@ -24,6 +24,7 @@ void RoutingTable::GetDV(MyRIPMessage* msg){
 
 Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
 										   __in in_addr actual_router_ip, 
+										   __in short port, 
 										   __in Subnet* subnet_ptr )
 {
 	bool add_new_vector_entry = true;
@@ -54,7 +55,7 @@ Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
 
 in_addr RoutingTable::GetBestRoute( in_addr address )
 {
-	in_addr ret;
+	in_addr ret = {0};
 
 	return ret;
 }
