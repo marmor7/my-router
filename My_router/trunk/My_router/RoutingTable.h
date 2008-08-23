@@ -82,6 +82,13 @@ public:
 	//************************************
 	static RouterAddress GetBestRoute(in_addr address);
 
+	//Gets the best connecting subnet to a neighbor
+	static Utils::ReturnStatus GetRouterSubnet(__in RouterEntry* router, __out Subnet* subnet);
+
+	//Modifies the cost to a subnet via a neighbor
+	static Utils::ReturnStatus ModifyRoute(__in char name[MAX_ROUTER_NAME],__in in_addr actual_router_ip, 
+											__in unsigned short port, __in Subnet* subnet_ptr);
+
 protected:
 	static bool CompareSubnets(Address first_address, Address second_address);
 
