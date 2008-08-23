@@ -5,18 +5,25 @@
 typedef struct
 {
 	in_addr ip_address;
-	unsigned short int mask;
+	unsigned short mask;
 } Address;
 
 typedef struct
 {
-	char* router_name;
-	in_addr router_ip;
-	unsigned short int cost;
-	unsigned short port;
+	char router_name[MAX_ROUTER_NAME];
+	unsigned short cost;
 } RouterAddress;
 
+typedef struct
+{
+	in_addr router_ip;
+	unsigned short port;
+	unsigned short cost_to_router;
+	Subnet via_subnet;
+} RouterDetails;
+
 typedef pair<Address, vector<RouterAddress>* > RoutingTableEntry;
+typedef map<string, RouterDetails> RoutersMap;
 
 class RoutingTable
 {
@@ -80,18 +87,24 @@ public:
 	// Qualifier: Gets best route for address
 	// Parameter: in_addr address
 	//************************************
-	static RouterAddress GetBestRoute(in_addr address);
+	static Utils::ReturnStatus GetBestRoute( in_addr address, RouterAddress* ra );
 
 	//Gets the best connecting subnet to a neighbor
-	static Utils::ReturnStatus GetRouterSubnet(__in RouterEntry* router, __out Subnet* subnet) {return Utils::STATUS_OK;};
+	static Utils::ReturnStatus GetRouterSubnet(__in RouterEntry* router, __out Subnet* subnet);
 
 	//Modifies the cost to a subnet via a neighbor
 	static Utils::ReturnStatus ModifyRoute(__in char name[MAX_ROUTER_NAME],__in in_addr actual_router_ip, 
 		__in unsigned short port, __in Subnet* subnet_ptr) {return Utils::STATUS_OK;};
+
+	static Utils::ReturnStatus AddRouter(__in char name[MAX_ROUTER_NAME],__in in_addr actual_router_ip, 
+		__in unsigned short port, __in Subnet* subnet_ptr, __in unsigned short cost);
+
+	static void PrintMap();
 
 protected:
 	static bool CompareSubnets(Address first_address, Address second_address);
 
 	//Sorted list for each router. First element is the best route
 	static vector<RoutingTableEntry> *m_routing_table;
+	static RoutersMap* m_routers_map;
 };

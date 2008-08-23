@@ -40,7 +40,7 @@ Utils::ReturnStatus MyRouter::AddRouter(char name[MAX_ROUTER_NAME], in_addr* add
 	memcpy(this->m_routers[m_num_of_routers].name, name, MAX_ROUTER_NAME);
 	m_routers[m_num_of_routers].address = *address;
 	m_routers[m_num_of_routers].port = port;
-	m_routers[m_num_of_routers].neighbour = false;
+	m_routers[m_num_of_routers].reachable = false;
 
 	if (strncmp(name, m_name, MAX_ROUTER_NAME) == 0){
 		m_my_entry = m_routers[m_num_of_routers];
@@ -114,7 +114,7 @@ void MyRouter::Run()
 			cout << "while loop..." << endl;
 		}
 
-		if ((m_my_entry.timeout.tv_sec == 0) && (m_my_entry.timeout.tv_usec == 0)){
+		if (SET_CMP(m_my_entry.timeout, 0, 0)){
 			//Set a random timeout in range NIM ... MAX
 			SET_TIMEOUT(m_my_entry.timeout, rand() % 
 				(TIMEOUT_SEND_MIN - TIMEOUT_SEND_MAX) + TIMEOUT_SEND_MIN);
@@ -123,7 +123,8 @@ void MyRouter::Run()
 		//Set timeout to be the LOWEST timeout, se we'll wake up
 		SET_TIMEOUT(timeout, m_my_entry.timeout.tv_sec);
 		for (i=0; i < m_num_of_routers; i++){
-			if (timeout.tv_sec > m_routers[i].timeout.tv_sec)
+			if (!(SET_CMP(m_routers[i].timeout, 0, 0)) 
+				&& (timeout.tv_sec > m_routers[i].timeout.tv_sec))
 				timeout = m_routers[i].timeout;
 		}
 		oldtime = timeout;
@@ -167,7 +168,7 @@ void MyRouter::Run()
 		for (i=0; i < m_num_of_routers; i++){
 			if (m_routers[i].timeout.tv_sec <= oldtime.tv_sec){
 				//Neighbor #i had not responded - assume down:
-				SET_TIMEOUT(m_routers[i].timeout, TIMEOUT_FAIL);
+				SET_TIMEOUT(m_routers[i].timeout, 0);
 				Handle(RT_EVENT_TIMEOUT, ((void *)&i));
 			}
 			else{
@@ -323,6 +324,8 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 
 		m_table->PrintDV();
 
+		m_table->PrintMap();
+
 		break;
 	case RT_EVENT_SENDING_DV:
 		IF_DEBUG(TRACE)
@@ -340,14 +343,16 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 		this->m_table->GetDV(&msg);
 		for (int i=0; i < m_num_of_routers; i++)
 		{
+			if (!m_routers[i].reachable)
+				continue;
 			//Set receiver specific fields:
 			memcpy(msg.ReceiverName, m_routers[i].name, MAX_SENDER_NAME);
-			/*TBD:
-			Subnet subnet;
-				this->m_table->GetRouterSubnet(m_routers[i], &subnet);
-				msg.ConnectingNETMYIPSubnet = subnet.address;
-				msg.ConnectingNETMYIPMask   = subnet.mask;
-			*/
+			Subnet subnet = {0};
+			//TBD: handle return value
+			this->m_table->GetRouterSubnet(&m_routers[i], &subnet);
+			msg.ConnectingNETMYIPSubnet = subnet.address.S_un.S_addr;
+			msg.ConnectingNETMYIPMask   = subnet.mask;
+
 			IF_DEBUG(TRACE){
 				if (!printed){
 					printed = true;
@@ -368,6 +373,10 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 		IF_DEBUG(TRACE)
 			cout << "Handle: Timeout on router " << m_routers[rt].name << endl;
 
+		//Mark neighbor as down
+		m_routers[rt].reachable = false;
+
+		//Modify the routing table
 		Subnet subnet;
 		subnet.address.S_un.S_addr = 0;
 		subnet.mask = 0;
@@ -380,10 +389,18 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 		rt = *((int *)data);
 		IF_DEBUG(TRACE)
 			cout << "Handle: DV received from router " << m_routers[rt].name << endl;
+
+		if (!m_routers[rt].reachable){
+			//A dead router is up!
+			m_routers[rt].reachable = true;
+		}
+
+		//Update routing table
+		//TBD
 		break;
 	default:
 		IF_DEBUG(ERROR)
-			cout << "ERROR: got a weird event!!! Don't know what to do" << endl;
+			cout << "ERROR: got a wierd event!!! Don't know what to do" << endl;
 	}
 
 	return Utils::STATUS_OK;
@@ -411,13 +428,16 @@ Utils::ReturnStatus MyRouter::AddRoute(char name[MAX_ROUTER_NAME], Subnet* subne
 		if (this->IsNeighbor(*it, subnet_ptr))
 		{
 			IF_DEBUG(TRACE)
-				cout << "Found neighbor: " << m_routers[i].name << endl;	
+				cout << "Found neighbor: " << m_routers[i].name << endl;
 
 			RoutingTable::AddRoute(m_my_entry.name, m_my_entry.address, 
 									m_my_entry.port, *it);
 
+			RoutingTable::AddRouter(m_routers[i].name, m_routers[i].address,
+				m_routers[i].port, subnet_ptr, (*it)->cost + subnet_ptr->cost);
+
 			//Mark entry as neighbour
-			m_routers[i].neighbour = true;
+			m_routers[i].reachable = true;
 		}
 	}
 	//TBD: Check if IP and mask equals the router's subnet.
@@ -491,7 +511,7 @@ Utils::ReturnStatus MyRouter::ClearRouters()
 	i = 0;
 	while (i < m_num_of_routers)
 	{
-		if (!m_routers[i].neighbour)
+		if (!m_routers[i].reachable)
 		{
 			memcpy(&(m_routers[i]), &(m_routers[m_num_of_routers-1]), sizeof(RouterEntry));
 			m_num_of_routers--;

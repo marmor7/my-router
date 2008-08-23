@@ -93,17 +93,11 @@ Utils::SocketReturnStatus RouterSocket::SocketReceive(IN int& sd,
 
 	if(bytes_recived != -1)
 	{
-		IF_DEBUG(TRACE)
+		IF_DEBUG(ALL)
 		{
 			cout << "SocketReceive: Recieved message from socket " << sd << endl ;
 			unsigned short tmp = ((MyRIPMessage*) buff)->protocolID;
 			cout << "Protocol ID: "<< ntohs(tmp) << endl;
-			//cout << "TMP pointer: " << data_sender << endl;
-			//cout << "TMP addr (long) " << data_sender->sin_addr.S_un.S_addr << endl;
-			//cout << "TMP addr " << data_sender->sin_addr.S_un.S_un_b.s_b1 << " " <<
-			//	data_sender->sin_addr.S_un.S_un_b.s_b2 << " " <<
-			//	data_sender->sin_addr.S_un.S_un_b.s_b3 << " " <<
-			//	data_sender->sin_addr.S_un.S_un_b.s_b4 << " " << endl;
 			cout << "Message recieved from: " << inet_ntoa(data_sender->sin_addr) << endl;
 		}
 	}

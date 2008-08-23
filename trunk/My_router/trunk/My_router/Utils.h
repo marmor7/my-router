@@ -31,7 +31,7 @@ struct RouterEntry
 	char name[MAX_ROUTER_NAME];
 	in_addr address;
 	unsigned short port;
-	bool neighbour;
+	bool reachable;
 	timeval timeout;
 	buffer out;
 };
@@ -66,7 +66,8 @@ public:
 		STATUS_BAD_FILENAME_OR_FILE_DONT_EXISTS,
 		STATUS_BAD_IP_FORMAT,
 		STATUS_BAD_PARAMETER,
-		STATUS_STOP
+		STATUS_STOP,
+		STATUS_NOT_FOUND
 	};
 
 	enum SocketReturnStatus
