@@ -9,9 +9,9 @@ class RoutingTable;
 using namespace std;
 
 #define null 0
-#define TIMEOUT_FAIL 8/*TBD 82*/
-#define TIMEOUT_SEND_MIN 2/*TBD 20*/
-#define TIMEOUT_SEND_MAX 4/*TBD 40*/
+#define TIMEOUT_FAIL 40/*TBD 82*/
+#define TIMEOUT_SEND_MIN 8/*TBD 20*/
+#define TIMEOUT_SEND_MAX 16/*TBD 40*/
 
 #define SET_TIMEOUT(time, val) time.tv_sec = val; time.tv_usec = 0;
 
@@ -76,7 +76,7 @@ public:
 	// Qualifier: Add a router (name, ip, port)
 	// Parameter: char name[8]
 	// Parameter: in_addr * address
-	// Parameter: short port
+	// Parameter: short 
 	//************************************
 	Utils::ReturnStatus AddRouter(char name[MAX_ROUTER_NAME], in_addr* address, unsigned short port);
 

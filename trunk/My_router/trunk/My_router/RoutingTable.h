@@ -5,14 +5,14 @@
 typedef struct
 {
 	in_addr ip_address;
-	short int mask;
+	unsigned short int mask;
 } Address;
 
 typedef struct
 {
 	char* router_name;
 	in_addr router_ip;
-	short int cost;
+	unsigned short int cost;
 	unsigned short port;
 } RouterAddress;
 
@@ -83,11 +83,11 @@ public:
 	static RouterAddress GetBestRoute(in_addr address);
 
 	//Gets the best connecting subnet to a neighbor
-	static Utils::ReturnStatus GetRouterSubnet(__in RouterEntry* router, __out Subnet* subnet);
+	static Utils::ReturnStatus GetRouterSubnet(__in RouterEntry* router, __out Subnet* subnet) {return Utils::STATUS_OK;};
 
 	//Modifies the cost to a subnet via a neighbor
 	static Utils::ReturnStatus ModifyRoute(__in char name[MAX_ROUTER_NAME],__in in_addr actual_router_ip, 
-											__in unsigned short port, __in Subnet* subnet_ptr);
+		__in unsigned short port, __in Subnet* subnet_ptr) {return Utils::STATUS_OK;};
 
 protected:
 	static bool CompareSubnets(Address first_address, Address second_address);

@@ -217,27 +217,41 @@ void MyRouter::Run()
 		/* read from all ready sockets */
 		if (FD_ISSET (m_my_fd, &m_read_fd_set))
 		{
-			sockaddr_in sender;
+			sockaddr_in sender = {0};
 			IF_DEBUG(TRACE)
 			{
 				cout << "reading from socket " << m_my_fd << endl;
 			}
+			m_in_buf.len = SIZE_OF_RIP_MSG;
 			//TBD: Handle return status
 			RouterSocket::SocketReceive(m_my_fd,		//Socket descriptor
 										m_in_buf.msg,	//In buffer
 										m_in_buf.len,	//Buffer length
 										&sender);		//Sender struct containing sender data
 
-			if (m_in_buf.len == SIZE_OF_RIP_MSG)
+			IF_DEBUG(TRACE)
+				cout << "Size of msg received: " << m_in_buf.len << 
+						"(" << SIZE_OF_RIP_MSG << ")" << endl;
+			if (m_in_buf.len == SIZE_OF_RIP_MSG){
+				MyRIPMessage* msg = new MyRIPMessage;
+				msg = (MyRIPMessage *)m_in_buf.msg;
+				Utils::net2hostMsg(msg);
+
+				IF_DEBUG(TRACE){
+					cout << "sender name is: " << msg->SenderName << endl;
+					cout << "protocol is: " << msg->protocolID << endl;
+				}
+
 				for (i=0; i < m_num_of_routers; i++){
-					if ((m_routers[i].address.S_un.S_addr == sender.sin_addr.S_un.S_addr) && 
-						(m_routers[i].port == sender.sin_port)){
-							Handle(RT_EVENT_DV_RECEIVED, (void *)&i);
-							break;
+					if (strncmp(msg->SenderName, m_routers[i].name, MAX_ROUTER_NAME) == 0){
+						IF_DEBUG(TRACE)
+							cout << "found the neighbor! " << i << endl;
+						SET_TIMEOUT(m_routers[i].timeout, TIMEOUT_FAIL);
+						Handle(RT_EVENT_DV_RECEIVED, (void *)&i);
 					}
 				}
-			
-			FD_CLR(m_my_fd, &m_read_fd_set);
+				FD_CLR(m_my_fd, &m_read_fd_set);
+			}		
 		}
 	}
 
@@ -253,7 +267,7 @@ void MyRouter::SetRoutersIpAndPort( string ip,unsigned short port )
 	memset(&s, 0, sizeof(struct in_addr));
 
 	this->m_router_ip.sin_family = AF_INET;
-	this->m_router_ip.sin_port = htons(port);
+	this->m_router_ip.sin_port = port;//TBD: add htons?
 	ip_long = inet_addr(ip.c_str());
 
 	assert(ip_long != INADDR_ANY);
@@ -318,8 +332,9 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 		memset(&msg, 0, sizeof(msg));
 
 		//Set all known fields:
-		msg.protocolID = htons(PROTOCOL_ID);
+		msg.protocolID = PROTOCOL_ID;
 		memcpy(msg.SenderName, m_name, MAX_SENDER_NAME);
+		msg.length = SIZE_OF_RIP_MSG; //TBD: change to real len?
 
 		//Let routing table set it's related fields:
 		this->m_table->GetDV(&msg);
@@ -340,8 +355,11 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 				}
 			}
 
-			memcpy(m_routers[i].out.msg, &msg, len);
-			m_routers[i].out.len = sizeof(msg);
+			//Copy msg to router's out buffer in correct byte order
+			Utils::host2netMsg(&msg);
+			memcpy(m_routers[i].out.msg, &msg, SIZE_OF_RIP_MSG);
+			Utils::net2hostMsg(&msg);
+			m_routers[i].out.len = SIZE_OF_RIP_MSG;
 		}
 		FD_SET(m_my_fd, &m_write_fd_set);
 		break;
@@ -350,11 +368,13 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 		IF_DEBUG(TRACE)
 			cout << "Handle: Timeout on router " << m_routers[rt].name << endl;
 
-		//Subnet subnet;
-		//subnet.address.S_un.S_addr = 0;
+		Subnet subnet;
+		subnet.address.S_un.S_addr = 0;
+		subnet.mask = 0;
+		subnet.cost = INFINITY;
 
-		//this->m_table->ModifyRoute(m_routers[rt].name, m_routers[rt].address, 
-		//							m_routers[rt].port, );
+		this->m_table->ModifyRoute(m_routers[rt].name, m_routers[rt].address, 
+									m_routers[rt].port, &subnet);
 		break;
 	case RT_EVENT_DV_RECEIVED:
 		rt = *((int *)data);
@@ -462,7 +482,7 @@ bool MyRouter::IsNeighbor( Subnet* first_subnet_ptr, Subnet* second_subnet_ptr )
 Utils::ReturnStatus MyRouter::ClearRouters()
 {
 	int i;
-	IF_DEBUG(TRACE){
+	IF_DEBUG(ALL){
 		cout << "Before cleanup: " << endl;
 		for (i=0; i < m_num_of_routers; i++)
 			cout << m_routers[i].name << endl;
@@ -482,8 +502,9 @@ Utils::ReturnStatus MyRouter::ClearRouters()
 
 	IF_DEBUG(TRACE){
 		cout << "After cleanup: " << endl;
-		for (i=0; i < m_num_of_routers; i++)
-			cout << m_routers[i].name << endl;
+		for (i=0; i < m_num_of_routers; i++){
+			cout << m_routers[i].name << ": " << inet_ntoa(m_routers[i].address) << endl;
+		}
 	}
 
 	return Utils::STATUS_OK;
