@@ -26,8 +26,8 @@ struct SortRoutingTableEntry
 		first_mask = first_mask << (32 - rta_1.first.mask);
 		second_mask = second_mask << (32 - rta_2.first.mask);
 
-		first_subnet_address = htonl(rta_1.first.ip_address.S_un.S_addr);
-		second_subnet_address = htonl(rta_2.first.ip_address.S_un.S_addr);
+		first_subnet_address = htonl(rta_1.first.ip_address.S_un.S_addr);//TBD: remove htonl
+		second_subnet_address = htonl(rta_2.first.ip_address.S_un.S_addr);//TBD: remove htonl
 
 		first_subnet_address = first_subnet_address & first_mask;
 		second_subnet_address = second_subnet_address & second_mask;
@@ -113,10 +113,10 @@ void RoutingTable::GetDV(MyRIPMessage* msg)
 		it != RoutingTable::m_routing_table->end();
 		++it)
 	{
-		msg->dest[i].DestinationNETMask = htonl(it->first.mask);
-		msg->dest[i].DestinationNETSubnet = htonl(it->first.ip_address.S_un.S_addr);
+		msg->dest[i].DestinationNETMask = it->first.mask;
+		msg->dest[i].DestinationNETSubnet = it->first.ip_address.S_un.S_addr;
 
-		distance = htonl(it->second->at(0).cost);
+		distance = it->second->at(0).cost;
 		
 		//Convert back from INFINITY to 0
 		if (distance == INFINITY)
@@ -128,6 +128,9 @@ void RoutingTable::GetDV(MyRIPMessage* msg)
 		msg->dest[i].DestinationNETSubnetDistance = distance;
 		i++;
 	}
+
+	//Insures we didn't get wrong the number of spanned subnets
+	assert(i < 32);
 }
 
 Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
@@ -243,8 +246,8 @@ bool RoutingTable::CompareSubnets( Address first_address, Address second_address
 	{
 		mask = mask << (32 - first_address.mask);
 
-		first_subnet_address = htonl(first_address.ip_address.S_un.S_addr);
-		second_subnet_address = htonl(second_address.ip_address.S_un.S_addr);
+		first_subnet_address = htonl(first_address.ip_address.S_un.S_addr);//TBD: remove htonl
+		second_subnet_address = htonl(second_address.ip_address.S_un.S_addr);//TBD: remove htonl
 
 		first_subnet_address = first_subnet_address & mask;
 		second_subnet_address = second_subnet_address & mask;

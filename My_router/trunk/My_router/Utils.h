@@ -22,7 +22,7 @@ using namespace std;
 
 struct buffer
 {
-	byte msg[SIZE_OF_RIP_MSG];//TBD: should we support more than one msg?
+	BYTE msg[SIZE_OF_RIP_MSG];//TBD: should we support more than one msg?
 	int len;
 };
 
@@ -30,7 +30,7 @@ struct RouterEntry
 {
 	char name[MAX_ROUTER_NAME];
 	in_addr address;
-	short port;
+	unsigned short port;
 	bool neighbour;
 	timeval timeout;
 	buffer out;
@@ -39,8 +39,8 @@ struct RouterEntry
 struct Subnet
 {
 	in_addr address;
-	short int cost;
-	short int mask;
+	unsigned short int cost;
+	unsigned short int mask;
 };
 
 //Functor to compare 2 subnets by STL sort
@@ -58,9 +58,6 @@ public:
 	Utils();
 	~Utils();
 
-	static void PrintMsg(MyRIPMessage* msg);
-	static void PrintDest(int i, DestinationProperties* dest);
-
 	//Enumerator of the possible return statuses by InitRouter.
 	enum ReturnStatus
 	{
@@ -68,7 +65,8 @@ public:
 		STATUS_BAD_NUM_OF_ARGUMENTS,
 		STATUS_BAD_FILENAME_OR_FILE_DONT_EXISTS,
 		STATUS_BAD_IP_FORMAT,
-		STATUS_BAD_PARAMETER
+		STATUS_BAD_PARAMETER,
+		STATUS_STOP
 	};
 
 	enum SocketReturnStatus
@@ -85,4 +83,11 @@ public:
 		STATUS_CLOSE_FAILED,
 		STATUS_BAD_BIND
 	};
+
+	static void PrintMsg(MyRIPMessage* msg);
+	static Utils::ReturnStatus PrintDest(int i, DestinationProperties* dest);
+
+	static Utils::ReturnStatus host2netMsg(MyRIPMessage* msg);
+	static Utils::ReturnStatus net2hostMsg(MyRIPMessage* msg);
+
 };
