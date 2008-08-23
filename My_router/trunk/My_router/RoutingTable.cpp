@@ -4,6 +4,7 @@
 
 //map<const string, vector<Subnet*> > RoutingTable::m_routing_table = map<const string, vector<Subnet*> >();
 vector<RoutingTableEntry>* RoutingTable::m_routing_table = new vector<RoutingTableEntry>();
+RoutersMap* RoutingTable::m_routers_map = new RoutersMap();
 
 //Functor
 struct SortRouterAddressByCost
@@ -149,9 +150,9 @@ Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
 	
 	//Create new router's list entry
 	new_router_addr.cost = subnet_ptr->cost;
-	new_router_addr.port = port;
-	new_router_addr.router_ip = actual_router_ip;
-	new_router_addr.router_name = name;
+	//new_router_addr.port = port;TMP
+	//new_router_addr.router_ip = actual_router_ip;TMP
+	strncpy(new_router_addr.router_name, name, MAX_ROUTER_NAME);
 
 	//Check if the new router's network is already exist in our routing table
 	for (vector<RoutingTableEntry>::iterator it = RoutingTable::m_routing_table->begin();
@@ -167,7 +168,7 @@ Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
 				 ++jt)
 			{
 				//Router exists!
-				if (strcmp(jt->router_name, name) == 0)
+				if (strncmp(jt->router_name, name, MAX_ROUTER_NAME) == 0)
 				{
 					router_found_in_subnet = true;
 					
@@ -209,14 +210,102 @@ Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
 	//Sort RoutingTable::m_routing_table by ascending order
 	sort(RoutingTable::m_routing_table->begin(), RoutingTable::m_routing_table->end(), SortRoutingTableEntry());
 
+	//Add entry in map:
+	RoutersMap::iterator iter = RoutingTable::m_routers_map->find(string(name));
+	if(iter != RoutingTable::m_routers_map->end())
+	{
+		RouterAddress ra;
+		if(RoutingTable::GetBestRoute(subnet_ptr->address, &ra) != Utils::STATUS_OK)
+		{
+			IF_DEBUG(ERROR)
+				cout << "Subnet not found in table!" << endl;
+			return Utils::STATUS_NOT_FOUND;
+		}
+		if(iter->second.cost_to_router > (ra.cost + subnet_ptr->cost))
+		{
+			iter->second.cost_to_router = (ra.cost + subnet_ptr->cost);
+			iter->second.via_subnet = *subnet_ptr;
+		}
+	}
+	else
+	{
+		RouterAddress ra;
+		//TBD: handle return value
+		RoutingTable::GetBestRoute(subnet_ptr->address, &ra);
+		RouterDetails rd;
+
+		rd.cost_to_router = ra.cost + subnet_ptr->cost;
+		rd.port = port;
+		rd.router_ip = actual_router_ip;
+		rd.via_subnet = *subnet_ptr;
+
+		IF_DEBUG(TRACE)
+		{
+			cout << "Router entry was not found in map. Printing details: "<< endl;
+			cout << "Router name: " << name << ", "<< rd.cost_to_router << ", " << rd.port
+				 << ", " << inet_ntoa(rd.router_ip);
+			cout << ", " << inet_ntoa(rd.via_subnet.address) << endl;
+		}
+
+		//TBD: maybe remove insert of our router?
+		RoutingTable::m_routers_map->insert(make_pair(string(name), rd )); 
+	}
+
 	return Utils::STATUS_OK;
 }
 
-RouterAddress RoutingTable::GetBestRoute( in_addr address )
+Utils::ReturnStatus RoutingTable::GetBestRoute( in_addr address, RouterAddress* ra )
 {
-	RouterAddress ret = {0};
+	Address to_compare;
+	to_compare.ip_address = address;
 
-	return ret;
+	vector<int>::reverse_iterator rit;
+	for (vector<RoutingTableEntry>::reverse_iterator rit = RoutingTable::m_routing_table->rbegin();
+		rit != RoutingTable::m_routing_table->rend();
+		++rit)
+	{
+		to_compare.mask = rit->first.mask;
+		if(RoutingTable::CompareSubnets(to_compare, rit->first))
+		{
+			ra->cost = rit->second->at(0).cost;
+			strncpy(ra->router_name,rit->second->at(0).router_name, MAX_ROUTER_NAME);
+			return Utils::STATUS_OK;
+		}
+	}
+	return Utils::STATUS_NOT_FOUND;
+}
+
+Utils::ReturnStatus RoutingTable::GetRouterSubnet(__in RouterEntry* router, __out Subnet* subnet)
+{
+	RoutersMap::iterator iter = RoutingTable::m_routers_map->find(string(router->name));
+	if(iter != RoutingTable::m_routers_map->end())
+	{
+		RouterAddress ra;
+		*subnet = iter->second.via_subnet;
+
+		return Utils::STATUS_OK;
+	}
+	else
+	{
+		return Utils::STATUS_NOT_FOUND;
+	}
+}
+
+Utils::ReturnStatus RoutingTable::AddRouter(__in char name[MAX_ROUTER_NAME],__in in_addr actual_router_ip, 
+		__in unsigned short port, __in Subnet* subnet_ptr, __in unsigned short cost)
+{
+	RouterDetails rd;
+	rd.cost_to_router = cost;
+	rd.port = port;
+	rd.router_ip = actual_router_ip;
+	rd.via_subnet = *subnet_ptr;
+	rd.via_subnet.address.S_un.S_addr = ntohl(rd.via_subnet.address.S_un.S_addr);
+	rd.via_subnet.address.S_un.S_addr &= ((0xFFFFFFFF) << (32 - rd.via_subnet.mask));
+	rd.via_subnet.address.S_un.S_addr = htonl(rd.via_subnet.address.S_un.S_addr);
+
+	RoutingTable::m_routers_map->insert(make_pair(string(name), rd));
+
+	return Utils::STATUS_OK;
 }
 
 bool RoutingTable::CompareSubnets( Address first_address, Address second_address )
@@ -269,5 +358,21 @@ bool RoutingTable::CompareSubnets( Address first_address, Address second_address
 			}
 			return false;
 		}
+	}
+}
+
+void RoutingTable::PrintMap()
+{
+	cout << "Printing map: " << endl;
+	for(RoutersMap::iterator iter = RoutingTable::m_routers_map->begin();
+		iter != RoutingTable::m_routers_map->end();
+		++iter)
+	{
+		RouterDetails* rd = &(iter->second);
+		Subnet temp_sub = rd->via_subnet;
+		cout << iter->first << ": " << inet_ntoa(rd->router_ip) << ":" <<
+			rd->port << " (" << rd->cost_to_router;
+		cout << ") via: " << inet_ntoa(temp_sub.address) << "/" 
+			 << rd->via_subnet.mask << endl;
 	}
 }

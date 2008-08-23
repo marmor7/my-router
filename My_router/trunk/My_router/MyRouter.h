@@ -15,6 +15,8 @@ using namespace std;
 
 #define SET_TIMEOUT(time, val) time.tv_sec = val; time.tv_usec = 0;
 
+#define SET_CMP(time, sec, micro) ((time.tv_sec == sec) && (time.tv_usec == micro))
+
 //TBD: taken from GNU C, is this ok?
 #define TIMERSUB(a, b, result)                         \
   do {                                                 \
