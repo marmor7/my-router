@@ -16,7 +16,7 @@ using namespace std;
 #define NUM_OF_ROUTERS 32
 #define MAX_ROUTER_NAME 8
 #define MAX_SUBNETS_FOR_SINGLE_ROUTER 8
-#define SIZE_OF_RIP_MSG 156
+#define SIZE_OF_RIP_MSG 412
 
 #define INFINITY (SHRT_MAX-1)
 

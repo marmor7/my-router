@@ -312,9 +312,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 		break;
 	case RT_EVENT_SENDING_DV:
 		IF_DEBUG(TRACE)
-		{
 			cout << "Handle: sending my DV to neighbors" << endl;
-		}
 
 		MyRIPMessage msg;
 		memset(&msg, 0, sizeof(msg));
@@ -331,7 +329,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 			memcpy(msg.ReceiverName, m_routers[i].name, MAX_SENDER_NAME);
 			/*TBD:
 			Subnet subnet;
-				this->m_table->GetRouterSubnet(&subnet);
+				this->m_table->GetRouterSubnet(m_routers[i], &subnet);
 				msg.ConnectingNETMYIPSubnet = subnet.address;
 				msg.ConnectingNETMYIPMask   = subnet.mask;
 			*/
@@ -351,6 +349,12 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 		rt = *((int *)data);
 		IF_DEBUG(TRACE)
 			cout << "Handle: Timeout on router " << m_routers[rt].name << endl;
+
+		//Subnet subnet;
+		//subnet.address.S_un.S_addr = 0;
+
+		//this->m_table->ModifyRoute(m_routers[rt].name, m_routers[rt].address, 
+		//							m_routers[rt].port, );
 		break;
 	case RT_EVENT_DV_RECEIVED:
 		rt = *((int *)data);
