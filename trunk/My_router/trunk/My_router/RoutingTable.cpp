@@ -69,7 +69,7 @@ void RoutingTable::PrintDV()
 		cout << it->second->at(0).router_name << "(";
 		
 		//Handle INFINITY routes
-		if (it->second->at(0).cost == INFINITY)
+		if (it->second->at(0).cost >= INFINITY)
 		{
 			cout << "0";
 		}
@@ -88,7 +88,7 @@ void RoutingTable::PrintDV()
 			cout << jt->router_name << "(";
 			
 			//Handle INFINITY routes
-			if (jt->cost == INFINITY)
+			if (jt->cost >= INFINITY)
 			{
 				cout << "0";
 			}
@@ -120,7 +120,7 @@ void RoutingTable::GetDV(MyRIPMessage* msg)
 		distance = it->second->at(0).cost;
 		
 		//Convert back from INFINITY to 0
-		if (distance == INFINITY)
+		if (distance >= INFINITY)
 		{
 			distance = 0;
 		}
