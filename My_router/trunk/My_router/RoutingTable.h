@@ -115,6 +115,16 @@ public:
 									 	 __in unsigned short port, __in Subnet* subnet_ptr, __in unsigned short cost);
 
 	//************************************
+	// Method:    ReportDeadRouter
+	// FullName:  RoutingTable::ReportDeadRouter
+	// Access:    public static 
+	// Returns:   Utils::ReturnStatus
+	// Qualifier: Handles dead routers
+	// Parameter: __in char name[MAX_ROUTER_NAME]
+	//************************************
+	static Utils::ReturnStatus ReportDeadRouter(__in char name[MAX_ROUTER_NAME]);
+
+	//************************************
 	// Method:    PrintMap
 	// FullName:  RoutingTable::PrintMap
 	// Access:    public 
