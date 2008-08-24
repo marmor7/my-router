@@ -280,7 +280,6 @@ Utils::ReturnStatus RoutingTable::GetRouterSubnet(__in RouterEntry* router, __ou
 	RoutersMap::iterator iter = RoutingTable::m_routers_map->find(string(router->name));
 	if(iter != RoutingTable::m_routers_map->end())
 	{
-		RouterAddress ra;
 		*subnet = iter->second.via_subnet;
 
 		return Utils::STATUS_OK;
@@ -375,4 +374,38 @@ void RoutingTable::PrintMap()
 		cout << ") via: " << inet_ntoa(temp_sub.address) << "/" 
 			 << rd->via_subnet.mask << endl;
 	}
+}
+
+Utils::ReturnStatus RoutingTable::ModifyRoute( __in char name[MAX_ROUTER_NAME], __in Subnet* subnet_ptr )
+{
+	//In subnet vector, find subnet_prt and check to cost from this subnet from router name
+	//If our cost to subnet through router name != our cost to B + new cost then
+	//Update cost in vector and update in map (if we are using the same subnet)
+
+	Address new_router_address;
+	new_router_address.ip_address = subnet_ptr->address;
+	new_router_address.mask = subnet_ptr->mask;
+
+	for (vector<RoutingTableEntry>::iterator it = RoutingTable::m_routing_table->begin();
+		 it != RoutingTable::m_routing_table->end();
+		 ++it)
+	{
+		//Found a subnet which the new router belongs to
+		if(RoutingTable::CompareSubnets(it->first, new_router_address))
+		{
+			for (vector<RouterAddress>::iterator jt = it->second->begin();
+				 jt != it->second->end();
+				 ++jt)
+			{
+				//Found the router
+				if (strncmp(jt->router_name, name, MAX_ROUTER_NAME))
+				{
+					cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << endl;
+				}
+			}
+		}
+		
+	}
+	
+	return Utils::STATUS_OK;
 }

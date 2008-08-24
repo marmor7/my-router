@@ -11,7 +11,7 @@ typedef struct
 typedef struct
 {
 	char router_name[MAX_ROUTER_NAME];
-	unsigned short cost;
+	unsigned short cost; //Cost to subnet through router in name
 } RouterAddress;
 
 typedef struct
@@ -89,22 +89,53 @@ public:
 	//************************************
 	static Utils::ReturnStatus GetBestRoute( in_addr address, RouterAddress* ra );
 
-	//Gets the best connecting subnet to a neighbor
+	//************************************
+	// Method:    GetRouterSubnet
+	// FullName:  RoutingTable::GetRouterSubnet
+	// Access:    public 
+	// Returns:   Utils::ReturnStatus
+	// Qualifier: Gets the best connecting subnet to a neighbor
+	// Parameter: __in RouterEntry * router
+	// Parameter: __out Subnet * subnet
+	//************************************
 	static Utils::ReturnStatus GetRouterSubnet(__in RouterEntry* router, __out Subnet* subnet);
 
-	//Modifies the cost to a subnet via a neighbor
-	static Utils::ReturnStatus ModifyRoute(__in char name[MAX_ROUTER_NAME],__in in_addr actual_router_ip, 
-		__in unsigned short port, __in Subnet* subnet_ptr) {return Utils::STATUS_OK;};
+	//************************************
+	// Method:    ModifyRoute
+	// FullName:  RoutingTable::ModifyRoute
+	// Access:    public 
+	// Returns:   Utils::ReturnStatus
+	// Qualifier: Modifies the cost to a subnet via a neighbor
+	// Parameter: __in char name[MAX_ROUTER_NAME] - Name of the router to modify
+	// Parameter: __in Subnet * subnet_ptr - The subnet that the cost from this router has changed
+	//************************************
+	static Utils::ReturnStatus ModifyRoute(__in char name[MAX_ROUTER_NAME], __in Subnet* subnet_ptr);
 
 	static Utils::ReturnStatus AddRouter(__in char name[MAX_ROUTER_NAME],__in in_addr actual_router_ip, 
-		__in unsigned short port, __in Subnet* subnet_ptr, __in unsigned short cost);
+									 	 __in unsigned short port, __in Subnet* subnet_ptr, __in unsigned short cost);
 
+	//************************************
+	// Method:    PrintMap
+	// FullName:  RoutingTable::PrintMap
+	// Access:    public 
+	// Returns:   void
+	// Qualifier: Prints to screen the router's map
+	//************************************
 	static void PrintMap();
 
 protected:
+	//************************************
+	// Method:    CompareSubnets
+	// FullName:  RoutingTable::CompareSubnets
+	// Access:    protected static 
+	// Returns:   bool
+	// Qualifier: Compares two subnets
+	// Parameter: Address first_address
+	// Parameter: Address second_address
+	//************************************
 	static bool CompareSubnets(Address first_address, Address second_address);
 
-	//Sorted list for each router. First element is the best route
+	//Sorted vector for each router. First element is the best route
 	static vector<RoutingTableEntry> *m_routing_table;
 	static RoutersMap* m_routers_map;
 };
