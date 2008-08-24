@@ -382,8 +382,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 		subnet.mask = 0;
 		subnet.cost = INFINITY;
 
-		this->m_table->ModifyRoute(m_routers[rt].name, m_routers[rt].address, 
-									m_routers[rt].port, &subnet);
+		this->m_table->ModifyRoute(m_routers[rt].name, &subnet);
 		break;
 	case RT_EVENT_DV_RECEIVED:
 		rt = *((int *)data);
