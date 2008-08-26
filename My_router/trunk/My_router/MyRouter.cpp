@@ -442,6 +442,8 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 			cout << "Sender name: " << recieved_msg->SenderName << endl;
 			cout << "Receiver name: " << recieved_msg->ReceiverName << endl;
 			cout << endl;
+			cout << "Destination properties output format: <Subnet>/<Mask> (<Cost>):" << endl;
+			cout << endl;
 		}
 
 
@@ -454,10 +456,9 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 				dest_temp.S_un.S_addr = recieved_msg->ConnectingNETMYIPSubnet;
 
 				cout << "Destination " << i << " properties:" << endl;
-				cout << "<Subnet>/<Mask> (<Cost>):" << inet_ntoa(dest_temp) <<
-													   "/" << recieved_msg->dest[i].DestinationNETMask <<
-													   "(" << recieved_msg->dest[i].DestinationNETSubnetDistance << ")" <<
-													   endl;
+				cout << inet_ntoa(dest_temp) << "/" << recieved_msg->dest[i].DestinationNETMask <<
+												" (" << recieved_msg->dest[i].DestinationNETSubnetDistance << ")" <<
+												endl;
 			}
 
 			//New dest found
