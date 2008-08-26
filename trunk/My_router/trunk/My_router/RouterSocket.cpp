@@ -76,7 +76,7 @@ Utils::SocketReturnStatus RouterSocket::SocketAccept(IN int router_socket_descri
 	return Utils::STATUS_SOCKET_OK;
 }
 
-//Receive a massage from a neighbour router
+//Receive a massage from a neighbor router
 Utils::SocketReturnStatus RouterSocket::SocketReceive(IN int& sd,
 													  OUT BYTE* buff, 
 													  IN OUT int& len, 

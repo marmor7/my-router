@@ -426,7 +426,6 @@ Utils::ReturnStatus RoutingTable::ModifyRoute( __in char name[MAX_ROUTER_NAME], 
 	//Subnet not found, add new subnet and the router
 	if (!subnet_found)
 	{
-		//typedef pair<Address, vector<RouterAddress>* > RoutingTableEntry;
 		Address addr;
 		RouterAddress ra;
 

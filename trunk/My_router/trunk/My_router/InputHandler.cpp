@@ -169,7 +169,6 @@ void InputHandler::HandleRipLine( string line )
 	int pos ,last_pos;
 	Subnet* sub_ptr;
 	vector<Subnet*>* subnets_vector_ptr = new vector<Subnet*>();
-	bool is_my_router = false;
 
 	pos = line.find_first_not_of(" "); //Space if any at beginning
 	last_pos = line.find_first_of(" ", pos);
@@ -202,7 +201,6 @@ void InputHandler::HandleRipLine( string line )
 		//My router
 		if (router_name.compare(this->m_my_router->GetName()) == 0)
 		{
-			is_my_router = true; //TBD: Can be removed if won't be used later
 			this->m_my_router->AddSubnet(sub_ptr);
 		}
 		//Other router
