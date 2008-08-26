@@ -61,6 +61,9 @@ void RoutingTable::PrintDV()
 		 ++it)
 	{
 		ip_addr.S_un.S_addr = (it->first.ip_address.S_un.S_addr);
+		ip_addr.S_un.S_addr = ntohl(ip_addr.S_un.S_addr);
+		ip_addr.S_un.S_addr &= ((0xFFFFFFFF) << (32 - it->first.mask));
+		ip_addr.S_un.S_addr = htonl(ip_addr.S_un.S_addr);
 		
 		//Print header:
 		cout<< inet_ntoa(ip_addr) << ":" << it->first.mask << " >>>";
