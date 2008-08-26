@@ -104,9 +104,12 @@ void MyRouter::Run()
 
 	FD_SET(m_my_fd, &m_active_fd_set);
 
-	DisplaySet("Read", m_read_fd_set);
-	DisplaySet("Write", m_write_fd_set);
-	DisplaySet("Active", m_active_fd_set);
+	IF_DEBUG(TRACE)
+	{
+		DisplaySet("Read", m_read_fd_set);
+		DisplaySet("Write", m_write_fd_set);
+		DisplaySet("Active", m_active_fd_set);
+	}
 
 	while (true)
 	{
