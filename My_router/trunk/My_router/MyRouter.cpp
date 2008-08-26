@@ -429,6 +429,12 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 		m_routers[rt].reachable = false;
 
 		this->m_table->ReportDeadRouter(m_routers[rt].name);
+
+		//Print the new DV
+		this->m_table->PrintDV();
+
+		IF_DEBUG(TRACE)
+			m_table->PrintMap();
 		break;
 
 	case RT_EVENT_DV_RECEIVED:
@@ -446,7 +452,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 			m_routers[rt].reachable = true;
 		}
 
-		IF_DEBUG(TRACE)
+		IF_DEBUG(ALL)
 		{
 			in_addr temp;
 			temp.S_un.S_addr = recieved_msg->ConnectingNETMYIPSubnet;
@@ -468,7 +474,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 		//Update routing table
 		for (int i = 0; i < NUM_OF_ROUTERS; i++)
 		{
-			IF_DEBUG(TRACE)
+			IF_DEBUG(ALL)
 			{
 				in_addr dest_temp;
 				dest_temp.S_un.S_addr = recieved_msg->dest[i].DestinationNETSubnet;
@@ -497,8 +503,11 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 			}
 		}
 
-		//Print the newly DV
+		//Print the new DV
 		this->m_table->PrintDV();
+
+		IF_DEBUG(TRACE)
+			m_table->PrintMap();
 
 		break;
 
@@ -538,7 +547,7 @@ Utils::ReturnStatus MyRouter::AddRoute(char name[MAX_ROUTER_NAME], Subnet* subne
 									m_my_entry.port, *it);
 
 			RoutingTable::AddRouter(m_routers[i].name, m_routers[i].address,
-				m_routers[i].port, subnet_ptr, (*it)->cost + subnet_ptr->cost);
+				m_routers[i].port, subnet_ptr, (*it)->cost);
 
 			//Mark entry as neighbor
 			m_routers[i].reachable = true;
