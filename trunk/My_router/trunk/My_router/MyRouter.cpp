@@ -112,15 +112,17 @@ void MyRouter::Run()
 			cout << "while loop..." << endl;
 		}
 
-		if (SET_CMP(m_my_entry.timeout, 0, 0)){
+		if (SET_CMP(m_my_entry.timeout, 0, 0))
+		{
 			//Set a random timeout in range NIM ... MAX
-			SET_TIMEOUT(m_my_entry.timeout, rand() % 
-				(TIMEOUT_SEND_MIN - TIMEOUT_SEND_MAX) + TIMEOUT_SEND_MIN);
+			SET_TIMEOUT(m_my_entry.timeout, 
+						rand() % (TIMEOUT_SEND_MIN - TIMEOUT_SEND_MAX) + TIMEOUT_SEND_MIN);
 		}
 
 		//Set timeout to be the LOWEST timeout, se we'll wake up
 		SET_TIMEOUT(timeout, m_my_entry.timeout.tv_sec);
-		for (i=0; i < m_num_of_routers; i++){
+		for (i=0; i < m_num_of_routers; i++)
+		{
 			if ((m_routers[i].reachable) && 
 				(timeout.tv_sec > m_routers[i].timeout.tv_sec))
 				timeout = m_routers[i].timeout;
@@ -245,14 +247,14 @@ void MyRouter::Run()
 			if ((socket_return_status == Utils::STATUS_RECIVE_OK) && //Received message was fine
 				(m_in_buf.len == SIZE_OF_RIP_MSG))					 //Size of message is fine
 			{
-				MyRIPMessage* recieved_msg = new MyRIPMessage;
+				MyRIPMessage* recieved_msg;
 				recieved_msg = (MyRIPMessage *)m_in_buf.msg;
-				Utils::net2hostMsg(recieved_msg);
+				Utils::net2hostMsg(recieved_msg); //Make the message readable
 
 				IF_DEBUG(TRACE)
 				{
-					cout << "Sender name is: " << recieved_msg->SenderName << endl; //Characters are always network ordered
-					cout << "Protocol is: " << ntohs(recieved_msg->protocolID) << endl;
+					cout << "Sender name is: " << recieved_msg->SenderName << endl;
+					cout << "Protocol is: " << recieved_msg->protocolID << endl;
 				}
 
 				//Handle only version 1 protocols:
@@ -399,6 +401,9 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 		break;
 
 	case RT_EVENT_TIMEOUT:
+		MyRIPMessage* recieved_msg;
+		recieved_msg = (MyRIPMessage *)m_in_buf.msg;
+
 		rt = *((int *)data);
 
 		IF_DEBUG(TRACE)
@@ -424,8 +429,58 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 			m_routers[rt].reachable = true;
 		}
 
+		IF_DEBUG(TRACE)
+		{
+			in_addr temp;
+			temp.S_un.S_addr = recieved_msg->ConnectingNETMYIPSubnet;
+
+			cout << endl;
+			cout << "Handle DV Received: Scanning incoming message for data."<< endl;
+			cout << "Size of message: " << recieved_msg->length << endl;
+			cout << "Protocol ID: " << recieved_msg->protocolID << endl;
+			cout << "Connecting NET MYIP Subnet and mask are: " << inet_ntoa(temp) <<
+					recieved_msg->ConnectingNETMYIPMask << endl;
+			cout << "Sender name: " << recieved_msg->SenderName << endl;
+			cout << "Receiver name: " << recieved_msg->ReceiverName << endl;
+			cout << endl;
+		}
+
+
 		//Update routing table
-		//TBD
+		for (int i = 0; i < NUM_OF_ROUTERS; i++)
+		{
+			IF_DEBUG(TRACE)
+			{
+				in_addr dest_temp;
+				dest_temp.S_un.S_addr = recieved_msg->ConnectingNETMYIPSubnet;
+
+				cout << "Destination " << i << " properties:" << endl;
+				cout << "<Subnet>/<Mask> (<Cost>):" << inet_ntoa(dest_temp) <<
+													   "/" << recieved_msg->dest[i].DestinationNETMask <<
+													   "(" << recieved_msg->dest[i].DestinationNETSubnetDistance << ")" <<
+													   endl;
+			}
+
+			//New dest found
+			if (recieved_msg->dest[i].DestinationNETSubnet != 0)
+			{
+				Subnet* new_subnet = new Subnet;
+				memset(new_subnet, 0, sizeof(Subnet));
+				//Network order
+				new_subnet->address.S_un.S_addr = (recieved_msg->dest[i].DestinationNETSubnet); //Machine orderm not network!
+																					//because net2host was called when
+																					//msg received
+				new_subnet->mask = recieved_msg->dest[i].DestinationNETMask;
+				new_subnet->cost = recieved_msg->dest[i].DestinationNETSubnetDistance;
+
+				//Handle new message
+				RoutingTable::ModifyRoute(recieved_msg->SenderName, new_subnet);
+			}
+		}
+
+		//Print the newly DV
+		RoutingTable::PrintDV();
+
 		break;
 
 	default:

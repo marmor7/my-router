@@ -313,9 +313,9 @@ bool RoutingTable::CompareSubnets( Address first_address, Address second_address
 	{
 		cout << "RoutingTable::Comparing 2 subnets:" << endl;
 		cout << "First subnet: " << inet_ntoa(first_address.ip_address) << 
-			" with mask " << first_address.mask << endl;
+				" with mask " << first_address.mask << endl;
 		cout << "Second subnet: " << inet_ntoa(second_address.ip_address) << 
-			" with mask " << second_address.mask << endl;
+				" with mask " << second_address.mask << endl;
 	}
 
 	//If the 2 masks are different always return false
