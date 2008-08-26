@@ -235,7 +235,9 @@ Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
 		RoutingTable::GetBestRoute(subnet_ptr->address, &ra);
 		RouterDetails rd;
 
-		rd.cost_to_router = ra.cost + subnet_ptr->cost;
+		//TBD: can this REALLY must be our router?
+		//Set cost to 0 - this is our router
+		rd.cost_to_router = 0;
 		rd.port = port;
 		rd.router_ip = actual_router_ip;
 		rd.via_subnet = *subnet_ptr;
@@ -500,23 +502,20 @@ Utils::ReturnStatus RoutingTable::ReportDeadRouter( __in char name[MAX_ROUTER_NA
 			it != RoutingTable::m_routing_table->end();
 			++it)
 		{
-			//Find a subnet which the new router belongs to
-			if(RoutingTable::CompareSubnets(it->first, addr))
+			//Find the router's name
+			for (vector<RouterAddress>::iterator jt = it->second->begin();
+				jt != it->second->end();
+				++jt)
 			{
-				for (vector<RouterAddress>::iterator jt = it->second->begin();
-					jt != it->second->end();
-					++jt)
+				//Found the router
+				if (strncmp(jt->router_name, name, MAX_ROUTER_NAME) == 0)
 				{
-					//Found the router
-					if (strncmp(jt->router_name, name, MAX_ROUTER_NAME) == 0)
-					{
-						IF_DEBUG(TRACE)
-							cout << "changing route to INF" << endl;
+					IF_DEBUG(TRACE)
+						cout << "changing route to INF" << endl;
 
-						jt->cost = INFINITY;
-						//Sort table
-						sort(it->second->begin(), it->second->end(), SortRouterAddressByCost());
-					}
+					jt->cost = INFINITY;
+					//Sort table
+					sort(it->second->begin(), it->second->end(), SortRouterAddressByCost());
 				}
 			}
 		}
