@@ -121,8 +121,8 @@ void MyRouter::Run()
 		//Set timeout to be the LOWEST timeout, se we'll wake up
 		SET_TIMEOUT(timeout, m_my_entry.timeout.tv_sec);
 		for (i=0; i < m_num_of_routers; i++){
-			if (!(SET_CMP(m_routers[i].timeout, 0, 0)) 
-				&& (timeout.tv_sec > m_routers[i].timeout.tv_sec))
+			if ((m_routers[i].reachable) && 
+				(timeout.tv_sec > m_routers[i].timeout.tv_sec))
 				timeout = m_routers[i].timeout;
 		}
 		oldtime = timeout;
@@ -163,10 +163,9 @@ void MyRouter::Run()
 
 		//Set the difference to oldtime
 		TIMERSUB(&oldtime, &timeout, &oldtime);
-		for (i=0; i < m_num_of_routers; i++)
-		{
-			if (m_routers[i].timeout.tv_sec <= oldtime.tv_sec)
-			{
+		for (i=0; i < m_num_of_routers; i++){
+			if ((m_routers[i].timeout.tv_sec <= oldtime.tv_sec) && 
+				(m_routers[i].reachable)){
 				//Neighbor #i had not responded - assume down:
 				SET_TIMEOUT(m_routers[i].timeout, 0);
 				Handle(RT_EVENT_TIMEOUT, ((void *)&i));
@@ -195,10 +194,9 @@ void MyRouter::Run()
 				cout << "writing to socket " << m_my_fd << endl;
 			int i;
 			//Send a msg to every neighbor with a waiting msg
-			for (i=0; i < m_num_of_routers; i++)
-			{
-				if (m_routers[i].out.len > 0)
-				{
+			for (i=0; i < m_num_of_routers; i++){
+				if ((m_routers[i].out.len > 0) &&
+					(m_routers[i].reachable)){
 					//TBD: Handle return status
 					RouterSocket::SocketSend(RouterSocket::GetRouterSocketDescriptor(),	//Out sd
 											 m_routers[i].out.len,						//Length of data
@@ -391,13 +389,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 		//Mark neighbor as down
 		m_routers[rt].reachable = false;
 
-		//Modify the routing table
-		Subnet subnet;
-		subnet.address.S_un.S_addr = 0;
-		subnet.mask = 0;
-		subnet.cost = INFINITY;
-
-		this->m_table->ModifyRoute(m_routers[rt].name, &subnet);
+		this->m_table->ReportDeadRouter(m_routers[rt].name);
 		break;
 
 	case RT_EVENT_DV_RECEIVED:

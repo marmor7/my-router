@@ -385,12 +385,24 @@ Utils::ReturnStatus RoutingTable::ModifyRoute( __in char name[MAX_ROUTER_NAME], 
 	new_router_address.mask = subnet_ptr->mask;
 	bool subnet_found = false;
 	bool router_found_in_subnet = false;
+	unsigned short cost_to_router;
+
+	//Find cost to this neighbor
+	RoutersMap::iterator iter = RoutingTable::m_routers_map->find(string(name));
+	if(iter != RoutingTable::m_routers_map->end())
+	{
+		cost_to_router = iter->second.cost_to_router;
+	}
+	else
+	{
+		return Utils::STATUS_NOT_FOUND;
+	}
 
 	for (vector<RoutingTableEntry>::iterator it = RoutingTable::m_routing_table->begin();
 		 it != RoutingTable::m_routing_table->end();
 		 ++it)
 	{
-		//Found a subnet which the new router belongs to
+		//Find a subnet which the new router belongs to
 		if(RoutingTable::CompareSubnets(it->first, new_router_address))
 		{
 			subnet_found = true;
@@ -403,7 +415,15 @@ Utils::ReturnStatus RoutingTable::ModifyRoute( __in char name[MAX_ROUTER_NAME], 
 				if (strncmp(jt->router_name, name, MAX_ROUTER_NAME))
 				{
 					router_found_in_subnet = true;					
-					//TBD: Do something
+
+					//Update the cost: cost to neighbor + cost from neighbor to dest.
+					jt->cost = cost_to_router + subnet_ptr->cost;
+
+					//Sort list
+					sort(it->second->begin(), it->second->end(), SortRouterAddressByCost());
+
+					//Break from for - stop searching the routers list
+					break;
 				}
 			}
 
@@ -420,6 +440,9 @@ Utils::ReturnStatus RoutingTable::ModifyRoute( __in char name[MAX_ROUTER_NAME], 
 				//Sort list
 				sort(it->second->begin(), it->second->end(), SortRouterAddressByCost());
 			}
+
+			//break from for - stop searching the subnet vector
+			break;
 		}
 	}
 
@@ -434,7 +457,7 @@ Utils::ReturnStatus RoutingTable::ModifyRoute( __in char name[MAX_ROUTER_NAME], 
 		addr.ip_address = subnet_ptr->address;
 		addr.mask = subnet_ptr->mask;
 		strncpy(ra.router_name, name, MAX_ROUTER_NAME);
-		ra.cost = subnet_ptr->cost; //TBD: Add something to cost?
+		ra.cost = cost_to_router + subnet_ptr->cost;
 		
 		vec->push_back(ra);
 
@@ -451,6 +474,9 @@ Utils::ReturnStatus RoutingTable::ModifyRoute( __in char name[MAX_ROUTER_NAME], 
 
 Utils::ReturnStatus RoutingTable::ReportDeadRouter( __in char name[MAX_ROUTER_NAME] )
 {
+	IF_DEBUG(TRACE)
+		cout << "router " << name << " is dead" << endl;
+
 	RoutersMap::iterator iter = RoutingTable::m_routers_map->find(string(name));
 	if(iter != RoutingTable::m_routers_map->end())
 	{
@@ -463,7 +489,7 @@ Utils::ReturnStatus RoutingTable::ReportDeadRouter( __in char name[MAX_ROUTER_NA
 			it != RoutingTable::m_routing_table->end();
 			++it)
 		{
-			//Found a subnet which the new router belongs to
+			//Find a subnet which the new router belongs to
 			if(RoutingTable::CompareSubnets(it->first, addr))
 			{
 				for (vector<RouterAddress>::iterator jt = it->second->begin();
@@ -473,6 +499,9 @@ Utils::ReturnStatus RoutingTable::ReportDeadRouter( __in char name[MAX_ROUTER_NA
 					//Found the router
 					if (strncmp(jt->router_name, name, MAX_ROUTER_NAME))
 					{
+						IF_DEBUG(TRACE)
+							cout << "changing route to INF" << endl;
+
 						jt->cost = INFINITY;
 						//Sort table
 						sort(it->second->begin(), it->second->end(), SortRouterAddressByCost());
