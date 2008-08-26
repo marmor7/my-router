@@ -52,6 +52,7 @@ void RoutingTable::PrintDV()
 {
  	in_addr ip_addr;
  	
+	cout << endl;
 	cout << "My New RIP Table is:" << endl;
 	cout << "To: >>>Best_Route(Best_Distance)<<< *[Alternative Routes (Alternative Distances)]" << endl;
 
@@ -105,6 +106,7 @@ void RoutingTable::PrintDV()
 
 		cout << endl;
 	}
+	cout << endl;
 }
 
 

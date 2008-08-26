@@ -9,7 +9,7 @@ using namespace std;
 #define DEBUG_TRACE 2
 #define DEBUG_ALL 3
 
-#define DEBUG_LEVEL DEBUG_TRACE
+#define DEBUG_LEVEL DEBUG_ERROR
 
 #define IF_DEBUG(level) if (DEBUG_##level <= DEBUG_LEVEL)
 
@@ -55,7 +55,13 @@ struct CompareSubnetsByCost
 class Utils
 {
 public:
-	Utils();
+	//************************************
+	// Method:    ~Utils
+	// FullName:  Utils::~Utils
+	// Access:    public 
+	// Returns:   
+	// Qualifier: Destructor
+	//************************************
 	~Utils();
 
 	//Enumerator of the possible return statuses by InitRouter.
@@ -70,6 +76,7 @@ public:
 		STATUS_NOT_FOUND
 	};
 
+	//Enum of the possible return statuses by sockets usage
 	enum SocketReturnStatus
 	{
 		STATUS_SOCKET_OK,
@@ -85,10 +92,54 @@ public:
 		STATUS_BAD_BIND
 	};
 
+	//************************************
+	// Method:    PrintMsg
+	// FullName:  Utils::PrintMsg
+	// Access:    public 
+	// Returns:   void
+	// Qualifier: Prints a message content
+	// Parameter: MyRIPMessage * msg
+	//************************************
 	static void PrintMsg(MyRIPMessage* msg);
+
+	//************************************
+	// Method:    PrintDest
+	// FullName:  Utils::PrintDest
+	// Access:    public 
+	// Returns:   Utils::ReturnStatus
+	// Qualifier: Prints destination property
+	// Parameter: int i
+	// Parameter: DestinationProperties * dest
+	//************************************
 	static Utils::ReturnStatus PrintDest(int i, DestinationProperties* dest);
 
-	static Utils::ReturnStatus host2netMsg(MyRIPMessage* msg);
-	static Utils::ReturnStatus net2hostMsg(MyRIPMessage* msg);
+	//************************************
+	// Method:    Host2netMsg
+	// FullName:  Utils::Host2netMsg
+	// Access:    public 
+	// Returns:   Utils::ReturnStatus
+	// Qualifier: Converts a message from host order to net order
+	// Parameter: MyRIPMessage * msg
+	//************************************
+	static Utils::ReturnStatus Host2netMsg(MyRIPMessage* msg);
 
+	//************************************
+	// Method:    Net2hostMsg
+	// FullName:  Utils::Net2hostMsg
+	// Access:    public 
+	// Returns:   Utils::ReturnStatus
+	// Qualifier: Converts message from net order to host order
+	// Parameter: MyRIPMessage * msg
+	//************************************
+	static Utils::ReturnStatus Net2hostMsg(MyRIPMessage* msg);
+
+private:
+	//************************************
+	// Method:    Utils
+	// FullName:  Utils::Utils
+	// Access:    private 
+	// Returns:   
+	// Qualifier: Private constructor
+	//************************************
+	Utils();
 };
