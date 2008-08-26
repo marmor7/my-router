@@ -418,7 +418,7 @@ Utils::ReturnStatus RoutingTable::ModifyRoute( __in char name[MAX_ROUTER_NAME], 
 				 ++jt)
 			{
 				//Found the router
-				if (strncmp(jt->router_name, name, MAX_ROUTER_NAME))
+				if (strncmp(jt->router_name, name, MAX_ROUTER_NAME) == 0)
 				{
 					router_found_in_subnet = true;					
 
@@ -505,7 +505,7 @@ Utils::ReturnStatus RoutingTable::ReportDeadRouter( __in char name[MAX_ROUTER_NA
 					++jt)
 				{
 					//Found the router
-					if (strncmp(jt->router_name, name, MAX_ROUTER_NAME))
+					if (strncmp(jt->router_name, name, MAX_ROUTER_NAME) == 0)
 					{
 						IF_DEBUG(TRACE)
 							cout << "changing route to INF" << endl;
