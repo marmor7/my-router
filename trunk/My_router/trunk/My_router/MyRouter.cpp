@@ -258,7 +258,7 @@ void MyRouter::Run()
 				}
 
 				//Handle only version 1 protocols:
-				if (ntohs(recieved_msg->protocolID) == 1)
+				if (recieved_msg->protocolID == 1)
 				{
 					for (i=0; i < m_num_of_routers; i++)
 					{
