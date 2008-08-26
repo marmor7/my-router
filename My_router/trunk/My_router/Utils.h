@@ -39,8 +39,8 @@ struct RouterEntry
 struct Subnet
 {
 	in_addr address;
-	unsigned long int cost;
-	unsigned long int mask;
+	int cost;
+	int mask;
 };
 
 //Functor to compare 2 subnets by STL sort
