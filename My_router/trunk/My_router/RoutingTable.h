@@ -20,6 +20,7 @@ typedef struct
 	unsigned short port;
 	unsigned long cost_to_router;
 	Subnet via_subnet;
+	bool alive;
 } RouterDetails;
 
 typedef pair<Address, vector<RouterAddress>* > RoutingTableEntry;
