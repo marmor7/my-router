@@ -106,10 +106,10 @@ private:
 	// Returns:   void
 	// Qualifier: Sets up the connection parameters to use by SocketEstablish()
 	// Parameter: struct sockaddr_in * dest
-	// Parameter: int port
+	// Parameter: unsigned short port
 	// Parameter: char * hostname
 	//************************************
-	static void SetConnectionParameters(struct sockaddr_in *dest, int port, char *hostname);
+	static void SetConnectionParameters(struct sockaddr_in *dest, unsigned short port, char *hostname);
 	
 	//Router's socket descriptor
 	static int ms_router_socket_sd;

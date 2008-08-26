@@ -5,7 +5,6 @@
 
 MyRouter::~MyRouter()
 {
-	//TMP delete (this->m_handler);
 	delete (this->m_routers);
 	delete (this->m_table);
 }
@@ -15,8 +14,6 @@ MyRouter::MyRouter( string name ) : m_num_of_routers(0), m_router_port(0)
 	memcpy(m_name, name.c_str(), MAX_ROUTER_NAME);
 	this->m_table = new RoutingTable();
 	this->m_my_router_subnets = new vector<Subnet*>();
-	//TMP this->m_handler = new EventHandler(m_table, m_routers, 
-	//	&m_active_fd_set, &m_read_fd_set, &m_write_fd_set, m_my_router_subnets);
 	this->m_routers = new RouterEntry[NUM_OF_ROUTERS];
 }
 
@@ -156,7 +153,7 @@ void MyRouter::Run()
 			exit (EXIT_FAILURE);
 		}
 
-		//TMP: check that timeout is modified on linux, 
+		//TMP: check that timeout is modified on Linux, 
 		//     and remove this if
 		if (timeout.tv_sec > (after - before))
 			timeout.tv_sec -= (long)(after - before);
@@ -268,7 +265,7 @@ void MyRouter::SetRoutersIpAndPort( string ip,unsigned short port )
 	memset(&s, 0, sizeof(struct in_addr));
 
 	this->m_router_ip.sin_family = AF_INET;
-	this->m_router_ip.sin_port = port;//TBD: add htons?
+	this->m_router_ip.sin_port = htons(port);
 	ip_long = inet_addr(ip.c_str());
 
 	assert(ip_long != INADDR_ANY);
@@ -337,7 +334,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 		//Set all known fields:
 		msg.protocolID = PROTOCOL_ID;
 		memcpy(msg.SenderName, m_name, MAX_SENDER_NAME);
-		msg.length = SIZE_OF_RIP_MSG; //TBD: change to real len?
+		msg.length = SIZE_OF_RIP_MSG;
 
 		//Let routing table set it's related fields:
 		this->m_table->GetDV(&msg);
@@ -435,12 +432,10 @@ Utils::ReturnStatus MyRouter::AddRoute(char name[MAX_ROUTER_NAME], Subnet* subne
 			RoutingTable::AddRouter(m_routers[i].name, m_routers[i].address,
 				m_routers[i].port, subnet_ptr, (*it)->cost + subnet_ptr->cost);
 
-			//Mark entry as neighbour
+			//Mark entry as neighbor
 			m_routers[i].reachable = true;
 		}
-	}
-	//TBD: Check if IP and mask equals the router's subnet.
-	//If yes, updates the m_routers table (turn on the neighbor bit only)		
+	}		
 
 	return Utils::STATUS_OK;
 }

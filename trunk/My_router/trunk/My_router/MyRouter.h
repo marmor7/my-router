@@ -31,7 +31,6 @@ using namespace std;
 class MyRouter
 {
 public:
-
 	//************************************
 	// Method:    ~MyRouter
 	// FullName:  MyRouter::~MyRouter
@@ -164,14 +163,14 @@ public:
 	//************************************
 	Utils::ReturnStatus Handle(RouterEvents event, void* data);
 
-	//Removes non-neighbours from the RouterEntry table
+	//Removes non-neighbors from the RouterEntry table
 	Utils::ReturnStatus ClearRouters();
 
 protected:
 	//Initialize the fd_sets
 	void InitSets();
 
-	//Is a router a neighbour
+	//Is a router a neighbor
 	bool IsNeighbor(Subnet* first_subnet_ptr, Subnet* second_subnet_ptr);
 
 	//Display an fd_set
@@ -199,9 +198,6 @@ protected:
 
 	//Sets of sockets - used by select function
 	fd_set m_active_fd_set, m_read_fd_set, m_write_fd_set;
-
-	//Array from index to socketId
-	//int m_sockets[NUM_OF_ROUTERS];
 
 	//Max socket descriptor
 	int m_max_fd;

@@ -98,7 +98,7 @@ Utils::SocketReturnStatus RouterSocket::SocketReceive(IN int& sd,
 			cout << "SocketReceive: Recieved message from socket " << sd << endl ;
 			unsigned short tmp = ((MyRIPMessage*) buff)->protocolID;
 			cout << "Protocol ID: "<< ntohs(tmp) << endl;
-			cout << "Message recieved from: " << inet_ntoa(data_sender->sin_addr) << endl;
+			cout << "Message received from: " << inet_ntoa(data_sender->sin_addr) << endl;
 		}
 	}
 
@@ -107,7 +107,7 @@ Utils::SocketReturnStatus RouterSocket::SocketReceive(IN int& sd,
 	return (bytes_recived == -1) ? Utils::STATUS_RECIVE_FAILED : Utils::STATUS_RECIVE_OK;
 }
 
-//Send a massage to a neighbour router
+//Send a massage to a neighbor router
 Utils::SocketReturnStatus RouterSocket::SocketSend(IN int sd, 
 												   IN int& len,
 												   IN BYTE* data,
@@ -128,11 +128,11 @@ Utils::SocketReturnStatus RouterSocket::SocketSend(IN int sd,
 	int n = -1;
 	sockaddr_in address;
 
-	address.sin_family = AF_INET;         // host byte order
-	address.sin_port = htons(dest.port);     // short, network byte order
-	address.sin_addr = dest.address; //Destination - network order! = inet_addr("1.2.3.4")
-	//TMP? address.sin_addr.s_addr = htonl(dest.address.S_un.S_addr);
-	memset(address.sin_zero, '\0', sizeof address.sin_zero);
+	address.sin_family = AF_INET;				// host byte order
+	address.sin_port = htons(dest.port);		// short, network byte order
+	address.sin_addr = dest.address;			//Destination - network order! = inet_addr("1.2.3.4")
+
+	memset(address.sin_zero, '\0', sizeof address.sin_zero); //Clear all other struct's fields
 	
 	while(total < len)
 	{
@@ -141,7 +141,7 @@ Utils::SocketReturnStatus RouterSocket::SocketSend(IN int sd,
 			cout << "SocketSend: Sending msg on socket " << sd << " - " ;
 		}
 
-		n = sendto(sd,						//Output socket
+		n = sendto(sd,								//Output socket
 				   (char*) data+total,				//Output data
 				   bytesleft,						//How many bytes left
 				   0,								//No flags
@@ -170,7 +170,7 @@ Utils::SocketReturnStatus RouterSocket::SocketSend(IN int sd,
 	return (n == -1) ? Utils::STATUS_SEND_FAILED : Utils::STATUS_SEND_OK;
 }
 
-void RouterSocket::SetConnectionParameters( struct sockaddr_in *dest, int port, char *hostname )
+void RouterSocket::SetConnectionParameters( struct sockaddr_in *dest, unsigned short port, char *hostname )
 {
 	struct hostent *he;
 	he = gethostbyname(hostname);
@@ -178,7 +178,7 @@ void RouterSocket::SetConnectionParameters( struct sockaddr_in *dest, int port, 
 
 	memset(dest, 0, sizeof(struct sockaddr_in));
 	dest->sin_family = AF_INET;
-	dest->sin_port = port;//TBD: add htons?
+	dest->sin_port = htons(port);
 	dest->sin_addr = *((struct in_addr *)he->h_addr);
 	memset(dest->sin_zero, 0, sizeof(dest->sin_zero));
 
@@ -229,30 +229,3 @@ Utils::SocketReturnStatus RouterSocket::SocketInit( unsigned short router_port )
 
 	return Utils::STATUS_SOCKET_OK;
 }
-/*
-
-struct sockaddr_in addr;
-struct hostent* h;
-h = gethostbyname(entry->name);
-
-if (h == NULL)
-{
-//assert(h != NULL); //TBD: remove
-return Utils::STATUS_BAD_SOCKET;
-} 
-entry->socketId = sd;
-
-addr.sin_addr = entry->address;
-addr.sin_port = htons(entry->port);
-addr.sin_family = AF_INET;
-memset(addr.sin_zero, 0, sizeof(addr.sin_zero));
-
-status = connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr));
-
-
-if (status == -1)
-{
-return Utils::STATUS_BAD_CONNECT;
-}
-
-*/

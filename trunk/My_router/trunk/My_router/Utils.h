@@ -18,7 +18,7 @@ using namespace std;
 #define MAX_SUBNETS_FOR_SINGLE_ROUTER 8
 #define SIZE_OF_RIP_MSG 412
 
-#define INFINITY (SHRT_MAX-1)
+#define INFINITY 255 //Defined by course staff
 
 struct buffer
 {
