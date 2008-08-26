@@ -280,6 +280,7 @@ void MyRouter::Run()
 							}
 
 							SET_TIMEOUT(m_routers[i].timeout, TIMEOUT_FAIL);
+							m_routers[i].reachable = true;
 
 							Handle(RT_EVENT_DV_RECEIVED, (void *)&i);
 						}
@@ -496,7 +497,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 
 	default:
 		IF_DEBUG(ERROR)
-			cout << "ERROR: Got an handled event." << endl;
+			cout << "ERROR: Got an unhandled event." << endl;
 	}
 
 	return Utils::STATUS_OK;
