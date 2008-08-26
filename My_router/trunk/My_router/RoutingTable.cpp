@@ -27,8 +27,8 @@ struct SortRoutingTableEntry
 		first_mask = first_mask << (32 - rta_1.first.mask);
 		second_mask = second_mask << (32 - rta_2.first.mask);
 
-		first_subnet_address = htonl(rta_1.first.ip_address.S_un.S_addr);//TBD: remove htonl
-		second_subnet_address = htonl(rta_2.first.ip_address.S_un.S_addr);//TBD: remove htonl
+		first_subnet_address = htonl(rta_1.first.ip_address.S_un.S_addr);
+		second_subnet_address = htonl(rta_2.first.ip_address.S_un.S_addr);
 
 		first_subnet_address = first_subnet_address & first_mask;
 		second_subnet_address = second_subnet_address & second_mask;
@@ -150,8 +150,6 @@ Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
 	
 	//Create new router's list entry
 	new_router_addr.cost = subnet_ptr->cost;
-	//new_router_addr.port = port;TMP
-	//new_router_addr.router_ip = actual_router_ip;TMP
 	strncpy(new_router_addr.router_name, name, MAX_ROUTER_NAME);
 
 	//Check if the new router's network is already exist in our routing table
@@ -334,8 +332,8 @@ bool RoutingTable::CompareSubnets( Address first_address, Address second_address
 	{
 		mask = mask << (32 - first_address.mask);
 
-		first_subnet_address = htonl(first_address.ip_address.S_un.S_addr);//TBD: remove htonl
-		second_subnet_address = htonl(second_address.ip_address.S_un.S_addr);//TBD: remove htonl
+		first_subnet_address = htonl(first_address.ip_address.S_un.S_addr);
+		second_subnet_address = htonl(second_address.ip_address.S_un.S_addr);
 
 		first_subnet_address = first_subnet_address & mask;
 		second_subnet_address = second_subnet_address & mask;
