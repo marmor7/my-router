@@ -16,7 +16,7 @@ typedef struct
 
 typedef struct
 {
-	in_addr router_ip;
+	in_addr router_ip;		
 	unsigned short port;
 	unsigned short cost_to_router;
 	Subnet via_subnet;
@@ -111,6 +111,18 @@ public:
 	//************************************
 	static Utils::ReturnStatus ModifyRoute(__in char name[MAX_ROUTER_NAME], __in Subnet* subnet_ptr);
 
+	//************************************
+	// Method:    AddRouter
+	// FullName:  RoutingTable::AddRouter
+	// Access:    public 
+	// Returns:   Utils::ReturnStatus
+	// Qualifier: Adds router to router's map for fast data extraction
+	// Parameter: __in char name[MAX_ROUTER_NAME]
+	// Parameter: __in in_addr actual_router_ip
+	// Parameter: __in unsigned short port
+	// Parameter: __in Subnet * subnet_ptr
+	// Parameter: __in unsigned short cost
+	//************************************
 	static Utils::ReturnStatus AddRouter(__in char name[MAX_ROUTER_NAME],__in in_addr actual_router_ip, 
 									 	 __in unsigned short port, __in Subnet* subnet_ptr, __in unsigned short cost);
 
@@ -147,5 +159,7 @@ protected:
 
 	//Sorted vector for each router. First element is the best route
 	static vector<RoutingTableEntry> *m_routing_table;
+
+	//Router's details
 	static RoutersMap* m_routers_map;
 };

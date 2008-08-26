@@ -174,7 +174,7 @@ protected:
 	bool IsNeighbor(Subnet* first_subnet_ptr, Subnet* second_subnet_ptr);
 
 	//Display an fd_set
-	void displaySet(string title, fd_set & set);
+	void DisplaySet(string title, fd_set & set);
 
 	//Router's name
 	char m_name[MAX_ROUTER_NAME];

@@ -55,7 +55,7 @@ void MyRouter::InitSets()
 	FD_ZERO(&m_read_fd_set);
 }
 
-void MyRouter::displaySet(string title, fd_set & set)
+void MyRouter::DisplaySet(string title, fd_set & set)
 {
 	int i;
 	cout << title << " set is: ";
@@ -70,6 +70,7 @@ void MyRouter::Run()
 	int i = 0, res = 0;
 	m_max_fd = 10000;
 	int myId = -1;
+	Utils::SocketReturnStatus socket_return_status;
 	timeval timeout = {0, 0};
 	timeval oldtime = {0, 0};
 	time_t before = {0}; //TMP?
@@ -77,9 +78,9 @@ void MyRouter::Run()
 	srand((int) time(NULL));
 
 	InitSets();
-	displaySet("Read", m_read_fd_set);
-	displaySet("Write", m_write_fd_set);
-	displaySet("Active", m_active_fd_set);
+	DisplaySet("Read", m_read_fd_set);
+	DisplaySet("Write", m_write_fd_set);
+	DisplaySet("Active", m_active_fd_set);
 
 	//Some sizes checks:
 	assert(sizeof(int) == 4);
@@ -100,9 +101,9 @@ void MyRouter::Run()
 
 	FD_SET(m_my_fd, &m_active_fd_set);
 
-	displaySet("Read", m_read_fd_set);
-	displaySet("Write", m_write_fd_set);
-	displaySet("Active", m_active_fd_set);
+	DisplaySet("Read", m_read_fd_set);
+	DisplaySet("Write", m_write_fd_set);
+	DisplaySet("Active", m_active_fd_set);
 
 	while (true)
 	{
@@ -131,7 +132,7 @@ void MyRouter::Run()
 
 		IF_DEBUG(TRACE){
 			cout << "Timeout: " << timeout.tv_sec << ": " << timeout.tv_usec << endl;
-			displaySet("Write", m_write_fd_set);
+			DisplaySet("Write", m_write_fd_set);
 		}
 		
 		time(&before); //TMP?
@@ -140,7 +141,7 @@ void MyRouter::Run()
 
 		IF_DEBUG(TRACE){
 			cout << "Timeout: " << timeout.tv_sec << ": " << timeout.tv_usec << endl;
-			displaySet("Write", m_write_fd_set);
+			DisplaySet("Write", m_write_fd_set);
 			cout << "select returned " << res << endl;
 		}
 
@@ -162,18 +163,22 @@ void MyRouter::Run()
 
 		//Set the difference to oldtime
 		TIMERSUB(&oldtime, &timeout, &oldtime);
-		for (i=0; i < m_num_of_routers; i++){
-			if (m_routers[i].timeout.tv_sec <= oldtime.tv_sec){
+		for (i=0; i < m_num_of_routers; i++)
+		{
+			if (m_routers[i].timeout.tv_sec <= oldtime.tv_sec)
+			{
 				//Neighbor #i had not responded - assume down:
 				SET_TIMEOUT(m_routers[i].timeout, 0);
 				Handle(RT_EVENT_TIMEOUT, ((void *)&i));
 			}
-			else{
+			else
+			{
 				//Reduce the timeout value by the difference
 				TIMERSUB(&m_routers[i].timeout, &oldtime, &m_routers[i].timeout);
 			}
 		}
-		if (m_my_entry.timeout.tv_sec <= oldtime.tv_sec){
+		if (m_my_entry.timeout.tv_sec <= oldtime.tv_sec)
+		{
 			//Neighbor #i had not responded - assume down:
 			SET_TIMEOUT(m_my_entry.timeout, 0);
 			Handle(RT_EVENT_SENDING_DV, null);
@@ -190,24 +195,30 @@ void MyRouter::Run()
 				cout << "writing to socket " << m_my_fd << endl;
 			int i;
 			//Send a msg to every neighbor with a waiting msg
-			for (i=0; i < m_num_of_routers; i++){
-				if (m_routers[i].out.len > 0){
+			for (i=0; i < m_num_of_routers; i++)
+			{
+				if (m_routers[i].out.len > 0)
+				{
 					//TBD: Handle return status
-					RouterSocket::SocketSend(
-							RouterSocket::GetRouterSocketDescriptor(),	//Out sd
-							m_routers[i].out.len,						//Length of data
-							m_routers[i].out.msg,						//Message to send
-							m_routers[i]);								//Router entry
+					RouterSocket::SocketSend(RouterSocket::GetRouterSocketDescriptor(),	//Out sd
+											 m_routers[i].out.len,						//Length of data
+											 m_routers[i].out.msg,						//Message to send
+											 m_routers[i]);								//Router entry
+
 					if (m_routers[i].out.len >= sizeof(MyRIPMessage))
 						m_routers[i].out.len = 0;
 					else
 						m_routers[i].out.len = sizeof(MyRIPMessage);
 				}
 			}
+
 			//If we've finished sending to everyone, clear write fd
 			for (i=0; i < m_num_of_routers; i++)
+			{
 				if (m_routers[i].out.len > 0)
 					break;
+			}
+
 			if (i >= m_num_of_routers)
 				FD_CLR(m_my_fd, &m_write_fd_set);
 		}
@@ -218,9 +229,10 @@ void MyRouter::Run()
 			sockaddr_in sender = {0};
 			IF_DEBUG(TRACE)
 			{
-				cout << "reading from socket " << m_my_fd << endl;
+				cout << "Reading from socket " << m_my_fd << endl;
 			}
 			m_in_buf.len = SIZE_OF_RIP_MSG;
+
 			//TBD: Handle return status
 			RouterSocket::SocketReceive(m_my_fd,		//Socket descriptor
 										m_in_buf.msg,	//In buffer
@@ -230,7 +242,9 @@ void MyRouter::Run()
 			IF_DEBUG(TRACE)
 				cout << "Size of msg received: " << m_in_buf.len << 
 						"(" << SIZE_OF_RIP_MSG << ")" << endl;
-			if (m_in_buf.len == SIZE_OF_RIP_MSG){
+
+			if (m_in_buf.len == SIZE_OF_RIP_MSG)
+			{
 				MyRIPMessage* msg = new MyRIPMessage;
 				msg = (MyRIPMessage *)m_in_buf.msg;
 				Utils::net2hostMsg(msg);
@@ -240,14 +254,17 @@ void MyRouter::Run()
 					cout << "protocol is: " << msg->protocolID << endl;
 				}
 
-				for (i=0; i < m_num_of_routers; i++){
-					if (strncmp(msg->SenderName, m_routers[i].name, MAX_ROUTER_NAME) == 0){
+				for (i=0; i < m_num_of_routers; i++)
+				{
+					if (strncmp(msg->SenderName, m_routers[i].name, MAX_ROUTER_NAME) == 0)
+					{
 						IF_DEBUG(TRACE)
 							cout << "found the neighbor! " << i << endl;
 						SET_TIMEOUT(m_routers[i].timeout, TIMEOUT_FAIL);
 						Handle(RT_EVENT_DV_RECEIVED, (void *)&i);
 					}
 				}
+
 				FD_CLR(m_my_fd, &m_read_fd_set);
 			}		
 		}
@@ -294,10 +311,10 @@ string MyRouter::PrintEvent(RouterEvents event)
 {
 	switch (event)
 	{
-	case RT_EVENT_READ_CONFIG : return "read config file";
-	case RT_EVENT_TIMEOUT     : return "timeout!";
+	case RT_EVENT_READ_CONFIG : return "Read config file";
+	case RT_EVENT_TIMEOUT     : return "Timeout!";
 	case RT_EVENT_DV_RECEIVED : return "DV received";
-	case RT_EVENT_SENDING_DV  : return "sending DV";
+	case RT_EVENT_SENDING_DV  : return "Sending DV";
 	default : return "Unknown event";
 	}
 	return "";
@@ -365,6 +382,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 		}
 		FD_SET(m_my_fd, &m_write_fd_set);
 		break;
+
 	case RT_EVENT_TIMEOUT:
 		rt = *((int *)data);
 		IF_DEBUG(TRACE)
@@ -381,6 +399,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 
 		this->m_table->ModifyRoute(m_routers[rt].name, &subnet);
 		break;
+
 	case RT_EVENT_DV_RECEIVED:
 		rt = *((int *)data);
 		IF_DEBUG(TRACE)
@@ -394,6 +413,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 		//Update routing table
 		//TBD
 		break;
+
 	default:
 		IF_DEBUG(ERROR)
 			cout << "ERROR: got a wierd event!!! Don't know what to do" << endl;
