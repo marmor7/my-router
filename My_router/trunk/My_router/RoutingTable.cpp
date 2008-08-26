@@ -289,7 +289,7 @@ Utils::ReturnStatus RoutingTable::GetRouterSubnet(__in RouterEntry* router, __ou
 }
 
 Utils::ReturnStatus RoutingTable::AddRouter(__in char name[MAX_ROUTER_NAME],__in in_addr actual_router_ip, 
-											__in unsigned short port, __in Subnet* subnet_ptr, __in unsigned short cost)
+											__in unsigned short port, __in Subnet* subnet_ptr, __in unsigned long cost)
 {
 	RouterDetails rd;
 	rd.cost_to_router = cost;
@@ -385,7 +385,7 @@ Utils::ReturnStatus RoutingTable::ModifyRoute( __in char name[MAX_ROUTER_NAME], 
 	new_router_address.mask = subnet_ptr->mask;
 	bool subnet_found = false;
 	bool router_found_in_subnet = false;
-	unsigned short cost_to_router;
+	unsigned long cost_to_router;
 
 	//Find cost to this neighbor
 	RoutersMap::iterator iter = RoutingTable::m_routers_map->find(string(name));

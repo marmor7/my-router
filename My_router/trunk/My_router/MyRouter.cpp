@@ -339,6 +339,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 	int len = 0;
 	bool printed = false;
 	int rt = 0;
+	MyRIPMessage* recieved_msg;
 
 	switch (incoming_event)
 	{
@@ -401,9 +402,6 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 		break;
 
 	case RT_EVENT_TIMEOUT:
-		MyRIPMessage* recieved_msg;
-		recieved_msg = (MyRIPMessage *)m_in_buf.msg;
-
 		rt = *((int *)data);
 
 		IF_DEBUG(TRACE)
@@ -416,6 +414,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 		break;
 
 	case RT_EVENT_DV_RECEIVED:
+		recieved_msg = (MyRIPMessage *)m_in_buf.msg;
 		rt = *((int *)data);
 
 		IF_DEBUG(TRACE)

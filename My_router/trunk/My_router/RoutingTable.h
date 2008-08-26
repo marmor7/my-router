@@ -5,20 +5,20 @@
 typedef struct
 {
 	in_addr ip_address;
-	unsigned short mask;
+	unsigned long mask;
 } Address;
 
 typedef struct
 {
 	char router_name[MAX_ROUTER_NAME];
-	unsigned short cost; //Cost to subnet through router in name
+	unsigned long cost; //Cost to subnet through router in name
 } RouterAddress;
 
 typedef struct
 {
 	in_addr router_ip;		
 	unsigned short port;
-	unsigned short cost_to_router;
+	unsigned long cost_to_router;
 	Subnet via_subnet;
 } RouterDetails;
 
@@ -124,7 +124,7 @@ public:
 	// Parameter: __in unsigned short cost
 	//************************************
 	static Utils::ReturnStatus AddRouter(__in char name[MAX_ROUTER_NAME],__in in_addr actual_router_ip, 
-									 	 __in unsigned short port, __in Subnet* subnet_ptr, __in unsigned short cost);
+									 	 __in unsigned short port, __in Subnet* subnet_ptr, __in unsigned long cost);
 
 	//************************************
 	// Method:    ReportDeadRouter
