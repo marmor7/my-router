@@ -437,7 +437,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 			cout << "Handle DV Received: Scanning incoming message for data."<< endl;
 			cout << "Size of message: " << recieved_msg->length << endl;
 			cout << "Protocol ID: " << recieved_msg->protocolID << endl;
-			cout << "Connecting NET MYIP Subnet and mask are: " << inet_ntoa(temp) <<
+			cout << "Connecting NET MYIP Subnet and mask are: " << inet_ntoa(temp) << "/" <<
 					recieved_msg->ConnectingNETMYIPMask << endl;
 			cout << "Sender name: " << recieved_msg->SenderName << endl;
 			cout << "Receiver name: " << recieved_msg->ReceiverName << endl;
