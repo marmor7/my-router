@@ -30,7 +30,8 @@ int main(int argc, char* argv[])
 	switch (ihrs)
 	{
 	case(Utils::STATUS_OK):
-		cout << "Init OK\n";
+		IF_DEBUG(TRACE)
+			cout << "Init OK\n";
 		my_router->Run();
 		break;
 
