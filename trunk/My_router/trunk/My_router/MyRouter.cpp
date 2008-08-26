@@ -78,9 +78,12 @@ void MyRouter::Run()
 	srand((int) time(NULL));
 
 	InitSets();
-	DisplaySet("Read", m_read_fd_set);
-	DisplaySet("Write", m_write_fd_set);
-	DisplaySet("Active", m_active_fd_set);
+	IF_DEBUG(TRACE)
+	{
+		DisplaySet("Read", m_read_fd_set);
+		DisplaySet("Write", m_write_fd_set);
+		DisplaySet("Active", m_active_fd_set);
+	}
 
 	//Some sizes checks:
 	assert(sizeof(int) == 4);
@@ -362,7 +365,8 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 
 		m_table->PrintDV();
 
-		m_table->PrintMap();
+		IF_DEBUG(TRACE)
+			m_table->PrintMap();
 
 		break;
 	case RT_EVENT_SENDING_DV:
