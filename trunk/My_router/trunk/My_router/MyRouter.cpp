@@ -191,7 +191,7 @@ void MyRouter::Run()
 		if (FD_ISSET(m_my_fd, &m_write_fd_set))
 		{
 			IF_DEBUG(TRACE)
-				cout << "writing to socket " << m_my_fd << endl;
+				cout << "Writing to socket " << m_my_fd << endl;
 			int i;
 			//Send a msg to every neighbor with a waiting msg
 			for (i=0; i < m_num_of_routers; i++){
@@ -221,7 +221,7 @@ void MyRouter::Run()
 				FD_CLR(m_my_fd, &m_write_fd_set);
 		}
 
-		/* read from all ready sockets */
+		/* Read from all ready sockets */
 		if (FD_ISSET (m_my_fd, &m_read_fd_set))
 		{
 			sockaddr_in sender = {0};
@@ -232,37 +232,49 @@ void MyRouter::Run()
 			m_in_buf.len = SIZE_OF_RIP_MSG;
 
 			//TBD: Handle return status
-			RouterSocket::SocketReceive(m_my_fd,		//Socket descriptor
+			socket_return_status = RouterSocket::SocketReceive(m_my_fd,		//Socket descriptor
 										m_in_buf.msg,	//In buffer
 										m_in_buf.len,	//Buffer length
 										&sender);		//Sender struct containing sender data
 
 			IF_DEBUG(TRACE)
-				cout << "Size of msg received: " << m_in_buf.len << 
+				cout << "Size of message received: " << m_in_buf.len << 
 						"(" << SIZE_OF_RIP_MSG << ")" << endl;
 
-			if (m_in_buf.len == SIZE_OF_RIP_MSG)
+			//Error checking
+			if ((socket_return_status == Utils::STATUS_RECIVE_OK) && //Received message was fine
+				(m_in_buf.len == SIZE_OF_RIP_MSG))					 //Size of message is fine
 			{
-				MyRIPMessage* msg = new MyRIPMessage;
-				msg = (MyRIPMessage *)m_in_buf.msg;
-				Utils::net2hostMsg(msg);
+				MyRIPMessage* recieved_msg = new MyRIPMessage;
+				recieved_msg = (MyRIPMessage *)m_in_buf.msg;
+				Utils::net2hostMsg(recieved_msg);
 
-				IF_DEBUG(TRACE){
-					cout << "sender name is: " << msg->SenderName << endl;
-					cout << "protocol is: " << msg->protocolID << endl;
+				IF_DEBUG(TRACE)
+				{
+					cout << "Sender name is: " << recieved_msg->SenderName << endl; //Characters are always network ordered
+					cout << "Protocol is: " << ntohs(recieved_msg->protocolID) << endl;
 				}
 
-				for (i=0; i < m_num_of_routers; i++)
+				//Handle only version 1 protocols:
+				if (ntohs(recieved_msg->protocolID) == 1)
 				{
-					if (strncmp(msg->SenderName, m_routers[i].name, MAX_ROUTER_NAME) == 0)
+					for (i=0; i < m_num_of_routers; i++)
 					{
-						IF_DEBUG(TRACE)
-							cout << "found the neighbor! " << i << endl;
-						SET_TIMEOUT(m_routers[i].timeout, TIMEOUT_FAIL);
-						Handle(RT_EVENT_DV_RECEIVED, (void *)&i);
+						if (strncmp(recieved_msg->SenderName, m_routers[i].name, MAX_ROUTER_NAME) == 0)
+						{
+							IF_DEBUG(TRACE)
+							{
+								cout << "Found the neighbor! " << i << endl;
+							}
+
+							SET_TIMEOUT(m_routers[i].timeout, TIMEOUT_FAIL);
+
+							Handle(RT_EVENT_DV_RECEIVED, (void *)&i);
+						}
 					}
 				}
-
+				
+				//Clear SET
 				FD_CLR(m_my_fd, &m_read_fd_set);
 			}		
 		}
@@ -305,9 +317,9 @@ void MyRouter::AddSubnet( Subnet* subnet )
 }
 
 
-string MyRouter::PrintEvent(RouterEvents event)
+string MyRouter::PrintEvent(RouterEvents incoming_event)
 {
-	switch (event)
+	switch (incoming_event)
 	{
 	case RT_EVENT_READ_CONFIG : return "Read config file";
 	case RT_EVENT_TIMEOUT     : return "Timeout!";
@@ -318,15 +330,15 @@ string MyRouter::PrintEvent(RouterEvents event)
 	return "";
 }
 
-Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
+Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 {
-	cout << this->m_name << " MYRIP Event: " << PrintEvent(event) << endl;
+	cout << this->m_name << " MYRIP Event: " << PrintEvent(incoming_event) << endl;
 
 	int len = 0;
 	bool printed = false;
 	int rt = 0;
 
-	switch (event)
+	switch (incoming_event)
 	{
 	case RT_EVENT_READ_CONFIG:
 		RouterSocket::SocketInit(this->m_router_port);
@@ -357,16 +369,20 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 		{
 			if (!m_routers[i].reachable)
 				continue;
+
 			//Set receiver specific fields:
 			memcpy(msg.ReceiverName, m_routers[i].name, MAX_SENDER_NAME);
 			Subnet subnet = {0};
+
 			//TBD: handle return value
 			this->m_table->GetRouterSubnet(&m_routers[i], &subnet);
 			msg.ConnectingNETMYIPSubnet = subnet.address.S_un.S_addr;
 			msg.ConnectingNETMYIPMask   = subnet.mask;
 
-			IF_DEBUG(TRACE){
-				if (!printed){
+			IF_DEBUG(TRACE)
+			{
+				if (!printed)
+				{
 					printed = true;
 					Utils::PrintMsg(&msg);
 				}
@@ -378,11 +394,13 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 			Utils::net2hostMsg(&msg);
 			m_routers[i].out.len = SIZE_OF_RIP_MSG;
 		}
+
 		FD_SET(m_my_fd, &m_write_fd_set);
 		break;
 
 	case RT_EVENT_TIMEOUT:
 		rt = *((int *)data);
+
 		IF_DEBUG(TRACE)
 			cout << "Handle: Timeout on router " << m_routers[rt].name << endl;
 
@@ -394,10 +412,14 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 
 	case RT_EVENT_DV_RECEIVED:
 		rt = *((int *)data);
-		IF_DEBUG(TRACE)
-			cout << "Handle: DV received from router " << m_routers[rt].name << endl;
 
-		if (!m_routers[rt].reachable){
+		IF_DEBUG(TRACE)
+		{
+			cout << "Handle: DV received from router " << m_routers[rt].name << endl;
+		}
+
+		if (!m_routers[rt].reachable)
+		{
 			//A dead router is up!
 			m_routers[rt].reachable = true;
 		}
@@ -408,7 +430,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents event, void* data)
 
 	default:
 		IF_DEBUG(ERROR)
-			cout << "ERROR: got a wierd event!!! Don't know what to do" << endl;
+			cout << "ERROR: Got an handled event." << endl;
 	}
 
 	return Utils::STATUS_OK;
