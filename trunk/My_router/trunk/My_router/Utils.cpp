@@ -36,7 +36,7 @@ Utils::ReturnStatus Utils::PrintDest(int i, DestinationProperties* dest)
 		return Utils::STATUS_OK;
 }
 
-Utils::ReturnStatus Utils::host2netMsg(MyRIPMessage* msg)
+Utils::ReturnStatus Utils::Host2netMsg(MyRIPMessage* msg)
 {
 	msg->length = htons(msg->length);
 	msg->protocolID = htons(msg->protocolID);
@@ -56,7 +56,7 @@ Utils::ReturnStatus Utils::host2netMsg(MyRIPMessage* msg)
 	return STATUS_OK;
 }
 
-Utils::ReturnStatus Utils::net2hostMsg(MyRIPMessage* msg)
+Utils::ReturnStatus Utils::Net2hostMsg(MyRIPMessage* msg)
 {
 	msg->length = ntohs(msg->length);
 	msg->protocolID = ntohs(msg->protocolID);

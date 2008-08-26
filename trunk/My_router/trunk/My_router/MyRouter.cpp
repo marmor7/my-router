@@ -216,7 +216,10 @@ void MyRouter::Run()
 					
 					if (socket_return_status != Utils::STATUS_SEND_OK)
 					{
-						cout << "Error sending on socket: " << RouterSocket::GetRouterSocketDescriptor() << endl;
+						IF_DEBUG(ERROR)
+						{
+							cout << "Error sending on socket: " << RouterSocket::GetRouterSocketDescriptor() << endl;
+						}
 					}
 					else
 					{
@@ -265,7 +268,7 @@ void MyRouter::Run()
 			{
 				MyRIPMessage* recieved_msg;
 				recieved_msg = (MyRIPMessage *)m_in_buf.msg;
-				Utils::net2hostMsg(recieved_msg); //Make the message readable
+				Utils::Net2hostMsg(recieved_msg); //Make the message readable
 
 				IF_DEBUG(TRACE)
 				{
@@ -410,9 +413,9 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 			}
 
 			//Copy msg to router's out buffer in correct byte order
-			Utils::host2netMsg(&msg);
+			Utils::Host2netMsg(&msg);
 			memcpy(m_routers[i].out.msg, &msg, SIZE_OF_RIP_MSG);
-			Utils::net2hostMsg(&msg);
+			Utils::Net2hostMsg(&msg);
 			m_routers[i].out.len = SIZE_OF_RIP_MSG;
 		}
 
@@ -492,9 +495,9 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 				Subnet* new_subnet = new Subnet;
 				memset(new_subnet, 0, sizeof(Subnet));
 				//Network order
-				new_subnet->address.S_un.S_addr = (recieved_msg->dest[i].DestinationNETSubnet); //Machine orderm not network!
-																					//because net2host was called when
-																					//msg received
+				new_subnet->address.S_un.S_addr = (recieved_msg->dest[i].DestinationNETSubnet); //Machine order not network!
+																								//because net2host was called when
+																								//msg received
 				new_subnet->mask = recieved_msg->dest[i].DestinationNETMask;
 				new_subnet->cost = recieved_msg->dest[i].DestinationNETSubnetDistance;
 
@@ -522,15 +525,18 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 Utils::ReturnStatus MyRouter::AddRoute(char name[MAX_ROUTER_NAME], Subnet* subnet_ptr )
 {
 	int i;
+
 	for (i = 0; i < m_num_of_routers; i++)
 	{
 		if (strncmp(name, m_routers[i].name, MAX_ROUTER_NAME) == 0)
 			break;
 	}
+
 	if (i >= m_num_of_routers)
 	{
 		IF_DEBUG(ERROR)
 			cout << "Error: " << name << " wasn't found in table" << endl;
+
 		return Utils::STATUS_BAD_PARAMETER;
 	}
 
@@ -561,6 +567,7 @@ bool MyRouter::IsNeighbor( Subnet* first_subnet_ptr, Subnet* second_subnet_ptr )
 {
 	unsigned int mask, first_subnet_address, second_subnet_address;
 	mask = 0xFFFFFFFF;
+
 	IF_DEBUG(ALL)
 	{
 		cout << "Comparing 2 subnets:" << endl;
@@ -605,6 +612,7 @@ bool MyRouter::IsNeighbor( Subnet* first_subnet_ptr, Subnet* second_subnet_ptr )
 			{
 				cout << "Subnets are not equal, returning false." << endl;
 			}
+
 			return false;
 		}
 	}
@@ -613,8 +621,11 @@ bool MyRouter::IsNeighbor( Subnet* first_subnet_ptr, Subnet* second_subnet_ptr )
 Utils::ReturnStatus MyRouter::ClearRouters()
 {
 	int i;
-	IF_DEBUG(ALL){
+
+	IF_DEBUG(ALL)
+	{
 		cout << "Before cleanup: " << endl;
+
 		for (i=0; i < m_num_of_routers; i++)
 			cout << m_routers[i].name << endl;
 	}
@@ -631,9 +642,11 @@ Utils::ReturnStatus MyRouter::ClearRouters()
 		i++;
 	}
 
-	IF_DEBUG(TRACE){
+	IF_DEBUG(TRACE)
+	{
 		cout << "After cleanup: " << endl;
-		for (i=0; i < m_num_of_routers; i++){
+		for (i=0; i < m_num_of_routers; i++)
+		{
 			cout << m_routers[i].name << ": " << inet_ntoa(m_routers[i].address) << endl;
 		}
 	}
