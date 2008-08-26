@@ -132,7 +132,8 @@ void MyRouter::Run()
 		FD_CLR(0, &m_active_fd_set);
 		m_read_fd_set = m_active_fd_set;
 
-		IF_DEBUG(TRACE){
+		IF_DEBUG(TRACE)
+		{
 			cout << "Timeout: " << timeout.tv_sec << ": " << timeout.tv_usec << endl;
 			DisplaySet("Write", m_write_fd_set);
 		}
@@ -167,7 +168,8 @@ void MyRouter::Run()
 		TIMERSUB(&oldtime, &timeout, &oldtime);
 		for (i=0; i < m_num_of_routers; i++){
 			if ((m_routers[i].timeout.tv_sec <= oldtime.tv_sec) && 
-				(m_routers[i].reachable)){
+				(m_routers[i].reachable))
+			{
 				//Neighbor #i had not responded - assume down:
 				SET_TIMEOUT(m_routers[i].timeout, 0);
 				Handle(RT_EVENT_TIMEOUT, ((void *)&i));
@@ -178,6 +180,7 @@ void MyRouter::Run()
 				TIMERSUB(&m_routers[i].timeout, &oldtime, &m_routers[i].timeout);
 			}
 		}
+
 		if (m_my_entry.timeout.tv_sec <= oldtime.tv_sec)
 		{
 			//Neighbor #i had not responded - assume down:
@@ -198,17 +201,24 @@ void MyRouter::Run()
 			//Send a msg to every neighbor with a waiting msg
 			for (i=0; i < m_num_of_routers; i++){
 				if ((m_routers[i].out.len > 0) &&
-					(m_routers[i].reachable)){
-					//TBD: Handle return status
-					RouterSocket::SocketSend(RouterSocket::GetRouterSocketDescriptor(),	//Out sd
-											 m_routers[i].out.len,						//Length of data
-											 m_routers[i].out.msg,						//Message to send
-											 m_routers[i]);								//Router entry
-
-					if (m_routers[i].out.len >= sizeof(MyRIPMessage))
-						m_routers[i].out.len = 0;
+					(m_routers[i].reachable))
+				{
+					socket_return_status = RouterSocket::SocketSend(RouterSocket::GetRouterSocketDescriptor(),	//Out sd
+																	m_routers[i].out.len,						//Length of data
+																	m_routers[i].out.msg,						//Message to send
+						   											m_routers[i]);								//Router entry
+					
+					if (socket_return_status != Utils::STATUS_SEND_OK)
+					{
+						cout << "Error sending on socket: " << RouterSocket::GetRouterSocketDescriptor() << endl;
+					}
 					else
-						m_routers[i].out.len = sizeof(MyRIPMessage);
+					{
+						if (m_routers[i].out.len >= sizeof(MyRIPMessage))
+							m_routers[i].out.len = 0;
+						else
+							m_routers[i].out.len = sizeof(MyRIPMessage);
+					}
 				}
 			}
 
@@ -453,10 +463,11 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 			IF_DEBUG(TRACE)
 			{
 				in_addr dest_temp;
-				dest_temp.S_un.S_addr = recieved_msg->ConnectingNETMYIPSubnet;
+				dest_temp.S_un.S_addr = recieved_msg->dest[i].DestinationNETSubnet;
 
 				cout << "Destination " << i << " properties:" << endl;
-				cout << inet_ntoa(dest_temp) << "/" << recieved_msg->dest[i].DestinationNETMask <<
+				cout << inet_ntoa(dest_temp);
+				cout << "/" << recieved_msg->dest[i].DestinationNETMask <<
 												" (" << recieved_msg->dest[i].DestinationNETSubnetDistance << ")" <<
 												endl;
 			}
