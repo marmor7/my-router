@@ -236,6 +236,7 @@ Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
 		rd.port = port;
 		rd.router_ip = actual_router_ip;
 		rd.via_subnet = *subnet_ptr;
+		rd.alive = true;
 
 		IF_DEBUG(TRACE)
 		{
@@ -299,6 +300,7 @@ Utils::ReturnStatus RoutingTable::AddRouter(__in char name[MAX_ROUTER_NAME],__in
 	rd.via_subnet.address.S_un.S_addr = ntohl(rd.via_subnet.address.S_un.S_addr);
 	rd.via_subnet.address.S_un.S_addr &= ((0xFFFFFFFF) << (32 - rd.via_subnet.mask));
 	rd.via_subnet.address.S_un.S_addr = htonl(rd.via_subnet.address.S_un.S_addr);
+	rd.alive = true;
 
 	RoutingTable::m_routers_map->insert(make_pair(string(name), rd));
 
@@ -370,7 +372,7 @@ void RoutingTable::PrintMap()
 		cout << iter->first << ": " << inet_ntoa(rd->router_ip) << ":" <<
 			rd->port << " (" << rd->cost_to_router;
 		cout << ") via: " << inet_ntoa(temp_sub.address) << "/" 
-			 << rd->via_subnet.mask << endl;
+			<< rd->via_subnet.mask << ". alive: " << rd->alive << endl;
 	}
 }
 
@@ -392,6 +394,11 @@ Utils::ReturnStatus RoutingTable::ModifyRoute( __in char name[MAX_ROUTER_NAME], 
 	if(iter != RoutingTable::m_routers_map->end())
 	{
 		cost_to_router = iter->second.cost_to_router;
+		//If router was dead - now alive
+		if (!iter->second.alive)
+		{
+			iter->second.alive = true;
+		}
 	}
 	else
 	{
@@ -484,7 +491,9 @@ Utils::ReturnStatus RoutingTable::ReportDeadRouter( __in char name[MAX_ROUTER_NA
 		addr.ip_address = iter->second.via_subnet.address;
 		addr.mask = iter->second.via_subnet.mask;
 
-		iter->second.cost_to_router = INFINITY;
+		//Marking router as dead
+		iter->second.alive = false;
+
 		for (vector<RoutingTableEntry>::iterator it = RoutingTable::m_routing_table->begin();
 			it != RoutingTable::m_routing_table->end();
 			++it)

@@ -478,7 +478,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 		}
 
 		//Print the newly DV
-		RoutingTable::PrintDV();
+		m_table->PrintDV();
 
 		break;
 
