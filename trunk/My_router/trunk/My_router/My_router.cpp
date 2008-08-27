@@ -10,7 +10,6 @@ int main(int argc, char* argv[])
 	MyRouter* my_router;
 	InputHandler* ih;
 	Utils::ReturnStatus ihrs;
-	int retval;
 
 	ios::sync_with_stdio(); //C++ cout syncs with c's output libraries
 
@@ -43,4 +42,4 @@ int main(int argc, char* argv[])
 	delete (ih);
 
 	return 0;
-} 
+}

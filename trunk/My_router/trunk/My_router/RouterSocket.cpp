@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "RouterSocket.h"
 
 #define AUTO_SELECT_PROTOCOL 0
@@ -18,7 +18,7 @@ Utils::SocketReturnStatus RouterSocket::SocketAccept(int router_socket_descripto
 													 sockaddr_in* my_router_properties, 
 													 int* new_sd )
 {
-	int sin_size;
+	socklen_t sin_size;
 	int* new_sd_ptr = new int;
 	
 	sin_size = sizeof (*my_router_properties);
@@ -38,7 +38,7 @@ Utils::SocketReturnStatus RouterSocket::SocketReceive(int& sd,
 													  int& len, 
 													  sockaddr_in *data_sender)
 {
-	int sender_len = sizeof(sockaddr_in);
+	socklen_t sender_len = sizeof(sockaddr_in);
 
 	int bytes_recived = recvfrom(sd,								//In socket descriptor
 		                         (char*) buff,						//In buffer

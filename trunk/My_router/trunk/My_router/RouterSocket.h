@@ -31,7 +31,7 @@ public:
 	// Qualifier: Establish a connection to a neighbor router
 	// Parameter: RouterEntry * entry - Remote router parameters
 	//************************************
-	static Utils::SocketReturnStatus RouterSocket::SocketEstablish(RouterEntry* entry);
+	static Utils::SocketReturnStatus SocketEstablish(RouterEntry* entry);
 
 	//************************************
 	// Method:    SocketAccept
