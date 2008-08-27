@@ -54,7 +54,7 @@ Utils::ReturnStatus InputHandler::InitRouter( int argc, char** argv, MyRouter** 
 			if (!(start_char == "#") && !(start_char == ""))
 			{
 				//Handle case of empty line
-				if (line.find_first_not_of(" ") == string::npos)
+				if (line.find_first_not_of(" \t\r") == string::npos)
 				{
 					continue;
 				}
@@ -120,16 +120,16 @@ void InputHandler::HandleIpLine( string line )
 	in_addr ip = {0};
 	unsigned short int port = 0;
 
-	pos = line.find_first_not_of(" "); //Space if any at beginning
-	last_pos = line.find_first_of(" ", pos);
+	pos = line.find_first_not_of(" \t\r"); //Space if any at beginning
+	last_pos = line.find_first_of(" \t\r", pos);
 
 	//Extract router's name and continue parsing other data
 	memcpy(router_name, line.substr(pos, last_pos - pos).c_str(), MAX_ROUTER_NAME);
 
 	//Find IP address and port
 	line = line.substr(last_pos+1);
-	pos = line.find_first_not_of(" ");
-	last_pos = line.find_first_of(" ", pos);
+	pos = line.find_first_not_of(" \t\r");
+	last_pos = line.find_first_of(" \t\r", pos);
 	line = line.substr(pos, last_pos);
 	ip_address_and_port = line.substr(0, last_pos - pos);
 
@@ -168,8 +168,8 @@ void InputHandler::HandleRipLine( string line )
 	Subnet* sub_ptr;
 	vector<Subnet*>* subnets_vector_ptr = new vector<Subnet*>();
 
-	pos = line.find_first_not_of(" "); //Space if any at beginning
-	last_pos = line.find_first_of(" ", pos);
+	pos = line.find_first_not_of(" \t\r"); //Space if any at beginning
+	last_pos = line.find_first_of(" \t\r", pos);
 
 	//Extract router's name and continue parsing other data
 	router_name = line.substr(pos, last_pos - pos);
