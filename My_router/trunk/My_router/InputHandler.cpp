@@ -189,8 +189,6 @@ void InputHandler::HandleRipLine( string line )
 		IF_DEBUG(ALL)
 			cout << "MyRIP label: " << current_ip << endl;
 
-		cout << "ptr " << current_ip << endl;
-
 		sub_ptr = this->GetSubnetStructFromString(current_ip);
 
 		//My router
@@ -222,8 +220,6 @@ void InputHandler::HandleRipLine( string line )
 
 Subnet* InputHandler::GetSubnetStructFromString( string str )
 {
-	cout << "got " << str << endl;
-
 	string ip, mask, cost;
 	Subnet* sub = new Subnet;
 	memset(sub, 0, sizeof(struct Subnet));
