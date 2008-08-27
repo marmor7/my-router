@@ -72,8 +72,8 @@ void MyRouter::Run()
 	Utils::SocketReturnStatus socket_return_status;
 	timeval timeout = {0, 0};
 	timeval oldtime = {0, 0};
-	time_t before = {0}; //TMP?
-	time_t after = {0}; //TMP?
+	time_t before = {0};
+	time_t after = {0};
 	srand((int) time(NULL));
 
 	InitSets();
@@ -124,7 +124,7 @@ void MyRouter::Run()
 						rand() % (TIMEOUT_SEND_MIN - TIMEOUT_SEND_MAX) + TIMEOUT_SEND_MIN);
 		}
 
-		//Set timeout to be the LOWEST timeout, se we'll wake up
+		//Set timeout to be the LOWEST timeout, so we'll wake up
 		SET_TIMEOUT(timeout, m_my_entry.timeout.tv_sec);
 		for (i=0; i < m_num_of_routers; i++)
 		{
@@ -376,6 +376,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 			m_table->PrintMap();
 
 		break;
+
 	case RT_EVENT_SENDING_DV:
 		IF_DEBUG(TRACE)
 			cout << "Handle: sending my DV to neighbors" << endl;
@@ -545,13 +546,14 @@ Utils::ReturnStatus MyRouter::AddRoute(char name[MAX_ROUTER_NAME], Subnet* subne
 		it != this->m_my_router_subnets->end();
 		++it)
 	{
+		//Add my new route
+		RoutingTable::AddRoute(m_my_entry.name, m_my_entry.address,
+											m_my_entry.port, *it);
+
 		if (this->IsNeighbor(*it, subnet_ptr))
 		{
 			IF_DEBUG(TRACE)
 				cout << "Found neighbor: " << m_routers[i].name << endl;
-
-			RoutingTable::AddRoute(m_my_entry.name, m_my_entry.address,
-									m_my_entry.port, *it);
 
 			RoutingTable::AddRouter(m_routers[i].name, m_routers[i].address,
 				m_routers[i].port, subnet_ptr, (*it)->cost);
