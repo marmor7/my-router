@@ -165,9 +165,11 @@ void MyRouter::Run()
 		//TMP: check that timeout is modified on Linux,
 		//     and remove this if
 		if (timeout.tv_sec > (after - before))
-			timeout.tv_sec -= (long)(after - before);
+			timeout.tv_sec = (long)(after - before);
 		else
 			SET_TIMEOUT(timeout, 0);
+		IF_DEBUG(TRACE)
+				cout << "Timeout: " << timeout.tv_sec << ": " << timeout.tv_usec << endl;
 
 		//Set the difference to oldtime
 		TIMERSUB(&oldtime, &timeout, &oldtime);
