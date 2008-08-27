@@ -397,7 +397,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 
 			IF_DEBUG(TRACE)
 			{
-				if (!printed)
+				//if (!printed)
 				{
 					printed = true;
 					Utils::PrintMsg(&msg);
@@ -591,8 +591,8 @@ bool MyRouter::IsNeighbor( Subnet* first_subnet_ptr, Subnet* second_subnet_ptr )
 	{
 		mask = mask << (32 - first_subnet_ptr->mask);
 
-		first_subnet_address = htonl(first_subnet_ptr->address.s_addr);
-		second_subnet_address = htonl(second_subnet_ptr->address.s_addr);
+		first_subnet_address = ntohl(first_subnet_ptr->address.s_addr);
+		second_subnet_address = ntohl(second_subnet_ptr->address.s_addr);
 
 		first_subnet_address = first_subnet_address & mask;
 		second_subnet_address = second_subnet_address & mask;

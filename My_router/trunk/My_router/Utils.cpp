@@ -40,10 +40,11 @@ Utils::ReturnStatus Utils::Host2netMsg(MyRIPMessage* msg)
 {
 	msg->length = htons(msg->length);
 	msg->protocolID = htons(msg->protocolID);
-	msg->ConnectingNETMYIPSubnet = htonl(msg->ConnectingNETMYIPSubnet);
+	msg->ConnectingNETMYIPSubnet = msg->ConnectingNETMYIPSubnet;//Leave it
+	msg->ConnectingNETMYIPMask = (0xFFFFFFFF) << (32 - msg->ConnectingNETMYIPMask);
 	msg->ConnectingNETMYIPMask = htonl(msg->ConnectingNETMYIPMask);
 
-	//Sender and reciever name does not need to be converted
+	//Sender and receiver name does not need to be converted
 
 	//Fix all data inside destinations
 	for(int i = 0; i < NUM_OF_ROUTERS; i++)
@@ -52,7 +53,7 @@ Utils::ReturnStatus Utils::Host2netMsg(MyRIPMessage* msg)
 		msg->dest[i].DestinationNETMask = (0xFFFFFFFF) << (32 - msg->dest[i].DestinationNETMask);
 		msg->dest[i].DestinationNETMask = htonl(msg->dest[i].DestinationNETMask);
 
-		msg->dest[i].DestinationNETSubnet = htonl(msg->dest[i].DestinationNETSubnet);
+		msg->dest[i].DestinationNETSubnet = msg->dest[i].DestinationNETSubnet;//Leave it
 		msg->dest[i].DestinationNETSubnetDistance = htonl(msg->dest[i].DestinationNETSubnetDistance);
 	}
 
@@ -63,10 +64,22 @@ Utils::ReturnStatus Utils::Net2hostMsg(MyRIPMessage* msg)
 {
 	msg->length = ntohs(msg->length);
 	msg->protocolID = ntohs(msg->protocolID);
-	msg->ConnectingNETMYIPSubnet = ntohl(msg->ConnectingNETMYIPSubnet);
+	msg->ConnectingNETMYIPSubnet = msg->ConnectingNETMYIPSubnet;//Leave it
 	msg->ConnectingNETMYIPMask = ntohl(msg->ConnectingNETMYIPMask);
+	//turn mask from bitwise rep. to int rep.
+	unsigned int mask = msg->ConnectingNETMYIPMask;
+	unsigned int u1 = 1;
+	int counter = 32;
+	while ((mask & u1) == 0)
+	{
+		counter--;
+		if (counter == 0)
+			break;
+		mask = mask >> 1;
+	}
+	msg->ConnectingNETMYIPMask = counter;
 
-	//Sender and reciever name does not need to be converted
+	//Sender and receiver name does not need to be converted
 
 	//Fix all data inside destinations
 	for(int i = 0; i < NUM_OF_ROUTERS; i++)
@@ -84,7 +97,7 @@ Utils::ReturnStatus Utils::Net2hostMsg(MyRIPMessage* msg)
 			mask = mask >> 1;
 		}
 		msg->dest[i].DestinationNETMask = counter;
-		msg->dest[i].DestinationNETSubnet = ntohl(msg->dest[i].DestinationNETSubnet);
+		msg->dest[i].DestinationNETSubnet = msg->dest[i].DestinationNETSubnet;//Leave it
 		msg->dest[i].DestinationNETSubnetDistance = ntohl(msg->dest[i].DestinationNETSubnetDistance);
 	}
 
