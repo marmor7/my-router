@@ -6,7 +6,6 @@
 #define FIELD_LENGTH 4
 #define PROTOCOL_ID 1
 
-#pragma pack(push)
 #pragma pack(1)
 
 typedef struct
@@ -26,5 +25,3 @@ typedef struct
 	char ReceiverName[MAX_RECEIVER_NAME]; //64 bit
 	DestinationProperties dest[NUMBER_OF_DESTINATIONS];	//96 bit * NUMBER_OF_DESTINATIONS
 } MyRIPMessage;
-
-#pragma pack(pop)

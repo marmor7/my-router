@@ -5,7 +5,7 @@
 void Utils::PrintMsg(MyRIPMessage* msg)
 {
 	in_addr tmp;
-	tmp.S_un.S_addr = msg->ConnectingNETMYIPSubnet;
+	tmp.s_addr = msg->ConnectingNETMYIPSubnet;
 	char* subnet = inet_ntoa(tmp);
 	
 	cout << "len: " << msg->length << "\t";
@@ -22,7 +22,7 @@ void Utils::PrintMsg(MyRIPMessage* msg)
 Utils::ReturnStatus Utils::PrintDest(int i, DestinationProperties* dest)
 {
 	in_addr tmp;
-	tmp.S_un.S_addr = dest->DestinationNETSubnet;
+	tmp.s_addr = dest->DestinationNETSubnet;
 	char* subnet = inet_ntoa(tmp);
 
 	cout << "dest " << i << ": ";
@@ -30,7 +30,7 @@ Utils::ReturnStatus Utils::PrintDest(int i, DestinationProperties* dest)
 	cout << dest->DestinationNETMask << " (";
 	cout << dest->DestinationNETSubnetDistance << ") " << endl;
 
-	if (tmp.S_un.S_addr == 0)
+	if (tmp.s_addr == 0)
 		return Utils::STATUS_STOP;
 	else
 		return Utils::STATUS_OK;

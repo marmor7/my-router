@@ -1,28 +1,28 @@
-// stdafx.h : include file for standard system include files,
-// or project specific include files that are used frequently, but
-// are changed infrequently
-//
-
 #pragma once
 
 #include <stdio.h>
-#include <WinSock2.h>
-#include <tchar.h>
+//#include <WinSock2.h>
 #include <iostream>
-#include <map>
 #include <string>
 #include <string.h>
 #include <cwchar>
-#include <list>
 #include <vector>
+#include <map>
 #include <algorithm>
 #include <functional>
 #include <fstream>
 #include <sys/types.h>
+#include <sys/socket.h>
 #include <assert.h>
 #include <ctime>
-#include <cstdlib> 
+#include <cstdlib>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+
+
+typedef unsigned char BYTE;
 
 using namespace std;
 
-// TODO: reference additional headers your program requires here

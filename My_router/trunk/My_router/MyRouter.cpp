@@ -30,8 +30,8 @@ void MyRouter::SetName( string name )
 Utils::ReturnStatus MyRouter::AddRouter(char name[MAX_ROUTER_NAME], in_addr* address, unsigned short port){
 	IF_DEBUG(ALL)
 	{
-		cout << "AddRouter: " << name << ", ..." << 
-			(int)address->S_un.S_un_b.s_b4 << " : " << port << endl;
+		cout << "AddRouter: " << name << ", ..." <<
+			(int)address->s_addr << " : " << port << endl;
 	}
 
 	memcpy(this->m_routers[m_num_of_routers].name, name, MAX_ROUTER_NAME);
@@ -69,7 +69,6 @@ void MyRouter::Run()
 {
 	int i = 0, res = 0;
 	m_max_fd = 10000;
-	int myId = -1;
 	Utils::SocketReturnStatus socket_return_status;
 	timeval timeout = {0, 0};
 	timeval oldtime = {0, 0};
@@ -89,10 +88,10 @@ void MyRouter::Run()
 	assert(sizeof(int) == 4);
 	assert(sizeof(long) == 4);
 	assert(sizeof(short) == 2);
-	assert(sizeof(byte) == 1);
+	assert(sizeof(BYTE) == 1);
 
 	Handle(MyRouter::RT_EVENT_READ_CONFIG, null);
-	
+
 	for (i = 0; i < m_num_of_routers; i++)
 	{
 		//Set the initial fail timeout for each neighbor
@@ -121,7 +120,7 @@ void MyRouter::Run()
 		if (SET_CMP(m_my_entry.timeout, 0, 0))
 		{
 			//Set a random timeout in range NIM ... MAX
-			SET_TIMEOUT(m_my_entry.timeout, 
+			SET_TIMEOUT(m_my_entry.timeout,
 						rand() % (TIMEOUT_SEND_MIN - TIMEOUT_SEND_MAX) + TIMEOUT_SEND_MIN);
 		}
 
@@ -129,7 +128,7 @@ void MyRouter::Run()
 		SET_TIMEOUT(timeout, m_my_entry.timeout.tv_sec);
 		for (i=0; i < m_num_of_routers; i++)
 		{
-			if ((m_routers[i].reachable) && 
+			if ((m_routers[i].reachable) &&
 				(timeout.tv_sec > m_routers[i].timeout.tv_sec))
 				timeout = m_routers[i].timeout;
 		}
@@ -143,27 +142,27 @@ void MyRouter::Run()
 			cout << "Timeout: " << timeout.tv_sec << ": " << timeout.tv_usec << endl;
 			DisplaySet("Write", m_write_fd_set);
 		}
-		
+
 		time(&before); //TMP?
 		res = select(m_my_fd+1, &m_read_fd_set, &m_write_fd_set, NULL, &timeout);
 		time(&after); //TMP?
 
-		IF_DEBUG(TRACE){
+		IF_DEBUG(TRACE)
+		{
 			cout << "Timeout: " << timeout.tv_sec << ": " << timeout.tv_usec << endl;
 			DisplaySet("Write", m_write_fd_set);
-			cout << "select returned " << res << endl;
+			cout << "Select returned " << res << endl;
 		}
 
 		if (res < 0)
 		{
 			IF_DEBUG(ERROR)
-				cout << "select error " << res << endl;
-			perror ("select error ");
-			cout << WSAGetLastError() << endl;//TMP
+				cout << "Select error " << res << endl;
+			perror ("Select error ");
 			exit (EXIT_FAILURE);
 		}
 
-		//TMP: check that timeout is modified on Linux, 
+		//TMP: check that timeout is modified on Linux,
 		//     and remove this if
 		if (timeout.tv_sec > (after - before))
 			timeout.tv_sec -= (long)(after - before);
@@ -173,7 +172,7 @@ void MyRouter::Run()
 		//Set the difference to oldtime
 		TIMERSUB(&oldtime, &timeout, &oldtime);
 		for (i=0; i < m_num_of_routers; i++){
-			if ((m_routers[i].timeout.tv_sec <= oldtime.tv_sec) && 
+			if ((m_routers[i].timeout.tv_sec <= oldtime.tv_sec) &&
 				(m_routers[i].reachable))
 			{
 				//Neighbor #i had not responded - assume down:
@@ -213,7 +212,7 @@ void MyRouter::Run()
 																	m_routers[i].out.len,						//Length of data
 																	m_routers[i].out.msg,						//Message to send
 						   											m_routers[i]);								//Router entry
-					
+
 					if (socket_return_status != Utils::STATUS_SEND_OK)
 					{
 						IF_DEBUG(ERROR)
@@ -259,7 +258,7 @@ void MyRouter::Run()
 										&sender);		//Sender struct containing sender data
 
 			IF_DEBUG(TRACE)
-				cout << "Size of message received: " << m_in_buf.len << 
+				cout << "Size of message received: " << m_in_buf.len <<
 						"(" << SIZE_OF_RIP_MSG << ")" << endl;
 
 			//Error checking
@@ -295,10 +294,10 @@ void MyRouter::Run()
 						}
 					}
 				}
-				
+
 				//Clear SET
 				FD_CLR(m_my_fd, &m_read_fd_set);
-			}		
+			}
 		}
 	}
 
@@ -319,18 +318,19 @@ void MyRouter::SetRoutersIpAndPort( string ip,unsigned short port )
 
 	assert(ip_long != INADDR_ANY);
 
-	s.S_un.S_addr = ip_long;
+	s.s_addr = ip_long;
 	this->m_router_ip.sin_addr = s;
 	this->m_router_port = port;
 
+	/* TBD Fix me
 	IF_DEBUG(TRACE)
 	{
 		cout << "MyRouter's IP is : " << (unsigned int) this->m_router_ip.sin_addr.S_un.S_un_b.s_b1 << "."
 									  << (unsigned int) this->m_router_ip.sin_addr.S_un.S_un_b.s_b2 << "."
 									  << (unsigned int) this->m_router_ip.sin_addr.S_un.S_un_b.s_b3 << "."
 									  << (unsigned int) this->m_router_ip.sin_addr.S_un.S_un_b.s_b4 << endl;
-		cout << "MyRouter's port is: " << this->m_router_port << endl; 
-	}
+		cout << "MyRouter's port is: " << this->m_router_port << endl;
+	} */
 }
 
 void MyRouter::AddSubnet( Subnet* subnet )
@@ -356,7 +356,6 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 {
 	cout << this->m_name << " MYRIP Event: " << PrintEvent(incoming_event) << endl;
 
-	int len = 0;
 	bool printed = false;
 	int rt = 0;
 	MyRIPMessage* recieved_msg;
@@ -400,7 +399,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 
 			//TBD: handle return value
 			this->m_table->GetRouterSubnet(&m_routers[i], &subnet);
-			msg.ConnectingNETMYIPSubnet = subnet.address.S_un.S_addr;
+			msg.ConnectingNETMYIPSubnet = subnet.address.s_addr;
 			msg.ConnectingNETMYIPMask   = subnet.mask;
 
 			IF_DEBUG(TRACE)
@@ -458,7 +457,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 		IF_DEBUG(ALL)
 		{
 			in_addr temp;
-			temp.S_un.S_addr = recieved_msg->ConnectingNETMYIPSubnet;
+			temp.s_addr = recieved_msg->ConnectingNETMYIPSubnet;
 
 			cout << endl;
 			cout << "Handle DV Received: Scanning incoming message for data."<< endl;
@@ -480,7 +479,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 			IF_DEBUG(ALL)
 			{
 				in_addr dest_temp;
-				dest_temp.S_un.S_addr = recieved_msg->dest[i].DestinationNETSubnet;
+				dest_temp.s_addr = recieved_msg->dest[i].DestinationNETSubnet;
 
 				cout << "Destination " << i << " properties:" << endl;
 				cout << inet_ntoa(dest_temp);
@@ -495,7 +494,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 				Subnet* new_subnet = new Subnet;
 				memset(new_subnet, 0, sizeof(Subnet));
 				//Network order
-				new_subnet->address.S_un.S_addr = (recieved_msg->dest[i].DestinationNETSubnet); //Machine order not network!
+				new_subnet->address.s_addr = (recieved_msg->dest[i].DestinationNETSubnet); //Machine order not network!
 																								//because net2host was called when
 																								//msg received
 				new_subnet->mask = recieved_msg->dest[i].DestinationNETMask;
@@ -549,7 +548,7 @@ Utils::ReturnStatus MyRouter::AddRoute(char name[MAX_ROUTER_NAME], Subnet* subne
 			IF_DEBUG(TRACE)
 				cout << "Found neighbor: " << m_routers[i].name << endl;
 
-			RoutingTable::AddRoute(m_my_entry.name, m_my_entry.address, 
+			RoutingTable::AddRoute(m_my_entry.name, m_my_entry.address,
 									m_my_entry.port, *it);
 
 			RoutingTable::AddRouter(m_routers[i].name, m_routers[i].address,
@@ -558,7 +557,7 @@ Utils::ReturnStatus MyRouter::AddRoute(char name[MAX_ROUTER_NAME], Subnet* subne
 			//Mark entry as neighbor
 			m_routers[i].reachable = true;
 		}
-	}		
+	}
 
 	return Utils::STATUS_OK;
 }
@@ -571,12 +570,12 @@ bool MyRouter::IsNeighbor( Subnet* first_subnet_ptr, Subnet* second_subnet_ptr )
 	IF_DEBUG(ALL)
 	{
 		cout << "Comparing 2 subnets:" << endl;
-		cout << "First subnet: " << inet_ntoa(first_subnet_ptr->address) << 
+		cout << "First subnet: " << inet_ntoa(first_subnet_ptr->address) <<
 				" with mask " << first_subnet_ptr->mask << endl;
-		cout << "Second subnet: " << inet_ntoa(second_subnet_ptr->address) << 
+		cout << "Second subnet: " << inet_ntoa(second_subnet_ptr->address) <<
 				" with mask " << second_subnet_ptr->mask << endl;
 	}
-	
+
 	//If the 2 masks are different always return false
 	if (first_subnet_ptr->mask != second_subnet_ptr->mask)
 	{
@@ -591,8 +590,8 @@ bool MyRouter::IsNeighbor( Subnet* first_subnet_ptr, Subnet* second_subnet_ptr )
 	{
 		mask = mask << (32 - first_subnet_ptr->mask);
 
-		first_subnet_address = htonl(first_subnet_ptr->address.S_un.S_addr);
-		second_subnet_address = htonl(second_subnet_ptr->address.S_un.S_addr);
+		first_subnet_address = htonl(first_subnet_ptr->address.s_addr);
+		second_subnet_address = htonl(second_subnet_ptr->address.s_addr);
 
 		first_subnet_address = first_subnet_address & mask;
 		second_subnet_address = second_subnet_address & mask;

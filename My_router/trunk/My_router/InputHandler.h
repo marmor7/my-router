@@ -18,8 +18,8 @@ public:
 	//************************************
 	// Method:    InputHandler
 	// FullName:  InputHandler::InputHandler
-	// Access:    public 
-	// Returns:   
+	// Access:    public
+	// Returns:
 	// Qualifier: Constructor
 	//************************************
 	InputHandler();
@@ -27,16 +27,16 @@ public:
 	//************************************
 	// Method:    ~InputHandler
 	// FullName:  InputHandler::~InputHandler
-	// Access:    public 
-	// Returns:   
+	// Access:    public
+	// Returns:
 	// Qualifier: Destructor
 	//************************************
 	~InputHandler();
-	
+
 	//************************************
 	// Method:    InitRouter
 	// FullName:  InputHandler::InitRouter
-	// Access:    public 
+	// Access:    public
 	// Returns:   init_status - Status of initiation
 	// Qualifier:
 	// Parameter: int argc - Number of arguments from user
@@ -48,7 +48,7 @@ protected:
 	//************************************
 	// Method:    HandleIpLine
 	// FullName:  InputHandler::HandleIpLine
-	// Access:    protected 
+	// Access:    protected
 	// Returns:   void
 	// Qualifier: Handle a line that is identified with [MYIP] attribute
 	// Parameter: string line
@@ -58,7 +58,7 @@ protected:
 	//************************************
 	// Method:    HandleRipLine
 	// FullName:  InputHandler::HandleRipLine
-	// Access:    protected 
+	// Access:    protected
 	// Returns:   void
 	// Qualifier: Handle a line that is identified with [MYRIP] attribute
 	// Parameter: string line
@@ -68,7 +68,7 @@ protected:
 	//************************************
 	// Method:    GetSubnetStructFromString
 	// FullName:  InputHandler::GetSubnetStructFromString
-	// Access:    protected 
+	// Access:    protected
 	// Returns:   Subnet
 	// Qualifier: Return a Subnet struct parsed from string
 	// Parameter: string str

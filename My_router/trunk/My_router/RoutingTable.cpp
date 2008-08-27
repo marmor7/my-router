@@ -2,41 +2,8 @@
 #include "RoutingTable.h"
 #include "Utils.h"
 
-//map<const string, vector<Subnet*> > RoutingTable::m_routing_table = map<const string, vector<Subnet*> >();
 vector<RoutingTableEntry>* RoutingTable::m_routing_table = new vector<RoutingTableEntry>();
 RoutersMap* RoutingTable::m_routers_map = new RoutersMap();
-
-//Functor
-struct SortRouterAddressByCost
-{
-	bool operator()(RouterAddress& r_a_1, RouterAddress& r_a_2)
-	{
-		return r_a_1.cost < r_a_2.cost;
-	}
-};
-
-//Functor
-struct SortRoutingTableEntry
-{
-	bool operator()(RoutingTableEntry& rta_1, RoutingTableEntry& rta_2)
-	{
-		unsigned int first_mask, second_mask, first_subnet_address, second_subnet_address;
-		first_mask = 0xFFFFFFFF;
-		second_mask = 0xFFFFFFFF;
-
-		first_mask = first_mask << (32 - rta_1.first.mask);
-		second_mask = second_mask << (32 - rta_2.first.mask);
-
-		first_subnet_address = htonl(rta_1.first.ip_address.S_un.S_addr);
-		second_subnet_address = htonl(rta_2.first.ip_address.S_un.S_addr);
-
-		first_subnet_address = first_subnet_address & first_mask;
-		second_subnet_address = second_subnet_address & second_mask;
-
-		return (first_subnet_address < second_subnet_address);
-	}
-
-};
 
 RoutingTable::RoutingTable()
 {
@@ -61,10 +28,10 @@ void RoutingTable::PrintDV()
 		 it != RoutingTable::m_routing_table->end();
 		 ++it)
 	{
-		ip_addr.S_un.S_addr = (it->first.ip_address.S_un.S_addr);
-		ip_addr.S_un.S_addr = ntohl(ip_addr.S_un.S_addr);
-		ip_addr.S_un.S_addr &= ((0xFFFFFFFF) << (32 - it->first.mask));
-		ip_addr.S_un.S_addr = htonl(ip_addr.S_un.S_addr);
+		ip_addr.s_addr = (it->first.ip_address.s_addr);
+		ip_addr.s_addr = ntohl(ip_addr.s_addr);
+		ip_addr.s_addr &= ((0xFFFFFFFF) << (32 - it->first.mask));
+		ip_addr.s_addr = htonl(ip_addr.s_addr);
 		
 		//Print header:
 		cout<< inet_ntoa(ip_addr) << ":" << it->first.mask << " >>>";
@@ -120,7 +87,7 @@ void RoutingTable::GetDV(MyRIPMessage* msg)
 		++it)
 	{
 		msg->dest[i].DestinationNETMask = it->first.mask;
-		msg->dest[i].DestinationNETSubnet = it->first.ip_address.S_un.S_addr;
+		msg->dest[i].DestinationNETSubnet = it->first.ip_address.s_addr;
 
 		distance = it->second->at(0).cost;
 		
@@ -139,10 +106,10 @@ void RoutingTable::GetDV(MyRIPMessage* msg)
 	assert(i < 32);
 }
 
-Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
-										   __in in_addr actual_router_ip, 
-										   __in unsigned short port, 
-										   __in Subnet* subnet_ptr )
+Utils::ReturnStatus RoutingTable::AddRoute(char name[MAX_ROUTER_NAME],
+										   in_addr actual_router_ip, 
+										   unsigned short port, 
+										   Subnet* subnet_ptr )
 {
 	bool add_new_vector_entry = true;
 	bool router_found_in_subnet = false;
@@ -191,7 +158,7 @@ Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
 			add_new_vector_entry = false;
 			
 			//Sort list to get the lowest cost first
-			sort(it->second->begin(), it->second->end(), SortRouterAddressByCost());
+			sort(it->second->begin(), it->second->end());
 		}
 		//break; can be placed here, if an entry found then it is unique
 	}
@@ -211,7 +178,7 @@ Utils::ReturnStatus RoutingTable::AddRoute(__in char name[MAX_ROUTER_NAME],
 	}
 
 	//Sort RoutingTable::m_routing_table by ascending order
-	sort(RoutingTable::m_routing_table->begin(), RoutingTable::m_routing_table->end(), SortRoutingTableEntry());
+	sort(RoutingTable::m_routing_table->begin(), RoutingTable::m_routing_table->end());
 
 	//Add entry in map:
 	RoutersMap::iterator iter = RoutingTable::m_routers_map->find(string(name));
@@ -281,7 +248,7 @@ Utils::ReturnStatus RoutingTable::GetBestRoute( in_addr address, RouterAddress* 
 	return Utils::STATUS_NOT_FOUND;
 }
 
-Utils::ReturnStatus RoutingTable::GetRouterSubnet(__in RouterEntry* router, __out Subnet* subnet)
+Utils::ReturnStatus RoutingTable::GetRouterSubnet(RouterEntry* router,Subnet* subnet)
 {
 	RoutersMap::iterator iter = RoutingTable::m_routers_map->find(string(router->name));
 	if(iter != RoutingTable::m_routers_map->end())
@@ -296,16 +263,17 @@ Utils::ReturnStatus RoutingTable::GetRouterSubnet(__in RouterEntry* router, __ou
 	}
 }
 
-Utils::ReturnStatus RoutingTable::AddRouter( __in char name[MAX_ROUTER_NAME],__in in_addr actual_router_ip, __in unsigned short port, __in Subnet* subnet_ptr, __in int cost )
+Utils::ReturnStatus RoutingTable::AddRouter(char name[MAX_ROUTER_NAME],in_addr actual_router_ip,
+											unsigned short port, Subnet* subnet_ptr, int cost )
 {
 	RouterDetails rd;
 	rd.cost_to_router = cost;
 	rd.port = port;
 	rd.router_ip = actual_router_ip;
 	rd.via_subnet = *subnet_ptr;
-	rd.via_subnet.address.S_un.S_addr = ntohl(rd.via_subnet.address.S_un.S_addr);
-	rd.via_subnet.address.S_un.S_addr &= ((0xFFFFFFFF) << (32 - rd.via_subnet.mask));
-	rd.via_subnet.address.S_un.S_addr = htonl(rd.via_subnet.address.S_un.S_addr);
+	rd.via_subnet.address.s_addr = ntohl(rd.via_subnet.address.s_addr);
+	rd.via_subnet.address.s_addr &= ((0xFFFFFFFF) << (32 - rd.via_subnet.mask));
+	rd.via_subnet.address.s_addr = htonl(rd.via_subnet.address.s_addr);
 	rd.alive = true;
 
 	RoutingTable::m_routers_map->insert(make_pair(string(name), rd));
@@ -340,8 +308,8 @@ bool RoutingTable::CompareSubnets( Address first_address, Address second_address
 	{
 		mask = mask << (32 - first_address.mask);
 
-		first_subnet_address = htonl(first_address.ip_address.S_un.S_addr);
-		second_subnet_address = htonl(second_address.ip_address.S_un.S_addr);
+		first_subnet_address = htonl(first_address.ip_address.s_addr);
+		second_subnet_address = htonl(second_address.ip_address.s_addr);
 
 		first_subnet_address = first_subnet_address & mask;
 		second_subnet_address = second_subnet_address & mask;
@@ -382,7 +350,7 @@ void RoutingTable::PrintMap()
 	}
 }
 
-Utils::ReturnStatus RoutingTable::ModifyRoute( __in char name[MAX_ROUTER_NAME], __in Subnet* subnet_ptr )
+Utils::ReturnStatus RoutingTable::ModifyRoute(char name[MAX_ROUTER_NAME], Subnet* subnet_ptr )
 {
 	//In subnet vector, find subnet_prt and check to cost from this subnet from router name
 	//If our cost to subnet through router name != our cost to B + new cost then
@@ -433,7 +401,7 @@ Utils::ReturnStatus RoutingTable::ModifyRoute( __in char name[MAX_ROUTER_NAME], 
 					jt->cost = cost_to_router + subnet_ptr->cost;
 
 					//Sort list
-					sort(it->second->begin(), it->second->end(), SortRouterAddressByCost());
+					sort(it->second->begin(), it->second->end());
 
 					//Break from for - stop searching the routers list
 					break;
@@ -451,7 +419,7 @@ Utils::ReturnStatus RoutingTable::ModifyRoute( __in char name[MAX_ROUTER_NAME], 
 				router_found_in_subnet = false;
 
 				//Sort list
-				sort(it->second->begin(), it->second->end(), SortRouterAddressByCost());
+				sort(it->second->begin(), it->second->end());
 			}
 
 			//break from for - stop searching the subnet vector
@@ -476,16 +444,14 @@ Utils::ReturnStatus RoutingTable::ModifyRoute( __in char name[MAX_ROUTER_NAME], 
 
 		RoutingTable::m_routing_table->push_back(make_pair(addr, vec));
 
-		//Sort routing table
-		sort(RoutingTable::m_routing_table->begin(), 
-			 RoutingTable::m_routing_table->end(), 
-			 SortRoutingTableEntry());
+		//Sort routing table			 
+		sort(RoutingTable::m_routing_table->begin(), RoutingTable::m_routing_table->end()); 
 	}
 	
 	return Utils::STATUS_OK;
 }
 
-Utils::ReturnStatus RoutingTable::ReportDeadRouter( __in char name[MAX_ROUTER_NAME] )
+Utils::ReturnStatus RoutingTable::ReportDeadRouter(char name[MAX_ROUTER_NAME] )
 {
 	IF_DEBUG(TRACE)
 		cout << "router " << name << " is dead" << endl;
@@ -517,7 +483,7 @@ Utils::ReturnStatus RoutingTable::ReportDeadRouter( __in char name[MAX_ROUTER_NA
 
 					jt->cost = INFINITY;
 					//Sort table
-					sort(it->second->begin(), it->second->end(), SortRouterAddressByCost());
+					sort(it->second->begin(), it->second->end());
 				}
 			}
 		}

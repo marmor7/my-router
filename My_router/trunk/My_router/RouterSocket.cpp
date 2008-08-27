@@ -13,54 +13,10 @@ RouterSocket::~RouterSocket()
 {
 }
 
-//Establish a connection to a neighbour router
-//Utils::SocketReturnStatus RouterSocket::SocketEstablish(IN RouterEntry* entry)
-//{
-//	int sd, con;
-//	sockaddr_in router_sockaddr;
-//
-//	sd = socket(PF_INET, SOCK_DGRAM, AUTO_SELECT_PROTOCOL);
-//
-//	if (sd <= 0)
-//	{
-//		entry->socketId = -1;
-//
-//		IF_DEBUG(ERROR)
-//		{
-//			cout << "ERROR: Establishing UDP socket to " << entry->name << 
-//				" on port " << entry->port << " FAILED" << endl;
-//		}
-//
-//		return Utils::STATUS_BAD_SOCKET;
-//	}
-//
-//	entry->socketId = sd;
-//
-//	router_sockaddr.sin_family = AF_INET;
-//	router_sockaddr.sin_addr = entry->address;
-//	router_sockaddr.sin_port = htons(entry->port);
-//	memset(router_sockaddr.sin_zero, '\0', sizeof router_sockaddr.sin_zero);
-//
-//	con = connect(sd, (struct sockaddr *) &router_sockaddr, sizeof(router_sockaddr));
-//
-//	if (con != 0)
-//	{
-//		return Utils::STATUS_BAD_CONNECT;
-//	}
-//
-//	IF_DEBUG(TRACE)
-//	{
-//		cout << "Establishing UDP socket to " << entry->name << 
-//				" on port " << entry->port << endl;
-//	}
-//
-//	return Utils::STATUS_SOCKET_OK;
-//}
-
-//Accept a connection from a neighbour router
-Utils::SocketReturnStatus RouterSocket::SocketAccept(IN int router_socket_descriptor,
-													 OUT sockaddr_in* my_router_properties, 
-													 OUT int* new_sd )
+//Accept a connection from a neighbor router
+Utils::SocketReturnStatus RouterSocket::SocketAccept(int router_socket_descriptor,
+													 sockaddr_in* my_router_properties, 
+													 int* new_sd )
 {
 	int sin_size;
 	int* new_sd_ptr = new int;
@@ -77,10 +33,10 @@ Utils::SocketReturnStatus RouterSocket::SocketAccept(IN int router_socket_descri
 }
 
 //Receive a massage from a neighbor router
-Utils::SocketReturnStatus RouterSocket::SocketReceive(IN int& sd,
-													  OUT BYTE* buff, 
-													  IN OUT int& len, 
-													  OUT sockaddr_in *data_sender)
+Utils::SocketReturnStatus RouterSocket::SocketReceive(int& sd,
+													  BYTE* buff, 
+													  int& len, 
+													  sockaddr_in *data_sender)
 {
 	int sender_len = sizeof(sockaddr_in);
 
@@ -108,10 +64,10 @@ Utils::SocketReturnStatus RouterSocket::SocketReceive(IN int& sd,
 }
 
 //Send a massage to a neighbor router
-Utils::SocketReturnStatus RouterSocket::SocketSend(IN int sd, 
-												   IN int& len,
-												   IN BYTE* data,
-												   IN RouterEntry& dest)
+Utils::SocketReturnStatus RouterSocket::SocketSend(int sd, 
+												   int& len,
+												   BYTE* data,
+												   RouterEntry& dest)
 {
 	if (sd <= 0)
 	{
@@ -190,10 +146,10 @@ void RouterSocket::SetConnectionParameters( struct sockaddr_in *dest, unsigned s
 	}
 }
 
-Utils::SocketReturnStatus RouterSocket::SocketClose( IN int& sd )
+Utils::SocketReturnStatus RouterSocket::SocketClose(int& sd)
 {
 	//TBD: Change to close
-	int result = closesocket(sd);
+	int result = close(sd);
 
 	return result == 0 ? Utils::STATUS_CLOSE_OK : Utils::STATUS_CLOSE_FAILED;
 }

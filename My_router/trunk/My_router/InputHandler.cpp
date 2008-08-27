@@ -5,7 +5,7 @@
 using namespace std;
 InputHandler::InputHandler() : m_all_routers(new vector<RouterEntry>), m_idx(0)
 {
-	
+
 }
 
 InputHandler::~InputHandler()
@@ -58,11 +58,11 @@ Utils::ReturnStatus InputHandler::InitRouter( int argc, char** argv, MyRouter** 
 				{
 					continue;
 				}
-				
+
 				//Check for any attributes
 				if ((line.compare(0, my_ip_str.length(), my_ip_str)) == 0)
 				{
-					my_ip_attribute = true; 
+					my_ip_attribute = true;
 					continue; //Next line please
 				}
 
@@ -86,7 +86,7 @@ Utils::ReturnStatus InputHandler::InitRouter( int argc, char** argv, MyRouter** 
 
 		for (int i = 0; i < this->m_idx; i++)
 		{
-			strcpy_s(router_name_c_srt, MAX_ROUTER_NAME, this->m_rip_name[i].c_str());
+			strncpy(router_name_c_srt, this->m_rip_name[i].c_str(), MAX_ROUTER_NAME);
 			this->m_my_router->AddRoute(router_name_c_srt, this->m_rip_subnet[i]);
 		}
 
@@ -97,20 +97,18 @@ Utils::ReturnStatus InputHandler::InitRouter( int argc, char** argv, MyRouter** 
 }
 
 Utils::ReturnStatus TextToIpPort(const string t, in_addr* ip, unsigned short* port) {
-	int sum, ad1, ad2, ad3, ad4, ad5;
-	sum = sscanf_s(t.c_str(), "%lu.%lu.%lu.%lu:%lu", &ad1, &ad2, &ad3, &ad4, &ad5); // Code %lu for long unsigned decimal integer
-	// It sum just the IP address
-	if (sum == 5) 
+	int pos = t.find_first_of(":");
+	string ip_s = t.substr(0, pos);
+	string port_s = t.substr(pos + 1);
+
+	if (inet_aton(ip_s.substr().c_str(), ip) == 0)
 	{
-		ip->S_un.S_un_b.s_b1 = ad1;
-		ip->S_un.S_un_b.s_b2 = ad2;
-		ip->S_un.S_un_b.s_b3 = ad3;
-		ip->S_un.S_un_b.s_b4 = ad4;
-		*port = (unsigned short int) ad5;
-		return Utils::STATUS_OK;
-	} 
-	else
 		return Utils::STATUS_BAD_IP_FORMAT;
+	}
+
+	*port = atoi(port_s.c_str());
+
+	return Utils::STATUS_OK;
 }
 
 void InputHandler::HandleIpLine( string line )
@@ -148,7 +146,7 @@ void InputHandler::HandleIpLine( string line )
 
 	router_entry.address = ip;
 	router_entry.port = port;
-	strcpy_s((char *) &router_entry.name, MAX_ROUTER_NAME, (char *) &router_name);
+	strncpy((char *) &router_entry.name, (char *) &router_name, MAX_ROUTER_NAME);
 	//router_entry.neighbour = false; //Currently no neighbor.
 	//router_entry.socketId = 0; //Currently no open connection with router
 
@@ -177,24 +175,21 @@ void InputHandler::HandleRipLine( string line )
 	router_name = line.substr(pos, last_pos - pos);
 
 	line = line.substr(last_pos+1);
-	pos = line.find_first_not_of(" ");
+	pos = line.find_first_not_of(" \r\n");
 
-	while (pos != string::npos)
+	while (pos != -1)
 	{
-		line = line.substr(pos);
-		pos = line.find(" ");
-		
-		//More spaces, continue parsing
-		if (pos != string::npos) 
-		{
-			current_ip = line.substr(0, pos);
-			line = line.substr(pos+1, line.length());
-			pos = line.find_first_not_of(" ");
-		}
-		else
-		{
-			current_ip = line;
-		}
+		last_pos = line.find_first_of(" \r\n", pos+1);
+		if (last_pos == -1)
+			last_pos = line.length();
+
+		current_ip = line.substr(pos, last_pos-1);
+		line = line.substr(last_pos);
+
+		IF_DEBUG(ALL)
+			cout << "MyRIP label: " << current_ip << endl;
+
+		cout << "ptr " << current_ip << endl;
 
 		sub_ptr = this->GetSubnetStructFromString(current_ip);
 
@@ -209,12 +204,9 @@ void InputHandler::HandleRipLine( string line )
 			subnets_vector_ptr->push_back(sub_ptr);
 		}
 
-		IF_DEBUG(ALL)
-		{
-			cout << "MyRIP label: " << current_ip << endl;	
-		}
+		pos = line.find_first_not_of(" \r\n");
 	}
-	
+
 	if (subnets_vector_ptr->size() > 0)
 	{
 		for (vector<Subnet*>::iterator it = subnets_vector_ptr->begin();
@@ -230,6 +222,8 @@ void InputHandler::HandleRipLine( string line )
 
 Subnet* InputHandler::GetSubnetStructFromString( string str )
 {
+	cout << "got " << str << endl;
+
 	string ip, mask, cost;
 	Subnet* sub = new Subnet;
 	memset(sub, 0, sizeof(struct Subnet));
@@ -242,7 +236,7 @@ Subnet* InputHandler::GetSubnetStructFromString( string str )
 
 	cost = str;
 
-	sub->address.S_un.S_addr = inet_addr(ip.c_str());
+	sub->address.s_addr = inet_addr(ip.c_str());
 	sub->cost = atoi(cost.c_str());
 	sub->mask = atoi(mask.c_str());
 

@@ -10,15 +10,7 @@ int main(int argc, char* argv[])
 	MyRouter* my_router;
 	InputHandler* ih;
 	Utils::ReturnStatus ihrs;
-	WSADATA wsaData;
 	int retval;
-
-	//Initializing winsock2
-	if ((retval = WSAStartup(0x202,&wsaData)) != 0) 
-	{
-		fprintf(stderr,"WSAStartup failed with error %d\n",retval);
-		WSACleanup();
-	}
 
 	ios::sync_with_stdio(); //C++ cout syncs with c's output libraries
 

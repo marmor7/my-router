@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 #include "stdafx.h"
 #include "Utils.h"
 #include "RouterSocket.h"
@@ -9,9 +9,9 @@ class RoutingTable;
 using namespace std;
 
 #define null 0
-#define TIMEOUT_FAIL 40/*TBD 82*/
-#define TIMEOUT_SEND_MIN 8/*TBD 20*/
-#define TIMEOUT_SEND_MAX 16/*TBD 40*/
+#define TIMEOUT_FAIL 82/*TBD 82*/
+#define TIMEOUT_SEND_MIN 20/*TBD 20*/
+#define TIMEOUT_SEND_MAX 40/*TBD 40*/
 
 #define SET_TIMEOUT(time, val) time.tv_sec = val; time.tv_usec = 0;
 
@@ -34,8 +34,8 @@ public:
 	//************************************
 	// Method:    ~MyRouter
 	// FullName:  MyRouter::~MyRouter
-	// Access:    public 
-	// Returns:   
+	// Access:    public
+	// Returns:
 	// Qualifier: Destructor
 	//************************************
 	~MyRouter();
@@ -43,8 +43,8 @@ public:
 	//************************************
 	// Method:    MyRouter
 	// FullName:  MyRouter::MyRouter
-	// Access:    public 
-	// Returns:   
+	// Access:    public
+	// Returns:
 	// Qualifier: Constructor
 	// Parameter: string name - Router's name
 	//************************************
@@ -53,7 +53,7 @@ public:
 	//************************************
 	// Method:    GetName
 	// FullName:  MyRouter::GetName
-	// Access:    public 
+	// Access:    public
 	// Returns:   std::string
 	// Qualifier: Gets router's name
 	//************************************
@@ -62,7 +62,7 @@ public:
 	//************************************
 	// Method:    SetName
 	// FullName:  MyRouter::SetName
-	// Access:    public 
+	// Access:    public
 	// Returns:   void
 	// Qualifier: Sets a new name to the router
 	// Parameter: string name
@@ -72,19 +72,19 @@ public:
 	//************************************
 	// Method:    AddRouter
 	// FullName:  MyRouter::AddRouter
-	// Access:    public 
+	// Access:    public
 	// Returns:   Utils::ReturnStatus
 	// Qualifier: Add a router (name, ip, port)
 	// Parameter: char name[8]
 	// Parameter: in_addr * address
-	// Parameter: short 
+	// Parameter: short
 	//************************************
 	Utils::ReturnStatus AddRouter(char name[MAX_ROUTER_NAME], in_addr* address, unsigned short port);
 
 	//************************************
 	// Method:    AddRoute
 	// FullName:  MyRouter::AddRoute
-	// Access:    public 
+	// Access:    public
 	// Returns:   Utils::ReturnStatus
 	// Qualifier: Adds a subnets array for a router
 	// Parameter: char name[MAX_ROUTER_NAME]
@@ -96,7 +96,7 @@ public:
 	//************************************
 	// Method:    Run
 	// FullName:  MyRouter::Run
-	// Access:    public 
+	// Access:    public
 	// Returns:   void
 	// Qualifier: Main loop of the router
 	//************************************
@@ -105,7 +105,7 @@ public:
 	//************************************
 	// Method:    SetRoutersIpAndPort
 	// FullName:  MyRouter::SetRoutersIpAndPort
-	// Access:    public 
+	// Access:    public
 	// Returns:   void
 	// Qualifier: Set the routers internal configuration of its own IP and port
 	// Parameter: string ip
@@ -116,7 +116,7 @@ public:
 	//************************************
 	// Method:    GetMySubnets
 	// FullName:  MyRouter::GetMySubnets
-	// Access:    public 
+	// Access:    public
 	// Returns:   vector<Subnet*>
 	// Qualifier: Gets the vector containing the router's subnets which it is connected to
 	//************************************
@@ -125,7 +125,7 @@ public:
 	//************************************
 	// Method:    AddSubnet
 	// FullName:  MyRouter::AddSubnet
-	// Access:    public 
+	// Access:    public
 	// Returns:   void
 	// Qualifier: Adds a subnet to subnet's vector
 	// Parameter: Subnet * subnet
@@ -145,7 +145,7 @@ public:
 	//************************************
 	// Method:    PrintEvent
 	// FullName:  MyRouter::PrintEvent
-	// Access:    public 
+	// Access:    public
 	// Returns:   std::string
 	// Qualifier: Prints an event
 	// Parameter: RouterEvents event
@@ -155,7 +155,7 @@ public:
 	//************************************
 	// Method:    Handle
 	// FullName:  MyRouter::Handle
-	// Access:    public 
+	// Access:    public
 	// Returns:   Utils::ReturnStatus
 	// Qualifier: Handles incoming data
 	// Parameter: RouterEvents event
@@ -180,7 +180,7 @@ protected:
 	char m_name[MAX_ROUTER_NAME];
 
 	sockaddr_in m_router_ip; //Remove
- 
+
 	unsigned short m_router_port; //Remove
 
 	//Router's routing table
@@ -204,7 +204,7 @@ protected:
 
 	//This router socket descriptor
 	int m_my_fd;
-	
+
 	//In and out buffers
 	buffer m_in_buf;
 
