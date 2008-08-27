@@ -200,11 +200,10 @@ Utils::ReturnStatus RoutingTable::AddRoute(char name[MAX_ROUTER_NAME],
 	else
 	{
 		RouterAddress ra;
-		//TBD: handle return value
+
 		RoutingTable::GetBestRoute(subnet_ptr->address, &ra);
 		RouterDetails rd;
 
-		//TBD: can this REALLY must be our router?
 		//Set cost to 0 - this is our router
 		rd.cost_to_router = 0;
 		rd.port = port;
@@ -220,7 +219,6 @@ Utils::ReturnStatus RoutingTable::AddRoute(char name[MAX_ROUTER_NAME],
 			cout << ", " << inet_ntoa(rd.via_subnet.address) << endl;
 		}
 
-		//TBD: maybe remove insert of our router?
 		RoutingTable::m_routers_map->insert(make_pair(string(name), rd )); 
 	}
 

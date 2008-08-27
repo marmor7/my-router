@@ -129,7 +129,6 @@ void RouterSocket::SetConnectionParameters( struct sockaddr_in *dest, unsigned s
 
 Utils::SocketReturnStatus RouterSocket::SocketClose(int& sd)
 {
-	//TBD: Change to close
 	int result = close(sd);
 
 	return result == 0 ? Utils::STATUS_CLOSE_OK : Utils::STATUS_CLOSE_FAILED;

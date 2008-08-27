@@ -52,9 +52,6 @@ Utils::ReturnStatus Utils::Host2netMsg(MyRIPMessage* msg)
 		msg->dest[i].DestinationNETMask = (0xFFFFFFFF) << (32 - msg->dest[i].DestinationNETMask);
 		msg->dest[i].DestinationNETMask = htonl(msg->dest[i].DestinationNETMask);
 
-		//TMP
-		//TMP
-
 		msg->dest[i].DestinationNETSubnet = htonl(msg->dest[i].DestinationNETSubnet);
 		msg->dest[i].DestinationNETSubnetDistance = htonl(msg->dest[i].DestinationNETSubnetDistance);
 	}
