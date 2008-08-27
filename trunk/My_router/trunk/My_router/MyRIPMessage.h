@@ -1,6 +1,6 @@
-#include "stdafx.h"    
+#include "stdafx.h"
 
-#define MAX_SENDER_NAME 8 
+#define MAX_SENDER_NAME 8
 #define MAX_RECEIVER_NAME 8
 #define NUMBER_OF_DESTINATIONS 32
 #define FIELD_LENGTH 4
@@ -11,8 +11,8 @@
 typedef struct
 {
 	unsigned long DestinationNETSubnet; //32 bit
-	int DestinationNETMask; //32 bit
-	int DestinationNETSubnetDistance; //32 bit
+	unsigned int DestinationNETMask; //32 bit
+	unsigned int DestinationNETSubnetDistance; //32 bit
 } DestinationProperties;
 
 typedef struct
