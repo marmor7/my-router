@@ -257,9 +257,9 @@ void MyRouter::Run()
 
 			//TBD: Handle return status
 			socket_return_status = RouterSocket::SocketReceive(m_my_fd,		//Socket descriptor
-										m_in_buf.msg,	//In buffer
-										m_in_buf.len,	//Buffer length
-										&sender);		//Sender struct containing sender data
+										m_in_buf.msg,						//In buffer
+										m_in_buf.len,						//Buffer length
+										&sender);							//Sender struct containing sender data
 
 			IF_DEBUG(TRACE)
 				cout << "Size of message received: " << m_in_buf.len <<
@@ -350,7 +350,7 @@ string MyRouter::PrintEvent(RouterEvents incoming_event)
 	case RT_EVENT_READ_CONFIG : return "Read config file";
 	case RT_EVENT_TIMEOUT     : return "Timeout!";
 	case RT_EVENT_DV_RECEIVED : return "DV received";
-	case RT_EVENT_SENDING_DV  : return "Sending DV";
+	case RT_EVENT_SENDING_DV  : return "now sending DV to ";
 	default : return "Unknown event";
 	}
 	return "";
@@ -358,8 +358,6 @@ string MyRouter::PrintEvent(RouterEvents incoming_event)
 
 Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 {
-	cout << this->m_name << " MYRIP Event: " << PrintEvent(incoming_event) << endl;
-
 	bool printed = false;
 	int rt = 0;
 	MyRIPMessage* recieved_msg;
@@ -367,6 +365,8 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 	switch (incoming_event)
 	{
 	case RT_EVENT_READ_CONFIG:
+		cout << this->m_name << " MYRIP Event: " << PrintEvent(incoming_event) << endl;
+
 		RouterSocket::SocketInit(this->m_router_port);
 
 		IF_DEBUG(TRACE)
@@ -421,12 +421,16 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 			memcpy(m_routers[i].out.msg, &msg, SIZE_OF_RIP_MSG);
 			Utils::Net2hostMsg(&msg);
 			m_routers[i].out.len = SIZE_OF_RIP_MSG;
+
+			cout << this->m_name << " MYRIP Event: " << PrintEvent(incoming_event) <<
+				 m_routers[i].name << endl;
 		}
 
 		FD_SET(m_my_fd, &m_write_fd_set);
 		break;
 
 	case RT_EVENT_TIMEOUT:
+		cout << this->m_name << " MYRIP Event: " << PrintEvent(incoming_event) << endl;
 		rt = *((int *)data);
 
 		IF_DEBUG(TRACE)
@@ -445,6 +449,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 		break;
 
 	case RT_EVENT_DV_RECEIVED:
+		cout << this->m_name << " MYRIP Event: " << PrintEvent(incoming_event) << endl;
 		recieved_msg = (MyRIPMessage *)m_in_buf.msg;
 		rt = *((int *)data);
 
