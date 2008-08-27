@@ -24,6 +24,9 @@ My_router: $(OBJS)
 # All Target
 all: My_router
 
+debug: $(OBJS)
+	$(CC) $(CFLAGS) -DDEBUG_LEVEL=2 -o $@ $(OBJS)
+
 # Other Targets
 clean:
 	-$(RM) $(OBJS) My_router
