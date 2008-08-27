@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdio.h>
-//#include <WinSock2.h>
 #include <iostream>
 #include <string>
 #include <string.h>

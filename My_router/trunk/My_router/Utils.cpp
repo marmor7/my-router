@@ -41,7 +41,10 @@ Utils::ReturnStatus Utils::Host2netMsg(MyRIPMessage* msg)
 	msg->length = htons(msg->length);
 	msg->protocolID = htons(msg->protocolID);
 	msg->ConnectingNETMYIPSubnet = msg->ConnectingNETMYIPSubnet;//Leave it
-	msg->ConnectingNETMYIPMask = (0xFFFFFFFF) << (32 - msg->ConnectingNETMYIPMask);
+	if (msg->ConnectingNETMYIPMask != 0)
+	{
+		msg->ConnectingNETMYIPMask = (0xFFFFFFFF) << (32 - msg->ConnectingNETMYIPMask);
+	}
 	msg->ConnectingNETMYIPMask = htonl(msg->ConnectingNETMYIPMask);
 
 	//Sender and receiver name does not need to be converted
@@ -50,7 +53,10 @@ Utils::ReturnStatus Utils::Host2netMsg(MyRIPMessage* msg)
 	for(int i = 0; i < NUM_OF_ROUTERS; i++)
 	{
 		//turn mask from int rep. to bitwise rep.
-		msg->dest[i].DestinationNETMask = (0xFFFFFFFF) << (32 - msg->dest[i].DestinationNETMask);
+		if (msg->dest[i].DestinationNETMask != 0)
+		{
+			msg->dest[i].DestinationNETMask = (0xFFFFFFFF) << (32 - msg->dest[i].DestinationNETMask);
+		}
 		msg->dest[i].DestinationNETMask = htonl(msg->dest[i].DestinationNETMask);
 
 		msg->dest[i].DestinationNETSubnet = msg->dest[i].DestinationNETSubnet;//Leave it
