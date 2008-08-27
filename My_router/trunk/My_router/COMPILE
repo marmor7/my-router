@@ -1,0 +1,6 @@
+go to My_router/
+
+make clean
+make all
+
+run ./My_router <name>
