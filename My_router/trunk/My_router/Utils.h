@@ -22,7 +22,7 @@ using namespace std;
 
 struct buffer
 {
-	BYTE msg[SIZE_OF_RIP_MSG];//TBD: should we support more than one msg?
+	BYTE msg[SIZE_OF_RIP_MSG];
 	int len;
 };
 
@@ -58,8 +58,8 @@ public:
 	//************************************
 	// Method:    ~Utils
 	// FullName:  Utils::~Utils
-	// Access:    public 
-	// Returns:   
+	// Access:    public
+	// Returns:
 	// Qualifier: Destructor
 	//************************************
 	~Utils();
@@ -81,7 +81,7 @@ public:
 	{
 		STATUS_SOCKET_OK,
 		STATUS_BAD_SOCKET,
-		STATUS_BAD_CONNECT, 
+		STATUS_BAD_CONNECT,
 		STATUS_BAD_ACCEPT,
 		STATUS_SEND_OK,
 		STATUS_SEND_FAILED,
@@ -95,7 +95,7 @@ public:
 	//************************************
 	// Method:    PrintMsg
 	// FullName:  Utils::PrintMsg
-	// Access:    public 
+	// Access:    public
 	// Returns:   void
 	// Qualifier: Prints a message content
 	// Parameter: MyRIPMessage * msg
@@ -105,7 +105,7 @@ public:
 	//************************************
 	// Method:    PrintDest
 	// FullName:  Utils::PrintDest
-	// Access:    public 
+	// Access:    public
 	// Returns:   Utils::ReturnStatus
 	// Qualifier: Prints destination property
 	// Parameter: int i
@@ -116,7 +116,7 @@ public:
 	//************************************
 	// Method:    Host2netMsg
 	// FullName:  Utils::Host2netMsg
-	// Access:    public 
+	// Access:    public
 	// Returns:   Utils::ReturnStatus
 	// Qualifier: Converts a message from host order to net order
 	// Parameter: MyRIPMessage * msg
@@ -126,7 +126,7 @@ public:
 	//************************************
 	// Method:    Net2hostMsg
 	// FullName:  Utils::Net2hostMsg
-	// Access:    public 
+	// Access:    public
 	// Returns:   Utils::ReturnStatus
 	// Qualifier: Converts message from net order to host order
 	// Parameter: MyRIPMessage * msg
@@ -137,8 +137,8 @@ private:
 	//************************************
 	// Method:    Utils
 	// FullName:  Utils::Utils
-	// Access:    private 
-	// Returns:   
+	// Access:    private
+	// Returns:
 	// Qualifier: Private constructor
 	//************************************
 	Utils();
