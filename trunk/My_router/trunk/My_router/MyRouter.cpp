@@ -255,7 +255,6 @@ void MyRouter::Run()
 			}
 			m_in_buf.len = SIZE_OF_RIP_MSG;
 
-			//TBD: Handle return status
 			socket_return_status = RouterSocket::SocketReceive(m_my_fd,		//Socket descriptor
 										m_in_buf.msg,						//In buffer
 										m_in_buf.len,						//Buffer length
@@ -325,16 +324,6 @@ void MyRouter::SetRoutersIpAndPort( string ip,unsigned short port )
 	s.s_addr = ip_long;
 	this->m_router_ip.sin_addr = s;
 	this->m_router_port = port;
-
-	/* TBD Fix me
-	IF_DEBUG(TRACE)
-	{
-		cout << "MyRouter's IP is : " << (unsigned int) this->m_router_ip.sin_addr.S_un.S_un_b.s_b1 << "."
-									  << (unsigned int) this->m_router_ip.sin_addr.S_un.S_un_b.s_b2 << "."
-									  << (unsigned int) this->m_router_ip.sin_addr.S_un.S_un_b.s_b3 << "."
-									  << (unsigned int) this->m_router_ip.sin_addr.S_un.S_un_b.s_b4 << endl;
-		cout << "MyRouter's port is: " << this->m_router_port << endl;
-	} */
 }
 
 void MyRouter::AddSubnet( Subnet* subnet )
@@ -402,7 +391,6 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 			memcpy(msg.ReceiverName, m_routers[i].name, MAX_SENDER_NAME);
 			Subnet subnet = {0};
 
-			//TBD: handle return value
 			this->m_table->GetRouterSubnet(&m_routers[i], &subnet);
 			msg.ConnectingNETMYIPSubnet = subnet.address.s_addr;
 			msg.ConnectingNETMYIPMask   = subnet.mask;
