@@ -2,17 +2,42 @@
 #include "stdafx.h"
 #include "Utils.h"
 
-typedef struct
+class Address
 {
+public:
 	in_addr ip_address;
 	int mask;
-} Address;
+	
+	bool operator< (const Address& addr) const 
+	{
+		unsigned int first_mask, second_mask, first_subnet_address, second_subnet_address;
+		first_mask = 0xFFFFFFFF;
+		second_mask = 0xFFFFFFFF;
 
-typedef struct
+		first_mask = first_mask << (32 - this->mask);
+		second_mask = second_mask << (32 - addr.mask);
+
+		first_subnet_address = htonl(this->ip_address.s_addr);
+		second_subnet_address = htonl(addr.ip_address.s_addr);
+
+		first_subnet_address = first_subnet_address & first_mask;
+		second_subnet_address = second_subnet_address & second_mask;
+
+		return (first_subnet_address < second_subnet_address);
+	}
+	
+} ;
+class RouterAddress
 {
+public:
 	char router_name[MAX_ROUTER_NAME];
 	int cost; //Cost to subnet through router in name
-} RouterAddress;
+	
+	bool operator< (const RouterAddress& r) const 
+	{
+		return cost < r.cost;
+	}
+}; 
 
 typedef struct
 {
@@ -77,8 +102,8 @@ public:
 	// Parameter: unsigned short port - The router's port
 	// Parameter: Subnet * subnet_ptr - Router's spanned IP
 	//************************************
-	static Utils::ReturnStatus AddRoute(__in char name[MAX_ROUTER_NAME],__in in_addr actual_router_ip, 
-										__in unsigned short port, __in Subnet* subnet_ptr);
+	static Utils::ReturnStatus AddRoute(char name[MAX_ROUTER_NAME],in_addr actual_router_ip, 
+										unsigned short port, Subnet* subnet_ptr);
 
 	//************************************
 	// Method:    GetBestRoute
@@ -99,7 +124,7 @@ public:
 	// Parameter: __in RouterEntry * router
 	// Parameter: __out Subnet * subnet
 	//************************************
-	static Utils::ReturnStatus GetRouterSubnet(__in RouterEntry* router, __out Subnet* subnet);
+	static Utils::ReturnStatus GetRouterSubnet(RouterEntry* router, Subnet* subnet);
 
 	//************************************
 	// Method:    ModifyRoute
@@ -110,7 +135,7 @@ public:
 	// Parameter: __in char name[MAX_ROUTER_NAME] - Name of the router to modify
 	// Parameter: __in Subnet * subnet_ptr - The subnet that the cost from this router has changed
 	//************************************
-	static Utils::ReturnStatus ModifyRoute(__in char name[MAX_ROUTER_NAME], __in Subnet* subnet_ptr);
+	static Utils::ReturnStatus ModifyRoute(char name[MAX_ROUTER_NAME],Subnet* subnet_ptr);
 
 	//************************************
 	// Method:    AddRouter
@@ -124,7 +149,8 @@ public:
 	// Parameter: __in Subnet * subnet_ptr
 	// Parameter: __in unsigned short cost
 	//************************************
-	static Utils::ReturnStatus AddRouter(__in char name[MAX_ROUTER_NAME],__in in_addr actual_router_ip, __in unsigned short port, __in Subnet* subnet_ptr, __in int cost);
+	static Utils::ReturnStatus AddRouter(char name[MAX_ROUTER_NAME],in_addr actual_router_ip, unsigned short port,
+										 Subnet* subnet_ptr, int cost);
 
 	//************************************
 	// Method:    ReportDeadRouter
@@ -134,7 +160,7 @@ public:
 	// Qualifier: Handles dead routers
 	// Parameter: __in char name[MAX_ROUTER_NAME]
 	//************************************
-	static Utils::ReturnStatus ReportDeadRouter(__in char name[MAX_ROUTER_NAME]);
+	static Utils::ReturnStatus ReportDeadRouter(char name[MAX_ROUTER_NAME]);
 
 	//************************************
 	// Method:    PrintMap

@@ -43,7 +43,7 @@ public:
 	// Parameter: IN sockaddr_in * my_router_properties - Remote router's properties
 	// Parameter: OUT int * new_sd - New socket descriptor that has returned from accept
 	//************************************
-	static Utils::SocketReturnStatus SocketAccept(IN int router_socket_descriptor,OUT sockaddr_in* my_router_properties, OUT int* new_sd );
+	static Utils::SocketReturnStatus SocketAccept(int router_socket_descriptor,sockaddr_in* my_router_properties, int* new_sd );
 
 	//************************************
 	// Method:    SocketReceive
@@ -55,7 +55,7 @@ public:
 	// Parameter: OUT BYTE * buff - Pointer to buffer that will be filled
 	// Parameter: IN int & len - Length of data to receive
 	//************************************
-	static Utils::SocketReturnStatus SocketReceive(IN int& sd, OUT BYTE* buff, IN int& len, OUT sockaddr_in *data_sender);
+	static Utils::SocketReturnStatus SocketReceive(int& sd, BYTE* buff, int& len, sockaddr_in *data_sender);
 
 	//************************************
 	// Method:    SocketSend
@@ -68,7 +68,7 @@ public:
 	// Parameter: IN BYTE * data - Pointer to data
 	// Parameter: IN RouterEntry & dest - Remote computer destination
 	//************************************
-	static Utils::SocketReturnStatus SocketSend(IN int sd, IN int& len, IN BYTE* data, IN RouterEntry& dest);
+	static Utils::SocketReturnStatus SocketSend(int sd, int& len, BYTE* data, RouterEntry& dest);
 
 	//************************************
 	// Method:    SocketClose
@@ -78,7 +78,7 @@ public:
 	// Qualifier: Close socket
 	// Parameter: IN int & sd - Socket descriptor
 	//************************************
-	static Utils::SocketReturnStatus SocketClose(IN int& sd);
+	static Utils::SocketReturnStatus SocketClose(int& sd);
 
 	//************************************
 	// Method:    SocketInit
