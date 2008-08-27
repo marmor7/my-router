@@ -495,8 +495,7 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 				memset(new_subnet, 0, sizeof(Subnet));
 				//Network order
 				new_subnet->address.s_addr = (recieved_msg->dest[i].DestinationNETSubnet); //Machine order not network!
-																								//because net2host was called when
-																								//msg received
+
 				new_subnet->mask = recieved_msg->dest[i].DestinationNETMask;
 				new_subnet->cost = recieved_msg->dest[i].DestinationNETSubnetDistance;
 
