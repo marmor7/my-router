@@ -9,7 +9,9 @@ using namespace std;
 #define DEBUG_TRACE 2
 #define DEBUG_ALL 3
 
+#ifndef DEBUG_LEVEL
 #define DEBUG_LEVEL DEBUG_ERROR
+#endif
 
 #define IF_DEBUG(level) if (DEBUG_##level <= DEBUG_LEVEL)
 
