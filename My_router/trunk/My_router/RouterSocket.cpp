@@ -13,29 +13,10 @@ RouterSocket::~RouterSocket()
 {
 }
 
-//Accept a connection from a neighbor router
-Utils::SocketReturnStatus RouterSocket::SocketAccept(int router_socket_descriptor,
-													 sockaddr_in* my_router_properties, 
-													 int* new_sd )
-{
-	socklen_t sin_size;
-	int* new_sd_ptr = new int;
-	
-	sin_size = sizeof (*my_router_properties);
-	*new_sd_ptr = accept(router_socket_descriptor, (struct sockaddr *)my_router_properties, &sin_size);
-
-	if (*new_sd_ptr == -1)
-	{
-		return Utils::STATUS_BAD_ACCEPT;
-	}
-
-	return Utils::STATUS_SOCKET_OK;
-}
-
 //Receive a massage from a neighbor router
 Utils::SocketReturnStatus RouterSocket::SocketReceive(int& sd,
-													  BYTE* buff, 
-													  int& len, 
+													  BYTE* buff,
+													  int& len,
 													  sockaddr_in *data_sender)
 {
 	socklen_t sender_len = sizeof(sockaddr_in);
@@ -64,7 +45,7 @@ Utils::SocketReturnStatus RouterSocket::SocketReceive(int& sd,
 }
 
 //Send a massage to a neighbor router
-Utils::SocketReturnStatus RouterSocket::SocketSend(int sd, 
+Utils::SocketReturnStatus RouterSocket::SocketSend(int sd,
 												   int& len,
 												   BYTE* data,
 												   RouterEntry& dest)
@@ -75,7 +56,7 @@ Utils::SocketReturnStatus RouterSocket::SocketSend(int sd,
 		{
 			cout << "SocketSend: bad socket " << sd << endl;
 		}
-		
+
 		return Utils::STATUS_BAD_SOCKET;
 	}
 
@@ -89,7 +70,7 @@ Utils::SocketReturnStatus RouterSocket::SocketSend(int sd,
 	address.sin_addr = dest.address;			//Destination - network order! = inet_addr("1.2.3.4")
 
 	memset(address.sin_zero, '\0', sizeof address.sin_zero); //Clear all other struct's fields
-	
+
 	while(total < len)
 	{
 		IF_DEBUG(TRACE)
@@ -103,8 +84,8 @@ Utils::SocketReturnStatus RouterSocket::SocketSend(int sd,
 				   0,								//No flags
 				   (struct sockaddr *) &address,	//Remote address
 				   sizeof(address));				//Size of struct
-		
-		if (n == -1) 
+
+		if (n == -1)
 		{
 			IF_DEBUG(TRACE)
 			{
