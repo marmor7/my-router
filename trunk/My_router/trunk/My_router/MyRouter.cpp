@@ -149,7 +149,7 @@ void MyRouter::Run()
 		time(&after);
 
 		SET_TIMEOUT(diftime, (long)(after - before));
-		
+
 		IF_DEBUG(TRACE)
 		{
 			cout << "Timeout: " << timeout.tv_sec << ": " << timeout.tv_usec << endl;
@@ -170,7 +170,7 @@ void MyRouter::Run()
 			TIMERSUB(&oldtime, &diftime, &timeout);
 		else
 			SET_TIMEOUT(timeout, 0);
-			
+
 		IF_DEBUG(TRACE)
 				cout << "Timeout: " << timeout.tv_sec << ": " << timeout.tv_usec << endl;
 
@@ -338,7 +338,7 @@ string MyRouter::PrintEvent(RouterEvents incoming_event)
 	{
 	case RT_EVENT_READ_CONFIG : return "Read config file";
 	case RT_EVENT_TIMEOUT     : return "Timeout!";
-	case RT_EVENT_DV_RECEIVED : return "DV received";
+	case RT_EVENT_DV_RECEIVED : return "received DV from ";
 	case RT_EVENT_SENDING_DV  : return "now sending DV to ";
 	default : return "Unknown event";
 	}
@@ -437,7 +437,6 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 		break;
 
 	case RT_EVENT_DV_RECEIVED:
-		cout << this->m_name << " MYRIP Event: " << PrintEvent(incoming_event) << endl;
 		recieved_msg = (MyRIPMessage *)m_in_buf.msg;
 		rt = *((int *)data);
 
@@ -451,6 +450,9 @@ Utils::ReturnStatus MyRouter::Handle(RouterEvents incoming_event, void* data)
 			//A dead router is up!
 			m_routers[rt].reachable = true;
 		}
+
+		cout << this->m_name << " MYRIP Event: " << PrintEvent(incoming_event) <<
+				recieved_msg->SenderName << endl;
 
 		IF_DEBUG(ALL)
 		{
