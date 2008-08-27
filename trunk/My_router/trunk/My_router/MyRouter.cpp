@@ -72,6 +72,7 @@ void MyRouter::Run()
 	Utils::SocketReturnStatus socket_return_status;
 	timeval timeout = {0, 0};
 	timeval oldtime = {0, 0};
+	timeval diftime = {0, 0};
 	time_t before = {0};
 	time_t after = {0};
 	srand((int) time(NULL));
@@ -143,10 +144,12 @@ void MyRouter::Run()
 			DisplaySet("Write", m_write_fd_set);
 		}
 
-		time(&before); //TMP?
+		time(&before);
 		res = select(m_my_fd+1, &m_read_fd_set, &m_write_fd_set, NULL, &timeout);
-		time(&after); //TMP?
+		time(&after);
 
+		SET_TIMEOUT(diftime, (long)(after - before));
+		
 		IF_DEBUG(TRACE)
 		{
 			cout << "Timeout: " << timeout.tv_sec << ": " << timeout.tv_usec << endl;
@@ -162,19 +165,18 @@ void MyRouter::Run()
 			exit (EXIT_FAILURE);
 		}
 
-		//TMP: check that timeout is modified on Linux,
-		//     and remove this if
+		//Reduce timeout
 		if (timeout.tv_sec > (after - before))
-			timeout.tv_sec = (long)(after - before);
+			TIMERSUB(&oldtime, &diftime, &timeout);
 		else
 			SET_TIMEOUT(timeout, 0);
+			
 		IF_DEBUG(TRACE)
 				cout << "Timeout: " << timeout.tv_sec << ": " << timeout.tv_usec << endl;
 
 		//Set the difference to oldtime
-		TIMERSUB(&oldtime, &timeout, &oldtime);
 		for (i=0; i < m_num_of_routers; i++){
-			if ((m_routers[i].timeout.tv_sec <= oldtime.tv_sec) &&
+			if ((m_routers[i].timeout.tv_sec <= diftime.tv_sec) &&
 				(m_routers[i].reachable))
 			{
 				//Neighbor #i had not responded - assume down:
@@ -184,11 +186,11 @@ void MyRouter::Run()
 			else
 			{
 				//Reduce the timeout value by the difference
-				TIMERSUB(&m_routers[i].timeout, &oldtime, &m_routers[i].timeout);
+				TIMERSUB(&m_routers[i].timeout, &diftime, &m_routers[i].timeout);
 			}
 		}
 
-		if (m_my_entry.timeout.tv_sec <= oldtime.tv_sec)
+		if (m_my_entry.timeout.tv_sec <= diftime.tv_sec)
 		{
 			//Neighbor #i had not responded - assume down:
 			SET_TIMEOUT(m_my_entry.timeout, 0);
@@ -196,7 +198,7 @@ void MyRouter::Run()
 		}
 		else{
 			//Reduce the timeout value by the difference
-			TIMERSUB(&m_my_entry.timeout, &oldtime, &m_my_entry.timeout);
+			TIMERSUB(&m_my_entry.timeout, &diftime, &m_my_entry.timeout);
 		}
 
 		/* write to all ready sockets that have something in their buffer */
